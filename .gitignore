@@ -1,0 +1,38 @@
+# IDE & editor settings
+.DS_Store
+.phpactor.json
+.phpunit.result.cache
+/.fleet
+/.idea
+/.nova
+/.phpunit.cache
+/.vscode
+/.zed
+
+# Environment & sensitive files
+.env
+.env.backup
+.env.production
+/auth.json
+
+# Node.js dependencies
+/node_modules
+
+# Public assets
+/public/build
+/public/hot
+/public/storage
+
+# Storage and backup files
+/storage/*.key
+/storage/pail
+
+# Composer dependencies
+/vendor
+
+# Homestead configuration
+Homestead.json
+Homestead.yaml
+
+# Other system files
+Thumbs.db
