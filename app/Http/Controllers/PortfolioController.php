@@ -11,7 +11,6 @@ class PortfolioController extends Controller
     // 投稿一覧表示
     public function index()
     {
-        // 現在ログインしているユーザーのポートフォリオを取得
         $portfolios = Portfolio::where('user_id', auth()->id())->get();
 
         \Log::info('Portfolio page accessed by user: ' . auth()->id());
@@ -30,14 +29,12 @@ class PortfolioController extends Controller
     // 投稿保存
     public function store(Request $request)
     {
-        // バリデーション
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'url' => 'nullable|url|max:255',
         ]);
 
-        // ポートフォリオ作成
         Portfolio::create([
             'user_id' => auth()->id(),
             'title' => $request->title,
@@ -45,14 +42,58 @@ class PortfolioController extends Controller
             'url' => $request->url,
         ]);
 
-        // 投稿一覧にリダイレクト
         return redirect()->route('dashboard');
+    }
+
+    // 投稿詳細
+    public function show(Portfolio $portfolio)
+    {
+        if ($portfolio->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        return Inertia::render('Portfolios/Show', [
+            'portfolio' => $portfolio,
+        ]);
+    }
+
+    // 投稿編集フォーム
+    public function edit(Portfolio $portfolio)
+    {
+        if ($portfolio->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        return Inertia::render('Portfolios/Edit', [
+            'portfolio' => $portfolio,
+        ]);
+    }
+
+    // 投稿更新
+    public function update(Request $request, Portfolio $portfolio)
+    {
+        if ($portfolio->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'url' => 'nullable|url|max:255',
+        ]);
+
+        $portfolio->update([
+            'title' => $request->title,
+            'description' => $request->description,
+            'url' => $request->url,
+        ]);
+
+        return redirect()->route('dashboard')->with('success', 'ポートフォリオを更新しました');
     }
 
     // ポートフォリオ削除
     public function destroy(Portfolio $portfolio)
     {
-        // ログインユーザーが所有している場合のみ削除
         if ($portfolio->user_id !== auth()->id()) {
             abort(403, 'Unauthorized action.');
         }
