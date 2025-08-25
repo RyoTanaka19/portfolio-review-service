@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Inertia } from "@inertiajs/inertia";
+import { InertiaLink } from "@inertiajs/inertia-react";
 
 export default function Index({ portfolios, auth }) {
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -19,20 +20,17 @@ export default function Index({ portfolios, auth }) {
         <div className="min-h-screen bg-gray-50">
             {/* ヘッダー */}
             <header className="flex justify-between items-center px-8 py-4 bg-white shadow">
-                {/* ページタイトル */}
                 <h1 className="text-2xl font-bold text-center flex-1">
                     投稿一覧画面
                 </h1>
 
-                {/* 投稿ボタン */}
-                <a
+                <InertiaLink
                     href="/portfolio/create"
                     className="ml-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
                     投稿
-                </a>
+                </InertiaLink>
 
-                {/* 右上ユーザー情報 */}
                 <div className="relative">
                     <button
                         onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -41,15 +39,14 @@ export default function Index({ portfolios, auth }) {
                         {auth.user.name}
                     </button>
 
-                    {/* ドロップダウン */}
                     {dropdownOpen && (
                         <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-md z-10">
-                            <a
+                            <InertiaLink
                                 href="/profile"
                                 className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
                             >
                                 プロフィール編集
-                            </a>
+                            </InertiaLink>
                             <button
                                 onClick={handleLogout}
                                 className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
@@ -68,7 +65,14 @@ export default function Index({ portfolios, auth }) {
                         key={p.id}
                         className="border p-4 mb-4 bg-white rounded shadow"
                     >
-                        <h2 className="font-bold text-lg">{p.title}</h2>
+                        {/* タイトルをリンク化 */}
+                        <InertiaLink
+                            href={`/portfolio/${p.id}`}
+                            className="font-bold text-lg text-blue-500 hover:underline"
+                        >
+                            {p.title}
+                        </InertiaLink>
+
                         <p className="mt-2">{p.description}</p>
                         {p.url && (
                             <a
@@ -81,13 +85,26 @@ export default function Index({ portfolios, auth }) {
                             </a>
                         )}
 
-                        {/* 削除ボタン */}
-                        <button
-                            onClick={() => handleDelete(p.id)}
-                            className="mt-2 ml-2 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                        >
-                            削除
-                        </button>
+                        {/* 削除・編集ボタン：自分の投稿のみ */}
+                        {p.user_id === auth.user.id && (
+                            <div className="mt-2">
+                                {/* 編集ボタン */}
+                                <InertiaLink
+                                    href={`/portfolio/${p.id}/edit`}
+                                    className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mr-2"
+                                >
+                                    編集
+                                </InertiaLink>
+
+                                {/* 削除ボタン */}
+                                <button
+                                    onClick={() => handleDelete(p.id)}
+                                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                                >
+                                    削除
+                                </button>
+                            </div>
+                        )}
                     </div>
                 ))}
             </main>
