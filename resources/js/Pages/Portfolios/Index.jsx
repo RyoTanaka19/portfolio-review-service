@@ -24,12 +24,22 @@ export default function Index({ portfolios, auth }) {
                     投稿一覧画面
                 </h1>
 
-                <InertiaLink
-                    href="/portfolio/create"
-                    className="ml-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
-                    投稿
-                </InertiaLink>
+                {/* 投稿ボタンとAI相談ボタン */}
+                <div className="flex items-center ml-4">
+                    <InertiaLink
+                        href="/create"
+                        className="mr-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                    >
+                        AI相談
+                    </InertiaLink>
+
+                    <InertiaLink
+                        href="/portfolio/create"
+                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    >
+                        投稿
+                    </InertiaLink>
+                </div>
 
                 <div className="relative">
                     <button
