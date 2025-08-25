@@ -46,16 +46,17 @@ class PortfolioController extends Controller
     }
 
     // 投稿詳細
-    public function show(Portfolio $portfolio)
-    {
-        if ($portfolio->user_id !== auth()->id()) {
-            abort(403, 'Unauthorized action.');
-        }
+public function show(Portfolio $portfolio)
+{
+    $portfolio->load(['reviews.user']); // レビューと投稿者情報を取得
 
-        return Inertia::render('Portfolios/Show', [
-            'portfolio' => $portfolio,
-        ]);
-    }
+    return Inertia::render('Portfolios/Show', [
+        'portfolio' => $portfolio,
+        'auth' => auth()->user(),
+        'flash' => session()->all(),
+        'errors' => session('errors') ? session('errors')->getBag('default')->toArray() : [],
+    ]);
+}
 
     // 投稿編集フォーム
     public function edit(Portfolio $portfolio)

@@ -2,9 +2,11 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PortfolioController;
+use App\Http\Controllers\ReviewController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
 
 Route::get('/', function () {
     return Inertia::render('Home', [
@@ -49,6 +51,13 @@ Route::get('/portfolio/{portfolio}/edit', [PortfolioController::class, 'edit'])
 Route::put('/portfolio/{portfolio}', [PortfolioController::class, 'update'])
     ->middleware(['auth', 'verified'])
     ->name('portfolio.update');
+
+Route::post('/portfolio/{portfolio}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+
+Route::delete('/portfolio/{portfolio}/reviews/{review}', [ReviewController::class, 'destroy'])
+    ->name('reviews.destroy')
+    ->middleware('auth');
+    
 
 // プロフィール関連
 Route::middleware('auth')->group(function () {
