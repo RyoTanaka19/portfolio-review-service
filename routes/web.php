@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PortfolioController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\AdviceController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -57,7 +58,14 @@ Route::post('/portfolio/{portfolio}/reviews', [ReviewController::class, 'store']
 Route::delete('/portfolio/{portfolio}/reviews/{review}', [ReviewController::class, 'destroy'])
     ->name('reviews.destroy')
     ->middleware('auth');
-    
+
+Route::get('/create', function () {
+    return Inertia::render('Advices/Create');
+})->middleware(['auth', 'verified'])->name('advice');
+
+// AIアドバイスAPI（POST）
+Route::post('/ai/advice', [AdviceController::class, 'store'])
+    ->middleware(['auth', 'verified']);
 
 // プロフィール関連
 Route::middleware('auth')->group(function () {
