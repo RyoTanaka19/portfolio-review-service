@@ -1,19 +1,28 @@
-// resources/js/Pages/Portfolios/New.jsx
 import React, { useState } from "react";
 import { Inertia } from "@inertiajs/inertia";
+// import TagsInput のパスはプロジェクト構成に合わせてください。
+// 例: resources/js/Pages/Tags/Index.jsx に置いたなら相対パスは "../Tags/Index"
+import TagsInput from "../Tags/Index";
 
-export default function New() {
+export default function Create() {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [url, setUrl] = useState("");
+    const [tags, setTags] = useState([]); // ここで選択タグを管理
     const [errors, setErrors] = useState({});
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
         Inertia.post(
-            route("portfolio.store"), // サーバー側 create メソッドに合わせる
-            { title, description, url },
+            route("portfolio.store"),
+            {
+                title,
+                description,
+                url,
+                // サーバ側は名前配列 (["Ruby","PHP"]) を受け取る想定
+                tags: tags.map((t) => t.name),
+            },
             {
                 onError: (err) => setErrors(err),
             }
@@ -78,6 +87,17 @@ export default function New() {
                         />
                         {errors.url && (
                             <p className="text-red-500 mt-1">{errors.url}</p>
+                        )}
+                    </div>
+
+                    {/* タグ入力コンポーネント */}
+                    <div className="mb-4">
+                        <label className="block font-medium mb-1">
+                            タグ（技術）
+                        </label>
+                        <TagsInput value={tags} onChange={setTags} />
+                        {errors.tags && (
+                            <p className="text-red-500 mt-1">{errors.tags}</p>
                         )}
                     </div>
 

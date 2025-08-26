@@ -6,10 +6,12 @@ export default function Show({ portfolio, auth, errors, flash }) {
     return (
         <div className="min-h-screen bg-gray-100 flex justify-center py-10 px-4">
             <div className="w-full max-w-3xl bg-white rounded-lg shadow-md p-8">
+                {/* タイトル */}
                 <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
                     {portfolio.title}
                 </h1>
 
+                {/* 作品説明 */}
                 <div className="mb-6">
                     <h2 className="text-xl font-semibold mb-2 text-gray-700">
                         作品説明
@@ -17,6 +19,7 @@ export default function Show({ portfolio, auth, errors, flash }) {
                     <p className="text-gray-600">{portfolio.description}</p>
                 </div>
 
+                {/* URL */}
                 {portfolio.url && (
                     <div className="mb-6">
                         <h2 className="text-xl font-semibold mb-2 text-gray-700">
@@ -33,7 +36,26 @@ export default function Show({ portfolio, auth, errors, flash }) {
                     </div>
                 )}
 
-                {/* Reviews コンポーネントを呼び出す */}
+                {/* タグ表示 */}
+                {portfolio.tags && portfolio.tags.length > 0 && (
+                    <div className="mb-6">
+                        <h2 className="text-xl font-semibold mb-2 text-gray-700">
+                            タグ
+                        </h2>
+                        <div className="flex flex-wrap gap-2">
+                            {portfolio.tags.map((tag, idx) => (
+                                <span
+                                    key={idx}
+                                    className="inline-flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm"
+                                >
+                                    {tag}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Reviews コンポーネント */}
                 <ReviewIndex
                     portfolio={portfolio}
                     auth={auth}
@@ -41,6 +63,7 @@ export default function Show({ portfolio, auth, errors, flash }) {
                     flash={flash}
                 />
 
+                {/* 一覧に戻るボタン */}
                 <div className="text-center mt-8">
                     <InertiaLink
                         href="/portfolio"

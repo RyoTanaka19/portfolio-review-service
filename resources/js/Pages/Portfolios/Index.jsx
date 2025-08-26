@@ -93,6 +93,20 @@ export default function Index({ portfolios, auth }) {
                             {p.description}
                         </p>
 
+                        {/* タグ表示 */}
+                        {p.tags && p.tags.length > 0 && (
+                            <div className="mt-2 flex flex-wrap gap-1">
+                                {p.tags.map((tag, idx) => (
+                                    <span
+                                        key={idx}
+                                        className="bg-gray-200 text-gray-800 px-2 py-1 rounded text-xs"
+                                    >
+                                        {tag}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
+
                         {p.url && (
                             <a
                                 href={p.url}

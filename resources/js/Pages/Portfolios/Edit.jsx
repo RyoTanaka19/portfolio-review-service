@@ -1,11 +1,16 @@
 import React, { useState } from "react";
 import { Inertia } from "@inertiajs/inertia";
 import { InertiaLink } from "@inertiajs/inertia-react";
+// TagsInput は既存コンポーネントを流用
+import TagsInput from "../Tags/Index";
 
 export default function Edit({ portfolio }) {
     const [title, setTitle] = useState(portfolio.title);
     const [description, setDescription] = useState(portfolio.description);
     const [url, setUrl] = useState(portfolio.url || "");
+    const [tags, setTags] = useState(
+        portfolio.tags.map((name) => ({ name })) // TagsInput用にオブジェクト化
+    );
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -13,6 +18,7 @@ export default function Edit({ portfolio }) {
             title,
             description,
             url,
+            tags: tags.map((t) => t.name), // サーバ側は文字列配列で受け取る想定
         });
     };
 
@@ -54,6 +60,13 @@ export default function Edit({ portfolio }) {
                         onChange={(e) => setUrl(e.target.value)}
                         className="w-full border px-3 py-2 rounded"
                     />
+                </div>
+
+                <div className="mb-4">
+                    <label className="block font-medium mb-1">
+                        タグ（技術）
+                    </label>
+                    <TagsInput value={tags} onChange={setTags} />
                 </div>
 
                 <button
