@@ -2,8 +2,12 @@ import React, { useState } from "react";
 import { Inertia } from "@inertiajs/inertia";
 import { InertiaLink } from "@inertiajs/inertia-react";
 
-export default function Index({ portfolios, auth }) {
+export default function Index({ portfolios, auth, filters = {} }) {
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [userNameFilter, setUserNameFilter] = useState(
+        filters.user_name || ""
+    );
+    const [tagFilter, setTagFilter] = useState(filters.tag || "");
 
     const handleLogout = () => {
         Inertia.post("/logout");
@@ -13,6 +17,14 @@ export default function Index({ portfolios, auth }) {
         if (confirm("本当に削除しますか？")) {
             Inertia.delete(`/portfolio/${id}`);
         }
+    };
+
+    const handleSearch = () => {
+        Inertia.get(
+            route("dashboard"), // ← ここを dashboard に変更
+            { user_name: userNameFilter, tag: tagFilter },
+            { preserveState: true, replace: true }
+        );
     };
 
     return (
@@ -66,6 +78,31 @@ export default function Index({ portfolios, auth }) {
                 </div>
             </header>
 
+            {/* 検索フォーム */}
+            <div className="px-8 py-4 bg-white shadow mb-4 flex gap-2 items-center">
+                <input
+                    type="text"
+                    placeholder="ユーザー名で検索"
+                    value={userNameFilter}
+                    onChange={(e) => setUserNameFilter(e.target.value)}
+                    className="border px-2 py-1 rounded"
+                />
+                <input
+                    type="text"
+                    placeholder="タグで検索"
+                    value={tagFilter}
+                    onChange={(e) => setTagFilter(e.target.value)}
+                    className="border px-2 py-1 rounded"
+                />
+                <button
+                    type="button" // ← 追加
+                    onClick={handleSearch}
+                    className="px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                    検索
+                </button>
+            </div>
+
             {/* 投稿一覧 */}
             <main className="px-8 py-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {portfolios.map((p) => (
@@ -97,12 +134,18 @@ export default function Index({ portfolios, auth }) {
                         {p.tags && p.tags.length > 0 && (
                             <div className="mt-2 flex flex-wrap gap-1">
                                 {p.tags.map((tag, idx) => (
-                                    <span
+                                    <button
                                         key={idx}
+                                        type="button" // ← 追加
+                                        onClick={() => {
+                                            setTagFilter(tag);
+                                            setUserNameFilter("");
+                                            handleSearch();
+                                        }}
                                         className="bg-gray-200 text-gray-800 px-2 py-1 rounded text-xs"
                                     >
                                         {tag}
-                                    </span>
+                                    </button>
                                 ))}
                             </div>
                         )}
@@ -127,6 +170,7 @@ export default function Index({ portfolios, auth }) {
                                     編集
                                 </InertiaLink>
                                 <button
+                                    type="button" // ← 追加
                                     onClick={() => handleDelete(p.id)}
                                     className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
                                 >
