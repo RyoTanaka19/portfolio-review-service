@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { InertiaLink } from "@inertiajs/inertia-react"; // 追加
 
 export default function Advice() {
     const [form, setForm] = useState({
@@ -52,6 +53,7 @@ export default function Advice() {
                 </h1>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
+                    {/* フォーム入力部分はそのまま */}
                     <div className="flex flex-col">
                         <label className="mb-2 font-semibold text-gray-700">
                             サービス名
@@ -66,7 +68,6 @@ export default function Advice() {
                             required
                         />
                     </div>
-
                     <div className="flex flex-col">
                         <label className="mb-2 font-semibold text-gray-700">
                             サービス概要
@@ -81,7 +82,6 @@ export default function Advice() {
                             required
                         />
                     </div>
-
                     <div className="flex flex-col">
                         <label className="mb-2 font-semibold text-gray-700">
                             ターゲットユーザー
@@ -96,7 +96,6 @@ export default function Advice() {
                             required
                         />
                     </div>
-
                     <div className="flex flex-col">
                         <label className="mb-2 font-semibold text-gray-700">
                             悩み・相談したいこと
@@ -136,6 +135,16 @@ export default function Advice() {
                         </p>
                     </div>
                 )}
+
+                {/* 追加部分：過去アドバイス一覧ページへのリンク */}
+                <div className="mt-6 text-center">
+                    <InertiaLink
+                        href="/advices"
+                        className="text-blue-500 hover:underline font-semibold"
+                    >
+                        過去のアドバイス一覧を見る
+                    </InertiaLink>
+                </div>
             </div>
         </div>
     );

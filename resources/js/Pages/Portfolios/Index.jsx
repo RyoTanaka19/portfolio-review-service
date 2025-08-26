@@ -9,7 +9,6 @@ export default function Index({ portfolios, auth }) {
         Inertia.post("/logout");
     };
 
-    // 削除処理
     const handleDelete = (id) => {
         if (confirm("本当に削除しますか？")) {
             Inertia.delete(`/portfolio/${id}`);
@@ -20,14 +19,13 @@ export default function Index({ portfolios, auth }) {
         <div className="min-h-screen bg-gray-50">
             {/* ヘッダー */}
             <header className="flex justify-between items-center px-8 py-4 bg-white shadow">
-                <h1 className="text-2xl font-bold text-center flex-1">
-                    投稿一覧画面
+                <h1 className="text-2xl font-bold flex-1 text-center">
+                    投稿一覧
                 </h1>
 
-                {/* 投稿ボタンとAI相談ボタン */}
                 <div className="flex items-center ml-4">
                     <InertiaLink
-                        href="/create"
+                        href="advice/create"
                         className="mr-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
                     >
                         AI相談
@@ -68,48 +66,55 @@ export default function Index({ portfolios, auth }) {
                 </div>
             </header>
 
-            {/* コンテンツ */}
-            <main className="px-8 py-6">
+            {/* 投稿一覧 */}
+            <main className="px-8 py-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {portfolios.map((p) => (
                     <div
                         key={p.id}
-                        className="border p-4 mb-4 bg-white rounded shadow"
+                        className="bg-white p-4 rounded shadow hover:shadow-md transition duration-200"
                     >
-                        {/* タイトルをリンク化 */}
-                        <InertiaLink
-                            href={`/portfolio/${p.id}`}
-                            className="font-bold text-lg text-blue-500 hover:underline"
-                        >
-                            {p.title}
-                        </InertiaLink>
+                        <div className="flex justify-between items-center mb-2">
+                            <h2 className="font-bold text-lg truncate">
+                                <InertiaLink
+                                    href={`/portfolio/${p.id}`}
+                                    className="text-blue-500 hover:underline"
+                                >
+                                    {p.title.length > 30
+                                        ? p.title.slice(0, 30) + "…"
+                                        : p.title}
+                                </InertiaLink>
+                            </h2>
+                            <span className="text-sm text-gray-500">
+                                {p.user_name}
+                            </span>
+                        </div>
 
-                        <p className="mt-2">{p.description}</p>
+                        <p className="text-gray-700 text-sm mb-2 line-clamp-3">
+                            {p.description}
+                        </p>
+
                         {p.url && (
                             <a
                                 href={p.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-blue-500 mt-2 inline-block"
+                                className="text-blue-500 text-sm"
                             >
                                 Visit
                             </a>
                         )}
 
-                        {/* 削除・編集ボタン：自分の投稿のみ */}
                         {p.user_id === auth.user.id && (
-                            <div className="mt-2">
-                                {/* 編集ボタン */}
+                            <div className="mt-4 flex justify-end space-x-2">
                                 <InertiaLink
                                     href={`/portfolio/${p.id}/edit`}
-                                    className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mr-2"
+                                    className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm"
                                 >
                                     編集
                                 </InertiaLink>
-
-                                {/* 削除ボタン */}
                                 <button
                                     onClick={() => handleDelete(p.id)}
-                                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
                                 >
                                     削除
                                 </button>
