@@ -15,7 +15,6 @@ export default function Login({ status, canResetPassword }) {
 
     const submit = (e) => {
         e.preventDefault();
-
         post(route("login"), {
             onFinish: () => reset("password"),
         });
@@ -34,7 +33,6 @@ export default function Login({ status, canResetPassword }) {
             <form onSubmit={submit}>
                 <div>
                     <InputLabel htmlFor="email" value="Email" />
-
                     <TextInput
                         id="email"
                         type="email"
@@ -45,13 +43,11 @@ export default function Login({ status, canResetPassword }) {
                         isFocused={true}
                         onChange={(e) => setData("email", e.target.value)}
                     />
-
                     <InputError message={errors.email} className="mt-2" />
                 </div>
 
                 <div className="mt-4">
                     <InputLabel htmlFor="password" value="Password" />
-
                     <TextInput
                         id="password"
                         type="password"
@@ -61,7 +57,6 @@ export default function Login({ status, canResetPassword }) {
                         autoComplete="current-password"
                         onChange={(e) => setData("password", e.target.value)}
                     />
-
                     <InputError message={errors.password} className="mt-2" />
                 </div>
 
@@ -95,6 +90,27 @@ export default function Login({ status, canResetPassword }) {
                     </PrimaryButton>
                 </div>
             </form>
+
+            {/* Googleログインボタン */}
+            <div className="mt-6 flex justify-center">
+                <a
+                    href="/auth/google" // route関数を使わずURL直書きでもOK
+                    className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 flex items-center"
+                >
+                    {/* Googleアイコン */}
+                    <svg
+                        className="w-5 h-5 mr-2"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
+                        <path
+                            d="M21.35 11.1h-9.36v2.81h5.45c-.23 1.2-1.2 3.51-5.45 3.51-3.28 0-5.97-2.72-5.97-6.08 0-3.36 2.69-6.08 5.97-6.08 1.87 0 3.12.8 3.84 1.5l2.62-2.53C18.16 2.56 16.05 1.5 12 1.5 5.95 1.5 1.5 6 1.5 12s4.45 10.5 10.5 10.5c6.08 0 10.12-4.27 10.12-10.29 0-.69-.08-1.21-.27-1.61z"
+                            fill="currentColor"
+                        />
+                    </svg>
+                    Googleでログイン
+                </a>
+            </div>
         </GuestLayout>
     );
 }
