@@ -6,7 +6,7 @@ const Home = ({ canLogin, canRegister }) => {
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
             <div className="text-center mb-10">
                 <h1 className="text-5xl font-bold text-blue-600">
-                    ポートフォリレビュー
+                    ポートフォリオレビューサービス
                 </h1>
             </div>
 
