@@ -1,6 +1,8 @@
+// resources/js/Pages/Portfolio/Index.jsx
 import React, { useState } from "react";
 import { Inertia } from "@inertiajs/inertia";
 import { InertiaLink } from "@inertiajs/inertia-react";
+import AppLayout from "@/Layouts/AppLayout";
 
 export default function Index({ portfolios, auth, filters = {} }) {
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -21,87 +23,43 @@ export default function Index({ portfolios, auth, filters = {} }) {
 
     const handleSearch = () => {
         Inertia.get(
-            route("dashboard"), // ← ここを dashboard に変更
+            route("dashboard"),
             { user_name: userNameFilter, tag: tagFilter },
             { preserveState: true, replace: true }
         );
     };
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            {/* ヘッダー */}
-            <header className="flex justify-between items-center px-8 py-4 bg-white shadow">
-                <h1 className="text-2xl font-bold flex-1 text-center">
-                    投稿一覧
-                </h1>
+        <AppLayout>
+            {/* ページヘッダー */}
+            <header className="px-8 py-4 bg-white shadow flex flex-col items-center">
+                <h1 className="text-2xl font-bold mb-4">投稿一覧</h1>
 
-                <div className="flex items-center ml-4">
-                    <InertiaLink
-                        href="advice/create"
-                        className="mr-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                    >
-                        AI相談
-                    </InertiaLink>
-
-                    <InertiaLink
-                        href="/portfolio/create"
-                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                    >
-                        投稿
-                    </InertiaLink>
-                </div>
-
-                <div className="relative">
+                {/* 検索フォームを中央に配置 */}
+                <div className="flex gap-2 items-center">
+                    <input
+                        type="text"
+                        placeholder="ユーザー名で検索"
+                        value={userNameFilter}
+                        onChange={(e) => setUserNameFilter(e.target.value)}
+                        className="border px-2 py-1 rounded"
+                    />
+                    <input
+                        type="text"
+                        placeholder="タグで検索"
+                        value={tagFilter}
+                        onChange={(e) => setTagFilter(e.target.value)}
+                        className="border px-2 py-1 rounded"
+                    />
                     <button
-                        onClick={() => setDropdownOpen(!dropdownOpen)}
-                        className="font-medium text-gray-700 hover:text-gray-900"
+                        type="button"
+                        onClick={handleSearch}
+                        className="px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
                     >
-                        {auth.user.name}
+                        検索
                     </button>
-
-                    {dropdownOpen && (
-                        <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-md z-10">
-                            <InertiaLink
-                                href="/profile"
-                                className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-                            >
-                                プロフィール編集
-                            </InertiaLink>
-                            <button
-                                onClick={handleLogout}
-                                className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-                            >
-                                ログアウト
-                            </button>
-                        </div>
-                    )}
                 </div>
             </header>
-
-            {/* 検索フォーム */}
-            <div className="px-8 py-4 bg-white shadow mb-4 flex gap-2 items-center">
-                <input
-                    type="text"
-                    placeholder="ユーザー名で検索"
-                    value={userNameFilter}
-                    onChange={(e) => setUserNameFilter(e.target.value)}
-                    className="border px-2 py-1 rounded"
-                />
-                <input
-                    type="text"
-                    placeholder="タグで検索"
-                    value={tagFilter}
-                    onChange={(e) => setTagFilter(e.target.value)}
-                    className="border px-2 py-1 rounded"
-                />
-                <button
-                    type="button" // ← 追加
-                    onClick={handleSearch}
-                    className="px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
-                    検索
-                </button>
-            </div>
 
             {/* 投稿一覧 */}
             <main className="px-8 py-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -136,7 +94,7 @@ export default function Index({ portfolios, auth, filters = {} }) {
                                 {p.tags.map((tag, idx) => (
                                     <button
                                         key={idx}
-                                        type="button" // ← 追加
+                                        type="button"
                                         onClick={() => {
                                             setTagFilter(tag);
                                             setUserNameFilter("");
@@ -170,7 +128,7 @@ export default function Index({ portfolios, auth, filters = {} }) {
                                     編集
                                 </InertiaLink>
                                 <button
-                                    type="button" // ← 追加
+                                    type="button"
                                     onClick={() => handleDelete(p.id)}
                                     className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
                                 >
@@ -181,6 +139,6 @@ export default function Index({ portfolios, auth, filters = {} }) {
                     </div>
                 ))}
             </main>
-        </div>
+        </AppLayout>
     );
 }

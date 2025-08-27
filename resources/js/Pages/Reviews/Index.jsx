@@ -7,6 +7,10 @@ export default function ReviewIndex({ portfolio, auth, errors, flash }) {
     const [comment, setComment] = useState("");
     const [showFlash, setShowFlash] = useState(false);
 
+    // ローカルでレビュー管理
+    const [reviews, setReviews] = useState(portfolio.reviews || []);
+
+    // フラッシュメッセージ表示
     useEffect(() => {
         if (flash.success) {
             setShowFlash(true);
@@ -15,20 +19,39 @@ export default function ReviewIndex({ portfolio, auth, errors, flash }) {
         }
     }, [flash.success]);
 
+    // レビュー投稿
     const submitReview = (e) => {
         e.preventDefault();
-        Inertia.post(`/portfolio/${portfolio.id}/reviews`, { rating, comment });
+        Inertia.post(
+            `/portfolio/${portfolio.id}/reviews`,
+            { rating, comment },
+            {
+                onSuccess: (page) => {
+                    // 最新レビューを state に反映
+                    setReviews(page.props.portfolio.reviews || []);
+                    setComment("");
+                    setRating(5);
+                },
+                preserveScroll: true,
+            }
+        );
     };
 
+    // レビュー削除
     const deleteReview = (reviewId) => {
         if (confirm("本当に削除しますか？")) {
-            Inertia.delete(`/portfolio/${portfolio.id}/reviews/${reviewId}`);
+            Inertia.delete(`/portfolio/${portfolio.id}/reviews/${reviewId}`, {
+                onSuccess: (page) => {
+                    setReviews(page.props.portfolio.reviews || []);
+                },
+                preserveScroll: true,
+            });
         }
     };
 
     return (
         <div className="mt-6 mb-6">
-            {/* ポップアップフラッシュ */}
+            {/* フラッシュ */}
             {showFlash && (
                 <div className="fixed top-5 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded shadow-lg z-50 animate-fade-in-out">
                     {flash.success}
@@ -40,9 +63,9 @@ export default function ReviewIndex({ portfolio, auth, errors, flash }) {
             </h2>
 
             {/* レビュー一覧 */}
-            {portfolio.reviews && portfolio.reviews.length > 0 ? (
+            {reviews.length > 0 ? (
                 <div className="space-y-4">
-                    {portfolio.reviews.map((review) => (
+                    {reviews.map((review) => (
                         <div
                             key={review.id}
                             className="p-4 border rounded-lg bg-gray-50"
@@ -52,19 +75,21 @@ export default function ReviewIndex({ portfolio, auth, errors, flash }) {
                                     評価: {review.rating} / 5
                                 </span>
                                 <span className="text-gray-400 text-sm">
-                                    投稿者: {review.user.name}
+                                    投稿者: {review.user?.name || "不明"}
                                 </span>
                             </div>
                             <p className="text-gray-600">{review.comment}</p>
 
-                            {auth && auth.id === review.user.id && (
-                                <button
-                                    onClick={() => deleteReview(review.id)}
-                                    className="mt-2 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                                >
-                                    削除
-                                </button>
-                            )}
+                            {auth &&
+                                review.user &&
+                                auth.id === review.user.id && (
+                                    <button
+                                        onClick={() => deleteReview(review.id)}
+                                        className="mt-2 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                                    >
+                                        削除
+                                    </button>
+                                )}
                         </div>
                     ))}
                 </div>
@@ -110,7 +135,7 @@ export default function ReviewIndex({ portfolio, auth, errors, flash }) {
                                 value={comment}
                                 onChange={(e) => setComment(e.target.value)}
                                 className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                            ></textarea>
+                            />
                             {errors?.comment && (
                                 <p className="text-red-500 mt-1">
                                     {errors.comment}
@@ -127,7 +152,7 @@ export default function ReviewIndex({ portfolio, auth, errors, flash }) {
                 </div>
             )}
 
-            {/* フェードインアウト用アニメーション */}
+            {/* フェードインアウト */}
             <style>{`
                 @keyframes fade-in-out {
                     0% { opacity: 0; transform: translateY(-10px); }

@@ -85,34 +85,50 @@ class PortfolioController extends Controller
         return redirect()->route('dashboard')->with('success', 'ポートフォリオを作成しました');
     }
 
-    // 投稿詳細
-    public function show(Portfolio $portfolio)
-    {
-        $portfolio->load(['reviews.user', 'tags', 'user']);
+// 投稿詳細
+public function show(Portfolio $portfolio)
+{
+    // 必要なリレーションをロード
+    $portfolio->load(['reviews.user', 'tags', 'user']);
 
-        return Inertia::render('Portfolios/Show', [
-            'portfolio' => [
-                'id' => $portfolio->id,
-                'title' => $portfolio->title,
-                'description' => $portfolio->description,
-                'url' => $portfolio->url,
-                'user_id' => $portfolio->user_id,
-                'user_name' => $portfolio->user->name ?? '未設定',
-                'tags' => $portfolio->tags->map(fn($t) => $t->name)->toArray(),
-                'reviews' => $portfolio->reviews->map(function ($r) {
-                    return [
-                        'id' => $r->id,
-                        'body' => $r->body,
-                        'user_name' => $r->user->name ?? '未設定',
-                        'created_at' => $r->created_at->format('Y-m-d H:i'),
-                    ];
-                }),
-            ],
-            'auth' => auth()->user(),
-            'flash' => session()->all(),
-            'errors' => session('errors') ? session('errors')->getBag('default')->toArray() : [],
-        ]);
-    }
+    return Inertia::render('Portfolios/Show', [
+        'portfolio' => [
+            'id' => $portfolio->id,
+            'title' => $portfolio->title,
+            'description' => $portfolio->description,
+            'url' => $portfolio->url,
+            'user_id' => $portfolio->user_id,
+            'user_name' => $portfolio->user->name ?? '未設定',
+            'tags' => $portfolio->tags->map(fn($t) => $t->name)->toArray(),
+
+            // レビュー情報
+            'reviews' => $portfolio->reviews->map(function ($r) {
+                return [
+                    'id' => $r->id,
+                    'comment' => $r->comment,
+                    'rating' => $r->rating,
+                    'user' => [
+                        'id' => $r->user->id,
+                        'name' => $r->user->name ?? '未設定',
+                    ],
+                    'created_at' => $r->created_at->format('Y-m-d H:i'),
+                ];
+            }),
+        ],
+
+        // ★ auth を Header 側の構造に合わせる
+        'auth' => [
+            'user' => auth()->user() ? [
+                'id' => auth()->user()->id,
+                'name' => auth()->user()->name,
+            ] : null,
+        ],
+
+        'flash' => session()->all(),
+        'errors' => session('errors') ? session('errors')->getBag('default')->toArray() : [],
+    ]);
+}
+
 
     // 投稿編集フォーム
     public function edit(Portfolio $portfolio)
