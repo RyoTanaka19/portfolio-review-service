@@ -13,23 +13,25 @@ export default function TagsInput({ value = [], onChange }) {
     const [open, setOpen] = useState(false);
     const rootRef = useRef(null);
 
-    // API URL (Ziggy の route() が使えるなら route('tags.index') に置き換え)
     const tagsIndexUrl =
         typeof route === "function" ? route("tags.index") : "/tags";
 
     useEffect(() => {
         axios
             .get(tagsIndexUrl)
-            .then((r) => setAllTags(r.data))
-            .catch((e) => console.error(e));
+            .then((r) => {
+                console.log("tags from API:", r.data); // デバッグ
+                if (Array.isArray(r.data)) setAllTags(r.data);
+                else if (Array.isArray(r.data.tags)) setAllTags(r.data.tags);
+                else console.error("タグ配列が取得できませんでした");
+            })
+            .catch((e) => console.error("タグ取得エラー:", e));
     }, []);
 
-    // value prop が変わったときに同期
     useEffect(() => {
         setSelected(value);
     }, [value]);
 
-    // selected 変化を親へ通知
     useEffect(() => {
         onChange && onChange(selected);
     }, [selected]);
@@ -44,18 +46,19 @@ export default function TagsInput({ value = [], onChange }) {
         return () => document.removeEventListener("click", onDoc);
     }, []);
 
+    // query が空の場合は全件表示、入力がある場合は絞り込み
     const filtered = allTags
-        .filter((t) => t.name.toLowerCase().includes(query.toLowerCase()))
-        .filter((t) => !selected.some((s) => s.id === t.id));
+        .filter((t) => !selected.some((s) => s.id === t.id))
+        .filter((t) =>
+            query ? t.name.toLowerCase().includes(query.toLowerCase()) : true
+        );
 
     const toggleTag = (tag) => {
-        if (selected.some((s) => s.id === tag.id)) {
-            setSelected(selected.filter((s) => s.id !== tag.id));
-        } else {
+        if (!selected.some((s) => s.id === tag.id)) {
             setSelected([...selected, tag]);
         }
         setQuery("");
-        setOpen(false);
+        // setOpen(false); // 連続選択したい場合は閉じない
     };
 
     const removeTag = (tag) => {
@@ -86,7 +89,7 @@ export default function TagsInput({ value = [], onChange }) {
                 ))}
             </div>
 
-            {/* 入力欄（検索専用） */}
+            {/* 入力欄 */}
             <input
                 value={query}
                 onChange={(e) => {
@@ -94,13 +97,19 @@ export default function TagsInput({ value = [], onChange }) {
                     setOpen(true);
                 }}
                 onFocus={() => setOpen(true)}
-                placeholder="タグを検索して選択"
-                className="w-full border px-3 py-2 rounded"
+                placeholder="タグを選択"
+                className="w-full border px-3 py-2 rounded cursor-pointer"
+                readOnly={false} // 入力可能にする場合は true にしない
             />
 
             {/* ドロップダウン */}
-            {open && filtered.length > 0 && (
+            {open && filtered.length >= 0 && (
                 <div className="absolute z-50 w-full bg-white border rounded mt-1 max-h-48 overflow-auto shadow">
+                    {filtered.length === 0 && (
+                        <div className="px-3 py-2 text-gray-500">
+                            タグはありません
+                        </div>
+                    )}
                     {filtered.map((t) => (
                         <button
                             key={t.id}

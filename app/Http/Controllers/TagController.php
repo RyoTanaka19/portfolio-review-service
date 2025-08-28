@@ -7,10 +7,24 @@ use App\Models\Tag;
 
 class TagController extends Controller
 {
-    // タグ一覧を返す（JSON）
+    /**
+     * タグ一覧を返す（JSON）
+     */
     public function index()
     {
-        $tags = Tag::orderBy('name')->get(['id','name']);
-        return response()->json($tags);
+        try {
+            $tags = Tag::orderBy('name')->get(['id', 'name']);
+
+            return response()->json([
+                'success' => true,
+                'tags' => $tags,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'タグの取得に失敗しました',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }
