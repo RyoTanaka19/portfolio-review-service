@@ -10,45 +10,59 @@ use Inertia\Inertia;
 class PortfolioController extends Controller
 {
     // 投稿一覧表示（検索対応）
-    public function index(Request $request)
-    {
-        $query = Portfolio::with(['tags', 'user'])
-            ->where('user_id', auth()->id());
+public function index(Request $request)
+{
+    // ポートフォリオ取得時に reviews と tags, user を eager load
+    $query = Portfolio::with(['tags', 'reviews.user', 'user'])
+        ->where('user_id', auth()->id());
 
-        // ユーザー名で検索
-        if ($request->filled('user_name')) {
-            $userName = $request->input('user_name');
-            $query->whereHas('user', function ($q) use ($userName) {
-                $q->where('name', 'like', "%{$userName}%");
-            });
-        }
-
-        // タグ名で検索
-        if ($request->filled('tag')) {
-            $tagName = $request->input('tag');
-            $query->whereHas('tags', function ($q) use ($tagName) {
-                $q->where('name', 'like', "%{$tagName}%");
-            });
-        }
-
-        $portfolios = $query->get()->map(function ($p) {
-            return [
-                'id' => $p->id,
-                'title' => $p->title,
-                'description' => $p->description,
-                'url' => $p->url,
-                'user_id' => $p->user_id,
-                'user_name' => $p->user->name ?? '未設定',
-                'tags' => $p->tags->map(fn($t) => $t->name)->toArray(),
-            ];
+    // ユーザー名で検索
+    if ($request->filled('user_name')) {
+        $userName = $request->input('user_name');
+        $query->whereHas('user', function ($q) use ($userName) {
+            $q->where('name', 'like', "%{$userName}%");
         });
-
-        return Inertia::render('Portfolios/Index', [
-            'portfolios' => $portfolios,
-            'filters' => $request->only(['user_name', 'tag']), // 現在の検索条件を渡す
-        ]);
     }
 
+    // タグ名で検索
+    if ($request->filled('tag')) {
+        $tagName = $request->input('tag');
+        $query->whereHas('tags', function ($q) use ($tagName) {
+            $q->where('name', 'like', "%{$tagName}%");
+        });
+    }
+
+    $portfolios = $query->get()->map(function ($p) {
+        return [
+            'id' => $p->id,
+            'title' => $p->title,
+            'description' => $p->description,
+            'url' => $p->url,
+            'user_id' => $p->user_id,
+            'user_name' => $p->user->name ?? '未設定',
+            'tags' => $p->tags->map(fn($t) => $t->name)->toArray(),
+
+            // ★レビュー情報を追加
+            'reviews' => $p->reviews->map(function ($r) {
+                return [
+                    'id' => $r->id,
+                    'comment' => $r->comment,
+                    'rating' => $r->rating,
+                    'user' => [
+                        'id' => $r->user->id,
+                        'name' => $r->user->name ?? '未設定',
+                    ],
+                    'created_at' => $r->created_at->format('Y-m-d H:i'),
+                ];
+            }),
+        ];
+    });
+
+    return Inertia::render('Portfolios/Index', [
+        'portfolios' => $portfolios,
+        'filters' => $request->only(['user_name', 'tag']), // 現在の検索条件を渡す
+    ]);
+}
     // 新規投稿フォーム表示
     public function create()
     {
