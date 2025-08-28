@@ -5,6 +5,8 @@ services:
         working_dir: /var/www/html
         volumes:
             - "./:/var/www/html"
+            - "views_cache:/var/www/html/storage/framework/views"
+            - "bootstrap_cache:/var/www/html/bootstrap/cache"
         env_file:
             - .env
         networks:
@@ -47,3 +49,5 @@ networks:
 
 volumes:
     db_data: {}
+    views_cache: {}
+    bootstrap_cache: {}
