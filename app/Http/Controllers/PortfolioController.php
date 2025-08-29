@@ -10,59 +10,82 @@ use Inertia\Inertia;
 class PortfolioController extends Controller
 {
     // 投稿一覧表示（検索対応）
-public function index(Request $request)
-{
-    // ポートフォリオ取得時に reviews と tags, user を eager load
-    $query = Portfolio::with(['tags', 'reviews.user', 'user'])
-        ->where('user_id', auth()->id());
+    public function index(Request $request)
+    {
+        $query = Portfolio::with(['tags', 'reviews.user', 'user'])
+            ->where('user_id', auth()->id());
 
-    // ユーザー名で検索
-    if ($request->filled('user_name')) {
-        $userName = $request->input('user_name');
-        $query->whereHas('user', function ($q) use ($userName) {
-            $q->where('name', 'like', "%{$userName}%");
+        if ($request->filled('user_name')) {
+            $userName = $request->input('user_name');
+            $query->whereHas('user', function ($q) use ($userName) {
+                $q->where('name', 'like', "%{$userName}%");
+            });
+        }
+
+        if ($request->filled('tag')) {
+            $tagName = $request->input('tag');
+            $query->whereHas('tags', function ($q) use ($tagName) {
+                $q->where('name', 'like', "%{$tagName}%");
+            });
+        }
+
+        $portfolios = $query->get()->map(function ($p) {
+            return [
+                'id' => $p->id,
+                'title' => $p->title,
+                'description' => $p->description,
+                'url' => $p->url,
+                'user_id' => $p->user_id,
+                'user_name' => $p->user->name ?? '未設定',
+                'tags' => $p->tags->map(fn($t) => $t->name)->toArray(),
+                'reviews' => $p->reviews->map(function ($r) {
+                    return [
+                        'id' => $r->id,
+                        'comment' => $r->comment,
+                        'rating' => $r->rating,
+                        'user' => [
+                            'id' => $r->user->id,
+                            'name' => $r->user->name ?? '未設定',
+                        ],
+                        'created_at' => $r->created_at->format('Y-m-d H:i'),
+                    ];
+                }),
+            ];
         });
+
+        return Inertia::render('Portfolios/Index', [
+            'portfolios' => $portfolios,
+            'filters' => $request->only(['user_name', 'tag']),
+        ]);
     }
 
-    // タグ名で検索
-    if ($request->filled('tag')) {
-        $tagName = $request->input('tag');
-        $query->whereHas('tags', function ($q) use ($tagName) {
-            $q->where('name', 'like', "%{$tagName}%");
-        });
-    }
-
-    $portfolios = $query->get()->map(function ($p) {
-        return [
-            'id' => $p->id,
-            'title' => $p->title,
-            'description' => $p->description,
-            'url' => $p->url,
-            'user_id' => $p->user_id,
-            'user_name' => $p->user->name ?? '未設定',
-            'tags' => $p->tags->map(fn($t) => $t->name)->toArray(),
-
-            // ★レビュー情報を追加
-            'reviews' => $p->reviews->map(function ($r) {
+    // 🔽 ランキング表示
+    public function ranking()
+    {
+        // レビュー平均点を計算し、降順でソート
+        $portfolios = Portfolio::with(['user', 'tags', 'reviews'])
+            ->withAvg('reviews', 'rating')
+            ->orderByDesc('reviews_avg_rating')
+            ->take(10) // 上位10件だけ表示（必要に応じて変更）
+            ->get()
+            ->map(function ($p) {
                 return [
-                    'id' => $r->id,
-                    'comment' => $r->comment,
-                    'rating' => $r->rating,
-                    'user' => [
-                        'id' => $r->user->id,
-                        'name' => $r->user->name ?? '未設定',
-                    ],
-                    'created_at' => $r->created_at->format('Y-m-d H:i'),
+                    'id' => $p->id,
+                    'title' => $p->title,
+                    'description' => $p->description,
+                    'url' => $p->url,
+                    'user_name' => $p->user->name ?? '未設定',
+                    'tags' => $p->tags->map(fn($t) => $t->name)->toArray(),
+                    'avg_rating' => round($p->reviews_avg_rating, 2),
+                    'review_count' => $p->reviews->count(),
                 ];
-            }),
-        ];
-    });
+            });
 
-    return Inertia::render('Portfolios/Index', [
-        'portfolios' => $portfolios,
-        'filters' => $request->only(['user_name', 'tag']), // 現在の検索条件を渡す
-    ]);
-}
+        return Inertia::render('Portfolios/Ranking', [
+            'portfolios' => $portfolios,
+        ]);
+    }
+
     // 新規投稿フォーム表示
     public function create()
     {
@@ -99,50 +122,43 @@ public function index(Request $request)
         return redirect()->route('dashboard')->with('success', 'ポートフォリオを作成しました');
     }
 
-// 投稿詳細
-public function show(Portfolio $portfolio)
-{
-    // 必要なリレーションをロード
-    $portfolio->load(['reviews.user', 'tags', 'user']);
+    // 投稿詳細
+    public function show(Portfolio $portfolio)
+    {
+        $portfolio->load(['reviews.user', 'tags', 'user']);
 
-    return Inertia::render('Portfolios/Show', [
-        'portfolio' => [
-            'id' => $portfolio->id,
-            'title' => $portfolio->title,
-            'description' => $portfolio->description,
-            'url' => $portfolio->url,
-            'user_id' => $portfolio->user_id,
-            'user_name' => $portfolio->user->name ?? '未設定',
-            'tags' => $portfolio->tags->map(fn($t) => $t->name)->toArray(),
-
-            // レビュー情報
-            'reviews' => $portfolio->reviews->map(function ($r) {
-                return [
-                    'id' => $r->id,
-                    'comment' => $r->comment,
-                    'rating' => $r->rating,
-                    'user' => [
-                        'id' => $r->user->id,
-                        'name' => $r->user->name ?? '未設定',
-                    ],
-                    'created_at' => $r->created_at->format('Y-m-d H:i'),
-                ];
-            }),
-        ],
-
-        // ★ auth を Header 側の構造に合わせる
-        'auth' => [
-            'user' => auth()->user() ? [
-                'id' => auth()->user()->id,
-                'name' => auth()->user()->name,
-            ] : null,
-        ],
-
-        'flash' => session()->all(),
-        'errors' => session('errors') ? session('errors')->getBag('default')->toArray() : [],
-    ]);
-}
-
+        return Inertia::render('Portfolios/Show', [
+            'portfolio' => [
+                'id' => $portfolio->id,
+                'title' => $portfolio->title,
+                'description' => $portfolio->description,
+                'url' => $portfolio->url,
+                'user_id' => $portfolio->user_id,
+                'user_name' => $portfolio->user->name ?? '未設定',
+                'tags' => $portfolio->tags->map(fn($t) => $t->name)->toArray(),
+                'reviews' => $portfolio->reviews->map(function ($r) {
+                    return [
+                        'id' => $r->id,
+                        'comment' => $r->comment,
+                        'rating' => $r->rating,
+                        'user' => [
+                            'id' => $r->user->id,
+                            'name' => $r->user->name ?? '未設定',
+                        ],
+                        'created_at' => $r->created_at->format('Y-m-d H:i'),
+                    ];
+                }),
+            ],
+            'auth' => [
+                'user' => auth()->user() ? [
+                    'id' => auth()->user()->id,
+                    'name' => auth()->user()->name,
+                ] : null,
+            ],
+            'flash' => session()->all(),
+            'errors' => session('errors') ? session('errors')->getBag('default')->toArray() : [],
+        ]);
+    }
 
     // 投稿編集フォーム
     public function edit(Portfolio $portfolio)

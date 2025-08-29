@@ -24,6 +24,9 @@ Route::get('/', function () {
 Route::get('auth/google', [GoogleLoginController::class, 'redirectToGoogle'])->name('google.login');
 Route::get('auth/google/callback', [GoogleLoginController::class, 'handleGoogleCallback']);
 
+// 🔽 ランキング（未ログインでもアクセス可能）
+Route::get('/ranking', [PortfolioController::class, 'ranking'])->name('ranking');
+
 // 認証済みユーザー用ルート
 Route::middleware(['auth', 'verified'])->group(function () {
 
@@ -31,37 +34,46 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/portfolio', [PortfolioController::class, 'index'])->name('dashboard');
     Route::get('/portfolio/create', [PortfolioController::class, 'create'])->name('portfolio.create');
     Route::post('/portfolio', [PortfolioController::class, 'store'])->name('portfolio.store');
-    Route::get('/portfolio/{portfolio}', [PortfolioController::class, 'show'])->name('portfolio.show');
-    Route::get('/portfolio/{portfolio}/edit', [PortfolioController::class, 'edit'])->name('portfolio.edit');
-    Route::put('/portfolio/{portfolio}', [PortfolioController::class, 'update'])->name('portfolio.update');
-    Route::delete('/portfolio/{portfolio}', [PortfolioController::class, 'destroy'])->name('portfolio.destroy');
+
+    // 動的ルートは数字のみ許可
+    Route::get('/portfolio/{portfolio}', [PortfolioController::class, 'show'])
+        ->whereNumber('portfolio')
+        ->name('portfolio.show');
+    Route::get('/portfolio/{portfolio}/edit', [PortfolioController::class, 'edit'])
+        ->whereNumber('portfolio')
+        ->name('portfolio.edit');
+    Route::put('/portfolio/{portfolio}', [PortfolioController::class, 'update'])
+        ->whereNumber('portfolio')
+        ->name('portfolio.update');
+    Route::delete('/portfolio/{portfolio}', [PortfolioController::class, 'destroy'])
+        ->whereNumber('portfolio')
+        ->name('portfolio.destroy');
 
     Route::get('/tags', [TagController::class, 'index'])->name('tags.index');
     Route::post('/tags', [TagController::class, 'store'])->name('tags.store');
 
     // レビュー関連
-    Route::post('/portfolio/{portfolio}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
-    Route::delete('/portfolio/{portfolio}/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+    Route::post('/portfolio/{portfolio}/reviews', [ReviewController::class, 'store'])
+        ->whereNumber('portfolio')
+        ->name('reviews.store');
+    Route::delete('/portfolio/{portfolio}/reviews/{review}', [ReviewController::class, 'destroy'])
+        ->whereNumber('portfolio')
+        ->whereNumber('review')
+        ->name('reviews.destroy');
 
-    // AIアドバイス一覧ページ（Reactコンポーネント表示）
+    // AIアドバイス関連
     Route::get('/advices', function () {
-        return Inertia::render('Advices/Index'); // Index.jsx を表示
+        return Inertia::render('Advices/Index');
     })->name('advices.index');
 
-    // AIアドバイス一覧取得API（JSON）
     Route::get('/api/advices', [AdviceController::class, 'index'])->name('api.advices.index');
-
-    // AIアドバイス作成（POST）
     Route::post('/ai/advice', [AdviceController::class, 'store'])->name('advices.store');
 
-    // AIアドバイス作成ページ（Reactコンポーネント表示）
     Route::get('/advice/create', function () {
-        return Inertia::render('Advices/Create'); // Create.jsx を表示
+        return Inertia::render('Advices/Create');
     })->name('advice.create');
 
-    // AIアドバイス削除（API）
-    Route::delete('/api/advices/{id}', [AdviceController::class, 'destroy'])
-        ->name('api.advices.destroy');
+    Route::delete('/api/advices/{id}', [AdviceController::class, 'destroy'])->name('api.advices.destroy');
 
     // プロフィール関連
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

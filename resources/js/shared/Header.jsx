@@ -2,8 +2,8 @@ import { Link, usePage, router } from "@inertiajs/react";
 import { useState } from "react";
 
 export default function Header() {
-    const { auth = {}, nav = [], url } = usePage().props; // usePage() から自動取得
-    const user = auth.user; // ログインユーザー情報
+    const { auth = {}, nav = [], url } = usePage().props;
+    const user = auth.user;
     const [open, setOpen] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -60,6 +60,15 @@ export default function Header() {
                                     >
                                         AI相談
                                     </Link>
+
+                                    {/* 🔽 ランキングリンクを追加 */}
+                                    <Link
+                                        href={route("ranking")}
+                                        className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                                    >
+                                        ランキング
+                                    </Link>
+
                                     <Link
                                         href="/portfolio/create"
                                         className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
@@ -137,6 +146,13 @@ export default function Header() {
                                     className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
                                 >
                                     AI相談
+                                </Link>
+                                {/* 🔽 モバイルメニューにもランキング追加 */}
+                                <Link
+                                    href={route("ranking")}
+                                    className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                                >
+                                    ランキング
                                 </Link>
                                 <Link
                                     href="/portfolio/create"
