@@ -6,6 +6,7 @@ use App\Models\Portfolio;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Storage;
 
 class PortfolioController extends Controller
 {
@@ -37,6 +38,7 @@ class PortfolioController extends Controller
                 'url' => $p->url,
                 'user_id' => $p->user_id,
                 'user_name' => $p->user->name ?? '未設定',
+                'image_url' => $p->image_path ? Storage::url($p->image_path) : null,
                 'tags' => $p->tags->map(fn($t) => $t->name)->toArray(),
                 'reviews' => $p->reviews->map(function ($r) {
                     return [
@@ -59,14 +61,13 @@ class PortfolioController extends Controller
         ]);
     }
 
-    // 🔽 ランキング表示
+    // ランキング表示
     public function ranking()
     {
-        // レビュー平均点を計算し、降順でソート
         $portfolios = Portfolio::with(['user', 'tags', 'reviews'])
             ->withAvg('reviews', 'rating')
             ->orderByDesc('reviews_avg_rating')
-            ->take(10) // 上位10件だけ表示（必要に応じて変更）
+            ->take(10)
             ->get()
             ->map(function ($p) {
                 return [
@@ -75,6 +76,7 @@ class PortfolioController extends Controller
                     'description' => $p->description,
                     'url' => $p->url,
                     'user_name' => $p->user->name ?? '未設定',
+                    'image_url' => $p->image_path ? Storage::url($p->image_path) : null,
                     'tags' => $p->tags->map(fn($t) => $t->name)->toArray(),
                     'avg_rating' => round($p->reviews_avg_rating, 2),
                     'review_count' => $p->reviews->count(),
@@ -86,7 +88,7 @@ class PortfolioController extends Controller
         ]);
     }
 
-    // 新規投稿フォーム表示
+    // 新規投稿フォーム
     public function create()
     {
         return Inertia::render('Portfolios/Create');
@@ -101,13 +103,19 @@ class PortfolioController extends Controller
             'url' => 'nullable|url|max:255',
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:50',
+            'image' => 'nullable|image|max:2048',
         ]);
+
+        $imagePath = $request->hasFile('image')
+            ? $request->file('image')->store('portfolios', 'public')
+            : null;
 
         $portfolio = Portfolio::create([
             'user_id' => auth()->id(),
             'title' => $validated['title'],
             'description' => $validated['description'],
             'url' => $validated['url'] ?? null,
+            'image_path' => $imagePath,
         ]);
 
         if (!empty($validated['tags'])) {
@@ -135,6 +143,7 @@ class PortfolioController extends Controller
                 'url' => $portfolio->url,
                 'user_id' => $portfolio->user_id,
                 'user_name' => $portfolio->user->name ?? '未設定',
+                'image_url' => $portfolio->image_path ? Storage::url($portfolio->image_path) : null,
                 'tags' => $portfolio->tags->map(fn($t) => $t->name)->toArray(),
                 'reviews' => $portfolio->reviews->map(function ($r) {
                     return [
@@ -175,6 +184,7 @@ class PortfolioController extends Controller
                 'title' => $portfolio->title,
                 'description' => $portfolio->description,
                 'url' => $portfolio->url,
+                'image_url' => $portfolio->image_path ? Storage::url($portfolio->image_path) : null,
                 'tags' => $portfolio->tags->map(fn($t) => $t->name)->toArray(),
             ],
         ]);
@@ -193,6 +203,7 @@ class PortfolioController extends Controller
             'url' => 'nullable|url|max:255',
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:50',
+            'image' => 'nullable|image|max:2048',
         ]);
 
         $portfolio->update([
@@ -201,6 +212,16 @@ class PortfolioController extends Controller
             'url' => $validated['url'] ?? null,
         ]);
 
+        // 画像更新
+        if ($request->file('image')) {
+            if ($portfolio->image_path) {
+                Storage::disk('public')->delete($portfolio->image_path);
+            }
+            $portfolio->image_path = $request->file('image')->store('portfolios', 'public');
+            $portfolio->save();
+        }
+
+        // タグ更新
         $tagIds = [];
         if (!empty($validated['tags'])) {
             foreach ($validated['tags'] as $tagName) {
@@ -213,11 +234,16 @@ class PortfolioController extends Controller
         return redirect()->route('dashboard')->with('success', 'ポートフォリオを更新しました');
     }
 
-    // ポートフォリオ削除
+    // 投稿削除
     public function destroy(Portfolio $portfolio)
     {
         if ($portfolio->user_id !== auth()->id()) {
             abort(403, 'Unauthorized action.');
+        }
+
+        // 画像削除
+        if ($portfolio->image_path) {
+            Storage::disk('public')->delete($portfolio->image_path);
         }
 
         $portfolio->delete();

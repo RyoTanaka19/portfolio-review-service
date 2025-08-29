@@ -8,29 +8,39 @@ export default function Create() {
     const [description, setDescription] = useState("");
     const [url, setUrl] = useState("");
     const [tags, setTags] = useState([]);
+    const [image, setImage] = useState(null);
     const [errors, setErrors] = useState({});
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        Inertia.post(
-            route("portfolio.store"),
-            {
-                title,
-                description,
-                url,
-                tags: tags.map((t) => t.name),
+        const formData = new FormData();
+        formData.append("title", title);
+        formData.append("description", description);
+        formData.append("url", url);
+
+        // タグ送信
+        tags.forEach((t, index) => formData.append(`tags[${index}]`, t.name));
+
+        // 画像送信
+        if (image) {
+            console.log("送信する画像:", image); // デバッグ用
+            formData.append("image", image);
+        }
+
+        Inertia.post(route("portfolio.store"), formData, {
+            onError: (err) => {
+                console.log("送信エラー:", err);
+                setErrors(err);
             },
-            {
-                onError: (err) => setErrors(err),
-            }
-        );
+            preserveScroll: true,
+            preserveState: true,
+        });
     };
 
     return (
         <AppLayout>
-            {/* flex-1 を付与して AppLayout の高さに合わせる */}
-            <div className="flex-1 flex items-center justify-center bg-gray-50 px-4">
+            <div className="flex-1 flex items-center justify-center bg-gray-50 px-4 py-6">
                 <div className="w-full max-w-md">
                     <h1 className="text-2xl font-bold mb-6 text-center">
                         新規投稿
@@ -39,6 +49,7 @@ export default function Create() {
                     <form
                         onSubmit={handleSubmit}
                         className="bg-white p-6 rounded shadow-md"
+                        encType="multipart/form-data" // 🔹 追加
                     >
                         {/* 作品タイトル */}
                         <div className="mb-4">
@@ -76,6 +87,24 @@ export default function Create() {
                             )}
                         </div>
 
+                        {/* 画像アップロード */}
+                        <div className="mb-4">
+                            <label className="block font-medium mb-1">
+                                画像（任意）
+                            </label>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => setImage(e.target.files[0])}
+                                className="w-full"
+                            />
+                            {errors.image && (
+                                <p className="text-red-500 mt-1">
+                                    {errors.image}
+                                </p>
+                            )}
+                        </div>
+
                         {/* 任意URL */}
                         <div className="mb-4">
                             <label className="block font-medium mb-1">
@@ -94,7 +123,7 @@ export default function Create() {
                             )}
                         </div>
 
-                        {/* タグ入力 */}
+                        {/* タグ */}
                         <div className="mb-4">
                             <label className="block font-medium mb-1">
                                 タグ（技術）
