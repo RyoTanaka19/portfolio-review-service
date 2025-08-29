@@ -5,9 +5,7 @@ import AppLayout from "@/Layouts/AppLayout";
 
 export default function Show({ portfolio, auth, errors, flash }) {
     return (
-        // auth を AppLayout に渡す
         <AppLayout auth={auth}>
-            {/* flex-1 + flex-col で高さを埋めてフッターを下に押す */}
             <div className="flex flex-col flex-1 bg-gray-100">
                 <div className="flex-1 flex justify-center py-10 px-4">
                     <div className="w-full max-w-3xl bg-white rounded-lg shadow-md p-8">
@@ -15,6 +13,17 @@ export default function Show({ portfolio, auth, errors, flash }) {
                         <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
                             {portfolio.title}
                         </h1>
+
+                        {/* 画像表示 */}
+                        {portfolio.image_url && (
+                            <div className="mb-6 flex justify-center">
+                                <img
+                                    src={portfolio.image_url} // 修正
+                                    alt={portfolio.title}
+                                    className="w-full max-w-md object-cover rounded"
+                                />
+                            </div>
+                        )}
 
                         {/* 作品説明 */}
                         <div className="mb-6">
@@ -51,12 +60,13 @@ export default function Show({ portfolio, auth, errors, flash }) {
                                 </h2>
                                 <div className="flex flex-wrap gap-2">
                                     {portfolio.tags.map((tag, idx) => (
-                                        <span
+                                        <InertiaLink
                                             key={idx}
-                                            className="inline-flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm"
+                                            href={route("dashboard", { tag })}
+                                            className="inline-flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm hover:bg-blue-200"
                                         >
                                             {tag}
-                                        </span>
+                                        </InertiaLink>
                                     ))}
                                 </div>
                             </div>

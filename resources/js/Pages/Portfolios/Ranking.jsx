@@ -69,6 +69,15 @@ export default function Ranking({ portfolios }) {
                                     </div>
                                 </div>
 
+                                {/* 画像 */}
+                                {p.image_url && (
+                                    <img
+                                        src={p.image_url}
+                                        alt={p.title}
+                                        className="w-full h-48 object-cover mt-4 rounded-xl"
+                                    />
+                                )}
+
                                 {/* タグ */}
                                 {p.tags?.length > 0 && (
                                     <div className="mt-4 flex flex-wrap gap-2">

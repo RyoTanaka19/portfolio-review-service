@@ -1,19 +1,13 @@
-// resources/js/Pages/Portfolio/Index.jsx
 import React, { useState } from "react";
 import { Inertia } from "@inertiajs/inertia";
 import { InertiaLink } from "@inertiajs/inertia-react";
 import AppLayout from "@/Layouts/AppLayout";
 
 export default function Index({ portfolios, auth, filters = {} }) {
-    const [dropdownOpen, setDropdownOpen] = useState(false);
     const [userNameFilter, setUserNameFilter] = useState(
         filters.user_name || ""
     );
     const [tagFilter, setTagFilter] = useState(filters.tag || "");
-
-    const handleLogout = () => {
-        Inertia.post("/logout");
-    };
 
     const handleDelete = (id) => {
         if (confirm("本当に削除しますか？")) {
@@ -25,17 +19,15 @@ export default function Index({ portfolios, auth, filters = {} }) {
         Inertia.get(
             route("dashboard"),
             { user_name: userNameFilter, tag: tagFilter },
-            { preserveState: true, replace: true }
+            { preserveState: true }
         );
     };
 
     return (
         <AppLayout>
-            {/* ページヘッダー */}
             <header className="px-8 py-4 bg-white shadow flex flex-col items-center">
                 <h1 className="text-2xl font-bold mb-4">投稿一覧</h1>
 
-                {/* 検索フォーム */}
                 <div className="flex gap-2 items-center">
                     <input
                         type="text"
@@ -61,10 +53,8 @@ export default function Index({ portfolios, auth, filters = {} }) {
                 </div>
             </header>
 
-            {/* 投稿一覧 */}
             <main className="px-8 py-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {portfolios.map((p) => {
-                    // 平均評価計算（レビューがある場合）
                     const averageRating =
                         p.reviews && p.reviews.length > 0
                             ? (
@@ -96,11 +86,19 @@ export default function Index({ portfolios, auth, filters = {} }) {
                                 </span>
                             </div>
 
+                            {/* 画像表示 */}
+                            {p.image_url && (
+                                <img
+                                    src={p.image_url} // ← image_url を使う
+                                    alt={p.title}
+                                    className="w-full h-40 object-cover mb-2 rounded"
+                                />
+                            )}
+
                             <p className="text-gray-700 text-sm mb-2 line-clamp-3">
                                 {p.description}
                             </p>
 
-                            {/* 平均評価 */}
                             {averageRating ? (
                                 <p className="text-yellow-600 font-semibold mb-2">
                                     平均評価: {averageRating} / 5 (
@@ -112,7 +110,7 @@ export default function Index({ portfolios, auth, filters = {} }) {
                                 </p>
                             )}
 
-                            {/* タグ表示 */}
+                            {/* タグ */}
                             {p.tags && p.tags.length > 0 && (
                                 <div className="mt-2 flex flex-wrap gap-1">
                                     {p.tags.map((tag, idx) => (
@@ -137,13 +135,13 @@ export default function Index({ portfolios, auth, filters = {} }) {
                                     href={p.url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-blue-500 text-sm"
+                                    className="text-blue-500 text-sm block mt-2"
                                 >
                                     Visit
                                 </a>
                             )}
 
-                            {p.user_id === auth.user.id && (
+                            {auth?.user?.id === p.user_id && (
                                 <div className="mt-4 flex justify-end space-x-2">
                                     <InertiaLink
                                         href={`/portfolio/${p.id}/edit`}
