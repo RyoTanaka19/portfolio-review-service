@@ -1,4 +1,3 @@
-// resources/js/Pages/Reviews/Index.jsx
 import React, { useState, useEffect } from "react";
 import { Inertia } from "@inertiajs/inertia";
 import axios from "axios";
@@ -8,27 +7,29 @@ export default function ReviewIndex({ portfolio, auth, errors, flash }) {
     const [comment, setComment] = useState("");
     const [showFlash, setShowFlash] = useState(false);
 
-    // ローカルでレビュー管理
-    const [reviews, setReviews] = useState(portfolio.reviews || []);
+    // レビュー管理（checked プロパティを初期化）
+    const [reviews, setReviews] = useState(
+        (portfolio.reviews || []).map((r) => ({ ...r, checked: false }))
+    );
 
     // 通知管理
     const [notifications, setNotifications] = useState([]);
 
     // フラッシュメッセージ表示
     useEffect(() => {
-        if (flash.success) {
+        if (flash?.success) {
             setShowFlash(true);
             const timer = setTimeout(() => setShowFlash(false), 3000);
             return () => clearTimeout(timer);
         }
-    }, [flash.success]);
+    }, [flash?.success]);
 
     // 初期通知取得
     useEffect(() => {
         const fetchNotifications = async () => {
             try {
                 const response = await axios.get("/notifications");
-                setNotifications(response.data.notifications);
+                setNotifications(response.data.notifications || []);
             } catch (error) {
                 console.error(error);
             }
@@ -36,6 +37,37 @@ export default function ReviewIndex({ portfolio, auth, errors, flash }) {
         fetchNotifications();
     }, []);
 
+    // 通知を既読にする
+    const markNotificationAsRead = async (id) => {
+        try {
+            await axios.post(`/notifications/${id}/read`);
+            setNotifications((prev) => prev.filter((n) => n.id !== id));
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    // チェックボックス切り替え + サーバー通知（チェック時のみ送信）
+    const toggleReviewChecked = async (review) => {
+        const isChecked = !review.checked; // 今の状態と反転
+
+        // フロント側の checked 状態切替
+        setReviews((prev) =>
+            prev.map((r) =>
+                r.id === review.id ? { ...r, checked: isChecked } : r
+            )
+        );
+
+        // チェックを入れた場合のみ通知を送信
+        if (isChecked) {
+            try {
+                await axios.post(`/reviews/${review.id}/check`);
+                // 成功時は必要に応じてフラッシュ表示など可能
+            } catch (error) {
+                console.error("通知送信に失敗:", error);
+            }
+        }
+    };
     // レビュー投稿
     const submitReview = (e) => {
         e.preventDefault();
@@ -44,7 +76,12 @@ export default function ReviewIndex({ portfolio, auth, errors, flash }) {
             { rating, comment },
             {
                 onSuccess: (page) => {
-                    setReviews(page.props.portfolio.reviews || []);
+                    setReviews(
+                        (page.props.portfolio?.reviews || []).map((r) => ({
+                            ...r,
+                            checked: false,
+                        }))
+                    );
                     setComment("");
                     setRating(5);
                 },
@@ -55,14 +92,18 @@ export default function ReviewIndex({ portfolio, auth, errors, flash }) {
 
     // レビュー削除
     const deleteReview = (reviewId) => {
-        if (confirm("本当に削除しますか？")) {
-            Inertia.delete(`/portfolio/${portfolio.id}/reviews/${reviewId}`, {
-                onSuccess: (page) => {
-                    setReviews(page.props.portfolio.reviews || []);
-                },
-                preserveScroll: true,
-            });
-        }
+        if (!confirm("本当に削除しますか？")) return;
+        Inertia.delete(`/portfolio/${portfolio.id}/reviews/${reviewId}`, {
+            onSuccess: (page) => {
+                setReviews(
+                    (page.props.portfolio?.reviews || []).map((r) => ({
+                        ...r,
+                        checked: false,
+                    }))
+                );
+            },
+            preserveScroll: true,
+        });
     };
 
     return (
@@ -84,7 +125,7 @@ export default function ReviewIndex({ portfolio, auth, errors, flash }) {
                     {reviews.map((review) => (
                         <div
                             key={review.id}
-                            className="p-4 border rounded-lg bg-gray-50"
+                            className="p-4 border rounded-lg bg-gray-50 flex flex-col gap-2"
                         >
                             <div className="flex justify-between items-center mb-2">
                                 <span className="text-gray-700 font-semibold">
@@ -94,18 +135,27 @@ export default function ReviewIndex({ portfolio, auth, errors, flash }) {
                                     投稿者: {review.user?.name || "不明"}
                                 </span>
                             </div>
-                            <p className="text-gray-600">{review.comment}</p>
 
-                            {auth &&
-                                review.user &&
-                                auth.id === review.user.id && (
-                                    <button
-                                        onClick={() => deleteReview(review.id)}
-                                        className="mt-2 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                                    >
-                                        削除
-                                    </button>
-                                )}
+                            {/* チェックボックス */}
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    checked={review.checked}
+                                    onChange={() => toggleReviewChecked(review)}
+                                />
+                                <p className="text-gray-600">
+                                    {review.comment}
+                                </p>
+                            </div>
+
+                            {auth?.id === review.user?.id && (
+                                <button
+                                    onClick={() => deleteReview(review.id)}
+                                    className="mt-2 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                                >
+                                    削除
+                                </button>
+                            )}
                         </div>
                     ))}
                 </div>
@@ -168,7 +218,6 @@ export default function ReviewIndex({ portfolio, auth, errors, flash }) {
                 </div>
             )}
 
-            {/* フェードインアウト */}
             <style>{`
                 @keyframes fade-in-out {
                     0% { opacity: 0; transform: translateY(-10px); }
