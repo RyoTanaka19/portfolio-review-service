@@ -6,7 +6,7 @@ use App\Models\Review;
 use App\Models\Portfolio;
 use Illuminate\Http\Request;
 use App\Notifications\ReviewCreated;
-
+use App\Notifications\ReviewChecked; // 新規通知クラスを追加
 
 class ReviewController extends Controller
 {
@@ -41,5 +41,19 @@ class ReviewController extends Controller
         $review->delete();
 
         return redirect()->back()->with('success', 'レビューを削除しました！');
+    }
+
+    // ✅ レビュー確認（チェックボックス押下） → 投稿者に通知
+    public function checkReview(Review $review)
+    {
+        $user = auth()->user();
+
+        // 任意: どのユーザーが確認したかを記録したい場合
+        // $review->checked_by()->syncWithoutDetaching($user->id);
+
+        // 投稿者に通知を送る
+        $review->user->notify(new ReviewChecked($user, $review));
+
+        return response()->json(['success' => true]);
     }
 }

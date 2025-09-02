@@ -60,6 +60,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->whereNumber('portfolio')->name('reviews.store');
     Route::delete('/portfolio/{portfolio}/reviews/{review}', [ReviewController::class, 'destroy'])
         ->whereNumber('portfolio')->whereNumber('review')->name('reviews.destroy');
+    Route::post('/reviews/{review}/check', [ReviewController::class, 'checkReview'])->name('reviews.check');
 
     // AIアドバイス関連
     Route::get('/advices', fn () => Inertia::render('Advices/Index'))->name('advices.index');
