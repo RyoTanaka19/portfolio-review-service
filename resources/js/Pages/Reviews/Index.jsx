@@ -1,6 +1,7 @@
 // resources/js/Pages/Reviews/Index.jsx
 import React, { useState, useEffect } from "react";
 import { Inertia } from "@inertiajs/inertia";
+import axios from "axios";
 
 export default function ReviewIndex({ portfolio, auth, errors, flash }) {
     const [rating, setRating] = useState(5);
@@ -9,6 +10,9 @@ export default function ReviewIndex({ portfolio, auth, errors, flash }) {
 
     // ローカルでレビュー管理
     const [reviews, setReviews] = useState(portfolio.reviews || []);
+
+    // 通知管理
+    const [notifications, setNotifications] = useState([]);
 
     // フラッシュメッセージ表示
     useEffect(() => {
@@ -19,6 +23,19 @@ export default function ReviewIndex({ portfolio, auth, errors, flash }) {
         }
     }, [flash.success]);
 
+    // 初期通知取得
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            try {
+                const response = await axios.get("/notifications");
+                setNotifications(response.data.notifications);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        fetchNotifications();
+    }, []);
+
     // レビュー投稿
     const submitReview = (e) => {
         e.preventDefault();
@@ -27,7 +44,6 @@ export default function ReviewIndex({ portfolio, auth, errors, flash }) {
             { rating, comment },
             {
                 onSuccess: (page) => {
-                    // 最新レビューを state に反映
                     setReviews(page.props.portfolio.reviews || []);
                     setComment("");
                     setRating(5);

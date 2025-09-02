@@ -1,11 +1,15 @@
 import { Link, usePage, router } from "@inertiajs/react";
-import { useState } from "react";
-
+import { useState, useEffect } from "react";
+import axios from "axios";
+axios.defaults.withCredentials = true;
 export default function Header() {
     const { auth = {}, nav = [], url } = usePage().props;
     const user = auth.user;
-    const [open, setOpen] = useState(false);
-    const [dropdownOpen, setDropdownOpen] = useState(false);
+
+    const [open, setOpen] = useState(false); // モバイルメニュー
+    const [dropdownOpen, setDropdownOpen] = useState(false); // ユーザードロップダウン
+    const [notifOpen, setNotifOpen] = useState(false); // 通知ドロップダウン
+    const [notifications, setNotifications] = useState([]);
 
     const handleLogout = () => router.post(route("logout"));
 
@@ -15,6 +19,33 @@ export default function Header() {
             return path === new URL(url, window.location.origin).pathname;
         } catch {
             return href === url;
+        }
+    };
+
+    // 通知取得
+    const fetchNotifications = async () => {
+        if (!user) return;
+        try {
+            const res = await axios.get("/notifications");
+            setNotifications(res.data.notifications);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    useEffect(() => {
+        fetchNotifications();
+        const interval = setInterval(fetchNotifications, 5000); // 5秒ごとに更新
+        return () => clearInterval(interval);
+    }, [user]);
+
+    // 通知既読化
+    const markAsRead = async (id) => {
+        try {
+            await axios.post(`/notifications/${id}/read`);
+            setNotifications(notifications.filter((n) => n.id !== id));
+        } catch (error) {
+            console.error(error);
         }
     };
 
@@ -49,34 +80,90 @@ export default function Header() {
 
                         {user && (
                             <div className="flex items-center gap-4">
+                                {/* こんにちはメッセージ */}
                                 <span className="text-sm text-gray-500">
                                     こんにちは、{user.name} さん
                                 </span>
 
+                                {/* 通知アイコン */}
+                                <div className="relative">
+                                    <button
+                                        onClick={() => setNotifOpen(!notifOpen)}
+                                        className="relative"
+                                    >
+                                        🔔
+                                        {notifications.length > 0 && (
+                                            <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full text-xs px-1">
+                                                {notifications.length}
+                                            </span>
+                                        )}
+                                    </button>
+
+                                    {notifOpen && (
+                                        <div className="absolute right-0 mt-2 w-80 bg-white border rounded shadow-md z-50">
+                                            {notifications.length === 0 && (
+                                                <p className="p-3 text-gray-500">
+                                                    通知はありません
+                                                </p>
+                                            )}
+                                            {notifications.map((n) => {
+                                                const data =
+                                                    typeof n.data === "string"
+                                                        ? JSON.parse(n.data)
+                                                        : n.data;
+                                                return (
+                                                    <div
+                                                        key={n.id}
+                                                        className="p-3 border-b hover:bg-gray-100 cursor-pointer"
+                                                        onClick={() =>
+                                                            markAsRead(n.id)
+                                                        }
+                                                    >
+                                                        <div className="font-medium">
+                                                            {data.message}
+                                                        </div>
+                                                        {data.rating && (
+                                                            <div className="text-sm text-gray-400">
+                                                                評価:{" "}
+                                                                {data.rating} /
+                                                                5
+                                                            </div>
+                                                        )}
+                                                        {data.comment && (
+                                                            <div className="text-sm text-gray-500">
+                                                                {data.comment}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* AI相談 / ランキング / 投稿リンク */}
                                 <div className="flex items-center gap-2">
                                     <Link
                                         href="/advice/create"
-                                        className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                                        className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm"
                                     >
                                         AI相談
                                     </Link>
-
-                                    {/* 🔽 ランキングリンクを追加 */}
                                     <Link
                                         href={route("ranking")}
-                                        className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                                        className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-sm"
                                     >
                                         ランキング
                                     </Link>
-
                                     <Link
                                         href="/portfolio/create"
-                                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                        className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
                                     >
                                         投稿
                                     </Link>
                                 </div>
 
+                                {/* ユーザードロップダウン */}
                                 <div className="relative">
                                     <button
                                         onClick={() =>
@@ -147,7 +234,6 @@ export default function Header() {
                                 >
                                     AI相談
                                 </Link>
-                                {/* 🔽 モバイルメニューにもランキング追加 */}
                                 <Link
                                     href={route("ranking")}
                                     className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
