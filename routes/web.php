@@ -7,6 +7,7 @@ use App\Http\Controllers\AdviceController;
 use App\Http\Controllers\Auth\GoogleLoginController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\StaticPagesController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -20,6 +21,11 @@ Route::get('/', function () {
         'phpVersion' => PHP_VERSION,
     ]);
 });
+
+Route::get('/terms', [StaticPagesController::class, 'terms'])->name('terms');
+Route::get('/privacy', [StaticPagesController::class, 'privacy'])->name('privacy');
+Route::get('/contact', [StaticPagesController::class, 'form'])->name('contact');
+Route::post('/contact', [StaticPagesController::class, 'submitContact'])->name('contact.send');
 
 // Googleログイン（未ログインユーザーでもアクセス可能）
 Route::get('auth/google', [GoogleLoginController::class, 'redirectToGoogle'])->name('google.login');
