@@ -29,6 +29,13 @@ class StaticPagesController extends Controller
         ]);
     }
 
+    public function howTo()
+{
+    return Inertia::render('Static/HowTo', [
+        'title' => '使い方',
+    ]);
+}
+
     // もしフォーム送信をサーバで受けるなら（POST）
     public function submitContact(Request $request)
     {

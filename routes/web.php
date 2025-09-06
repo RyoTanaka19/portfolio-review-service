@@ -26,6 +26,7 @@ Route::get('/', function () {
 Route::get('/terms', [StaticPagesController::class, 'terms'])->name('terms');
 Route::get('/privacy', [StaticPagesController::class, 'privacy'])->name('privacy');
 Route::get('/contact', [StaticPagesController::class, 'form'])->name('contact');
+Route::get('/how-to', [StaticPagesController::class, 'howTo'])->name('how_to');
 Route::post('/contact', [StaticPagesController::class, 'submitContact'])->name('contact.send');
 
 // Googleログイン（未ログインユーザーでもアクセス可能）
