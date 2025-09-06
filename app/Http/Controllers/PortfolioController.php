@@ -131,43 +131,47 @@ class PortfolioController extends Controller
     }
 
     // 投稿詳細
-    public function show(Portfolio $portfolio)
-    {
-        $portfolio->load(['reviews.user', 'tags', 'user']);
+public function show(Portfolio $portfolio)
+{
+    $portfolio->load(['reviews.user', 'tags', 'user']);
 
-        return Inertia::render('Portfolios/Show', [
-            'portfolio' => [
-                'id' => $portfolio->id,
-                'title' => $portfolio->title,
-                'description' => $portfolio->description,
-                'url' => $portfolio->url,
-                'user_id' => $portfolio->user_id,
-                'user_name' => $portfolio->user->name ?? '未設定',
-                'image_url' => $portfolio->image_path ? Storage::url($portfolio->image_path) : null,
-                'tags' => $portfolio->tags->map(fn($t) => $t->name)->toArray(),
-                'reviews' => $portfolio->reviews->map(function ($r) {
-                    return [
-                        'id' => $r->id,
-                        'comment' => $r->comment,
-                        'rating' => $r->rating,
-                        'user' => [
-                            'id' => $r->user->id,
-                            'name' => $r->user->name ?? '未設定',
-                        ],
-                        'created_at' => $r->created_at->format('Y-m-d H:i'),
-                    ];
-                }),
-            ],
-            'auth' => [
-                'user' => auth()->user() ? [
-                    'id' => auth()->user()->id,
-                    'name' => auth()->user()->name,
-                ] : null,
-            ],
-            'flash' => session()->all(),
-            'errors' => session('errors') ? session('errors')->getBag('default')->toArray() : [],
-        ]);
-    }
+    return Inertia::render('Portfolios/Show', [
+        'portfolio' => [
+            'id' => $portfolio->id,
+            'title' => $portfolio->title,
+            'description' => $portfolio->description,
+            'url' => $portfolio->url,
+            'user_id' => $portfolio->user_id,
+            'user_name' => $portfolio->user->name ?? '未設定',
+            'image_url' => $portfolio->image_path ? Storage::url($portfolio->image_path) : null,
+            'tags' => $portfolio->tags->map(fn($t) => $t->name)->toArray(),
+            'reviews' => $portfolio->reviews->map(function ($r) {
+                return [
+                    'id' => $r->id,
+                    'comment' => $r->comment,
+                    'rating' => $r->rating,
+                    'technical' => $r->technical,       // 技術力
+                    'usability' => $r->usability,       // 使いやすさ
+                    'design' => $r->design,             // デザイン性
+                    'user_focus' => $r->user_focus,     // ユーザー目線
+                    'user' => [
+                        'id' => $r->user->id,
+                        'name' => $r->user->name ?? '未設定',
+                    ],
+                    'created_at' => $r->created_at->format('Y-m-d H:i'),
+                ];
+            }),
+        ],
+        'auth' => [
+            'user' => auth()->user() ? [
+                'id' => auth()->user()->id,
+                'name' => auth()->user()->name,
+            ] : null,
+        ],
+        'flash' => session()->all(),
+        'errors' => session('errors') ? session('errors')->getBag('default')->toArray() : [],
+    ]);
+}
 
     // 投稿編集フォーム
     public function edit(Portfolio $portfolio)
