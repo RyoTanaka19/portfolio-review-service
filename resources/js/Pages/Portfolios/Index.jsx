@@ -9,6 +9,13 @@ export default function Index({ portfolios, auth, filters = {} }) {
     );
     const [tagFilter, setTagFilter] = useState(filters.tag || "");
 
+    // ブックマーク状態を保持
+    const initialBookmarks = {};
+    portfolios.forEach((p) => {
+        initialBookmarks[p.id] = p.is_bookmarked || false;
+    });
+    const [bookmarks, setBookmarks] = useState(initialBookmarks);
+
     const handleDelete = (id) => {
         if (confirm("本当に削除しますか？")) {
             Inertia.delete(`/portfolio/${id}`);
@@ -21,6 +28,34 @@ export default function Index({ portfolios, auth, filters = {} }) {
             { user_name: userNameFilter, tag: tagFilter },
             { preserveState: true }
         );
+    };
+
+    // ブックマークの登録・解除
+    const toggleBookmark = (portfolioId) => {
+        const isBookmarked = bookmarks[portfolioId];
+
+        if (isBookmarked) {
+            // ブックマーク解除
+            Inertia.delete(route("bookmark.destroy", portfolioId), {
+                onSuccess: () => {
+                    setBookmarks((prev) => ({ ...prev, [portfolioId]: false }));
+                },
+            });
+        } else {
+            // ブックマーク登録
+            Inertia.post(
+                route("bookmark.store", portfolioId),
+                {},
+                {
+                    onSuccess: () => {
+                        setBookmarks((prev) => ({
+                            ...prev,
+                            [portfolioId]: true,
+                        }));
+                    },
+                }
+            );
+        }
     };
 
     return (
@@ -89,7 +124,7 @@ export default function Index({ portfolios, auth, filters = {} }) {
                             {/* 画像表示 */}
                             {p.image_url && (
                                 <img
-                                    src={p.image_url} // ← image_url を使う
+                                    src={p.image_url}
                                     alt={p.title}
                                     className="w-full h-40 object-cover mb-2 rounded"
                                 />
@@ -128,6 +163,23 @@ export default function Index({ portfolios, auth, filters = {} }) {
                                         </button>
                                     ))}
                                 </div>
+                            )}
+
+                            {/* ブックマークボタン */}
+                            {auth?.user && (
+                                <button
+                                    type="button"
+                                    onClick={() => toggleBookmark(p.id)}
+                                    className={`mt-2 px-2 py-1 rounded text-sm ${
+                                        bookmarks[p.id]
+                                            ? "bg-yellow-400 text-white"
+                                            : "bg-gray-200 text-gray-800"
+                                    }`}
+                                >
+                                    {bookmarks[p.id]
+                                        ? "★ お気に入り"
+                                        : "☆ お気に入り"}
+                                </button>
                             )}
 
                             {p.url && (

@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\GoogleLoginController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\StaticPagesController;
+use App\Http\Controllers\BookmarkController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -31,6 +32,8 @@ Route::post('/contact', [StaticPagesController::class, 'submitContact'])->name('
 Route::get('auth/google', [GoogleLoginController::class, 'redirectToGoogle'])->name('google.login');
 Route::get('auth/google/callback', [GoogleLoginController::class, 'handleGoogleCallback']);
 
+Route::get('/bookmarks', [BookmarkController::class, 'index'])->name('bookmarks.index');
+
 // ランキング（未ログインでもアクセス可能）
 Route::get('/ranking', [PortfolioController::class, 'ranking'])->name('ranking');
 
@@ -38,6 +41,11 @@ Route::get('/ranking', [PortfolioController::class, 'ranking'])->name('ranking')
 Route::middleware('auth')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('/portfolio/{portfolio}/bookmark', [BookmarkController::class, 'store'])->name('bookmark.store');
+    Route::delete('/portfolio/{portfolio}/bookmark', [BookmarkController::class, 'destroy'])->name('bookmark.destroy');
 });
 
 // 認証済みユーザー用ルート

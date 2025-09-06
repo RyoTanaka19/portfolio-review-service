@@ -142,6 +142,7 @@ export default function Header() {
                                 </div>
 
                                 {/* AI相談 / ランキング / 投稿リンク */}
+                                {/* AI相談 / ランキング / 投稿 / お気に入りリンク */}
                                 <div className="flex items-center gap-2">
                                     <Link
                                         href="/advice/create"
@@ -160,6 +161,12 @@ export default function Header() {
                                         className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
                                     >
                                         投稿
+                                    </Link>
+                                    <Link
+                                        href={route("bookmarks.index")}
+                                        className="px-3 py-1 bg-pink-500 text-white rounded hover:bg-pink-600 text-sm"
+                                    >
+                                        お気に入り
                                     </Link>
                                 </div>
 
@@ -245,6 +252,12 @@ export default function Header() {
                                     className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                                 >
                                     投稿
+                                </Link>
+                                <Link
+                                    href={route("bookmarks.index")}
+                                    className="px-4 py-2 bg-pink-500 text-white rounded hover:bg-pink-600"
+                                >
+                                    お気に入り
                                 </Link>
                                 <Link
                                     href="/profile"
