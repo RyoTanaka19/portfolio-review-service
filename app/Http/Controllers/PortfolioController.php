@@ -11,55 +11,61 @@ use Illuminate\Support\Facades\Storage;
 class PortfolioController extends Controller
 {
     // 投稿一覧表示（検索対応）
-    public function index(Request $request)
-    {
-        $query = Portfolio::with(['tags', 'reviews.user', 'user'])
-            ->where('user_id', auth()->id());
+public function index(Request $request)
+{
+    $query = Portfolio::with(['tags', 'reviews.user', 'user', 'bookmarks'])
+        ->where('user_id', auth()->id());
 
-        if ($request->filled('user_name')) {
-            $userName = $request->input('user_name');
-            $query->whereHas('user', function ($q) use ($userName) {
-                $q->where('name', 'like', "%{$userName}%");
-            });
-        }
-
-        if ($request->filled('tag')) {
-            $tagName = $request->input('tag');
-            $query->whereHas('tags', function ($q) use ($tagName) {
-                $q->where('name', 'like', "%{$tagName}%");
-            });
-        }
-
-        $portfolios = $query->get()->map(function ($p) {
-            return [
-                'id' => $p->id,
-                'title' => $p->title,
-                'description' => $p->description,
-                'url' => $p->url,
-                'user_id' => $p->user_id,
-                'user_name' => $p->user->name ?? '未設定',
-                'image_url' => $p->image_path ? Storage::url($p->image_path) : null,
-                'tags' => $p->tags->map(fn($t) => $t->name)->toArray(),
-                'reviews' => $p->reviews->map(function ($r) {
-                    return [
-                        'id' => $r->id,
-                        'comment' => $r->comment,
-                        'rating' => $r->rating,
-                        'user' => [
-                            'id' => $r->user->id,
-                            'name' => $r->user->name ?? '未設定',
-                        ],
-                        'created_at' => $r->created_at->format('Y-m-d H:i'),
-                    ];
-                }),
-            ];
+    if ($request->filled('user_name')) {
+        $userName = $request->input('user_name');
+        $query->whereHas('user', function ($q) use ($userName) {
+            $q->where('name', 'like', "%{$userName}%");
         });
-
-        return Inertia::render('Portfolios/Index', [
-            'portfolios' => $portfolios,
-            'filters' => $request->only(['user_name', 'tag']),
-        ]);
     }
+
+    if ($request->filled('tag')) {
+        $tagName = $request->input('tag');
+        $query->whereHas('tags', function ($q) use ($tagName) {
+            $q->where('name', 'like', "%{$tagName}%");
+        });
+    }
+
+    $userId = auth()->id();
+
+    $portfolios = $query->get()->map(function ($p) use ($userId) {
+        // ログインユーザーがブックマーク済みか判定
+        $isBookmarked = $p->bookmarks->contains('user_id', $userId);
+
+        return [
+            'id' => $p->id,
+            'title' => $p->title,
+            'description' => $p->description,
+            'url' => $p->url,
+            'user_id' => $p->user_id,
+            'user_name' => $p->user->name ?? '未設定',
+            'image_url' => $p->image_path ? Storage::url($p->image_path) : null,
+            'tags' => $p->tags->map(fn($t) => $t->name)->toArray(),
+            'reviews' => $p->reviews->map(function ($r) {
+                return [
+                    'id' => $r->id,
+                    'comment' => $r->comment,
+                    'rating' => $r->rating,
+                    'user' => [
+                        'id' => $r->user->id,
+                        'name' => $r->user->name ?? '未設定',
+                    ],
+                    'created_at' => $r->created_at->format('Y-m-d H:i'),
+                ];
+            }),
+            'is_bookmarked' => $isBookmarked, // ← ここで初期状態を渡す
+        ];
+    });
+
+    return Inertia::render('Portfolios/Index', [
+        'portfolios' => $portfolios,
+        'filters' => $request->only(['user_name', 'tag']),
+    ]);
+}
 
     // ランキング表示
     public function ranking()
