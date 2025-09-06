@@ -3,19 +3,21 @@ import { Inertia } from "@inertiajs/inertia";
 import axios from "axios";
 
 export default function ReviewIndex({ portfolio, auth, errors, flash }) {
-    const [rating, setRating] = useState(5);
     const [comment, setComment] = useState("");
+    const [technical, setTechnical] = useState(5); // 技術力
+    const [usability, setUsability] = useState(5); // 使いやすさ
+    const [design, setDesign] = useState(5); // デザイン性
+    const [userFocus, setUserFocus] = useState(5); // ユーザー目線
     const [showFlash, setShowFlash] = useState(false);
 
-    // レビュー管理（checked プロパティを初期化）
     const [reviews, setReviews] = useState(
         (portfolio.reviews || []).map((r) => ({ ...r, checked: false }))
     );
-
-    // 通知管理
     const [notifications, setNotifications] = useState([]);
 
-    // フラッシュメッセージ表示
+    // 4項目から総合評価を自動計算（四捨五入）
+    const rating = Math.round((technical + usability + design + userFocus) / 4);
+
     useEffect(() => {
         if (flash?.success) {
             setShowFlash(true);
@@ -24,7 +26,6 @@ export default function ReviewIndex({ portfolio, auth, errors, flash }) {
         }
     }, [flash?.success]);
 
-    // 初期通知取得
     useEffect(() => {
         const fetchNotifications = async () => {
             try {
@@ -37,7 +38,6 @@ export default function ReviewIndex({ portfolio, auth, errors, flash }) {
         fetchNotifications();
     }, []);
 
-    // 通知を既読にする
     const markNotificationAsRead = async (id) => {
         try {
             await axios.post(`/notifications/${id}/read`);
@@ -47,33 +47,35 @@ export default function ReviewIndex({ portfolio, auth, errors, flash }) {
         }
     };
 
-    // チェックボックス切り替え + サーバー通知（チェック時のみ送信）
     const toggleReviewChecked = async (review) => {
-        const isChecked = !review.checked; // 今の状態と反転
-
-        // フロント側の checked 状態切替
+        const isChecked = !review.checked;
         setReviews((prev) =>
             prev.map((r) =>
                 r.id === review.id ? { ...r, checked: isChecked } : r
             )
         );
 
-        // チェックを入れた場合のみ通知を送信
         if (isChecked) {
             try {
                 await axios.post(`/reviews/${review.id}/check`);
-                // 成功時は必要に応じてフラッシュ表示など可能
             } catch (error) {
                 console.error("通知送信に失敗:", error);
             }
         }
     };
-    // レビュー投稿
+
     const submitReview = (e) => {
         e.preventDefault();
         Inertia.post(
             `/portfolio/${portfolio.id}/reviews`,
-            { rating, comment },
+            {
+                rating, // 自動計算された値
+                comment,
+                technical,
+                usability,
+                design,
+                user_focus: userFocus,
+            },
             {
                 onSuccess: (page) => {
                     setReviews(
@@ -82,15 +84,18 @@ export default function ReviewIndex({ portfolio, auth, errors, flash }) {
                             checked: false,
                         }))
                     );
+                    // フォーム初期化
                     setComment("");
-                    setRating(5);
+                    setTechnical(5);
+                    setUsability(5);
+                    setDesign(5);
+                    setUserFocus(5);
                 },
                 preserveScroll: true,
             }
         );
     };
 
-    // レビュー削除
     const deleteReview = (reviewId) => {
         if (!confirm("本当に削除しますか？")) return;
         Inertia.delete(`/portfolio/${portfolio.id}/reviews/${reviewId}`, {
@@ -108,7 +113,6 @@ export default function ReviewIndex({ portfolio, auth, errors, flash }) {
 
     return (
         <div className="mt-6 mb-6">
-            {/* フラッシュ */}
             {showFlash && (
                 <div className="fixed top-5 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded shadow-lg z-50 animate-fade-in-out">
                     {flash.success}
@@ -135,8 +139,6 @@ export default function ReviewIndex({ portfolio, auth, errors, flash }) {
                                     投稿者: {review.user?.name || "不明"}
                                 </span>
                             </div>
-
-                            {/* チェックボックス */}
                             <div className="flex items-center gap-2">
                                 <input
                                     type="checkbox"
@@ -147,7 +149,6 @@ export default function ReviewIndex({ portfolio, auth, errors, flash }) {
                                     {review.comment}
                                 </p>
                             </div>
-
                             {auth?.id === review.user?.id && (
                                 <button
                                     onClick={() => deleteReview(review.id)}
@@ -170,29 +171,20 @@ export default function ReviewIndex({ portfolio, auth, errors, flash }) {
                         レビューを投稿する
                     </h2>
                     <form onSubmit={submitReview} className="space-y-4">
+                        {/* 総合評価（自動計算） */}
                         <div>
                             <label className="block text-gray-700 mb-1">
-                                評価 (1~5)
+                                総合評価 (自動計算)
                             </label>
-                            <select
+                            <input
+                                type="text"
                                 value={rating}
-                                onChange={(e) =>
-                                    setRating(Number(e.target.value))
-                                }
-                                className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                            >
-                                {[1, 2, 3, 4, 5].map((num) => (
-                                    <option key={num} value={num}>
-                                        {num}
-                                    </option>
-                                ))}
-                            </select>
-                            {errors?.rating && (
-                                <p className="text-red-500 mt-1">
-                                    {errors.rating}
-                                </p>
-                            )}
+                                readOnly
+                                className="w-full border rounded px-3 py-2 bg-gray-100"
+                            />
                         </div>
+
+                        {/* コメント */}
                         <div>
                             <label className="block text-gray-700 mb-1">
                                 コメント
@@ -208,6 +200,90 @@ export default function ReviewIndex({ portfolio, auth, errors, flash }) {
                                 </p>
                             )}
                         </div>
+
+                        {/* 4項目評価 */}
+                        <div className="grid grid-cols-2 gap-4">
+                            {/* 技術力 */}
+                            <div>
+                                <label className="block text-gray-700 mb-1">
+                                    技術力
+                                </label>
+                                <select
+                                    value={technical}
+                                    onChange={(e) =>
+                                        setTechnical(Number(e.target.value))
+                                    }
+                                    className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                >
+                                    {[1, 2, 3, 4, 5].map((num) => (
+                                        <option key={num} value={num}>
+                                            {num}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* 使いやすさ */}
+                            <div>
+                                <label className="block text-gray-700 mb-1">
+                                    使いやすさ
+                                </label>
+                                <select
+                                    value={usability}
+                                    onChange={(e) =>
+                                        setUsability(Number(e.target.value))
+                                    }
+                                    className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                >
+                                    {[1, 2, 3, 4, 5].map((num) => (
+                                        <option key={num} value={num}>
+                                            {num}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* デザイン性 */}
+                            <div>
+                                <label className="block text-gray-700 mb-1">
+                                    デザイン性
+                                </label>
+                                <select
+                                    value={design}
+                                    onChange={(e) =>
+                                        setDesign(Number(e.target.value))
+                                    }
+                                    className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                >
+                                    {[1, 2, 3, 4, 5].map((num) => (
+                                        <option key={num} value={num}>
+                                            {num}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* ユーザー目線 */}
+                            <div>
+                                <label className="block text-gray-700 mb-1">
+                                    ユーザー目線
+                                </label>
+                                <select
+                                    value={userFocus}
+                                    onChange={(e) =>
+                                        setUserFocus(Number(e.target.value))
+                                    }
+                                    className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                >
+                                    {[1, 2, 3, 4, 5].map((num) => (
+                                        <option key={num} value={num}>
+                                            {num}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
                         <button
                             type="submit"
                             className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
