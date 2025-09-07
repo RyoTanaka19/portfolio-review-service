@@ -9,9 +9,14 @@ class Portfolio extends Model
 {
     use HasFactory;
 
-    // 画像パスも保存できるように image_path を追加
+    // 画像パスやGitHub URLも保存できるようにfillableを修正
     protected $fillable = [
-        'user_id', 'title', 'description', 'url', 'image_path'
+        'user_id', 
+        'title', 
+        'description', 
+        'url', 
+        'github_url',  // 追加
+        'image_path'
     ];
 
     /**
