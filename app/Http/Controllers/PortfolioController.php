@@ -13,9 +13,12 @@ class PortfolioController extends Controller
     // 投稿一覧表示（検索対応）
 public function index(Request $request)
 {
-    $query = Portfolio::with(['tags', 'reviews.user', 'user', 'bookmarks'])
-        ->where('user_id', auth()->id());
+    $userId = auth()->id(); // 未ログイン時は null
 
+    // 全ポートフォリオ取得（ログインユーザー絞り込みはしない）
+    $query = Portfolio::with(['tags', 'reviews.user', 'user', 'bookmarks']);
+
+    // ユーザー名で検索
     if ($request->filled('user_name')) {
         $userName = $request->input('user_name');
         $query->whereHas('user', function ($q) use ($userName) {
@@ -23,6 +26,7 @@ public function index(Request $request)
         });
     }
 
+    // タグで検索
     if ($request->filled('tag')) {
         $tagName = $request->input('tag');
         $query->whereHas('tags', function ($q) use ($tagName) {
@@ -30,11 +34,8 @@ public function index(Request $request)
         });
     }
 
-    $userId = auth()->id();
-
     $portfolios = $query->get()->map(function ($p) use ($userId) {
-        // ログインユーザーがブックマーク済みか判定
-        $isBookmarked = $p->bookmarks->contains('user_id', $userId);
+        $isBookmarked = $userId ? $p->bookmarks->contains('user_id', $userId) : false;
 
         return [
             'id' => $p->id,
@@ -57,15 +58,22 @@ public function index(Request $request)
                     'created_at' => $r->created_at->format('Y-m-d H:i'),
                 ];
             }),
-            'is_bookmarked' => $isBookmarked, // ← ここで初期状態を渡す
+            'is_bookmarked' => $isBookmarked,
         ];
     });
 
     return Inertia::render('Portfolios/Index', [
         'portfolios' => $portfolios,
         'filters' => $request->only(['user_name', 'tag']),
+        'auth' => [
+            'user' => $userId ? [
+                'id' => $userId,
+                'name' => auth()->user()->name,
+            ] : null,
+        ],
     ]);
 }
+
 
     // ランキング表示
     public function ranking()

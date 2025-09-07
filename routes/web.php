@@ -54,11 +54,14 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/portfolio/{portfolio}/bookmark', [BookmarkController::class, 'destroy'])->name('bookmark.destroy');
 });
 
+// 誰でもアクセスできるポートフォリオ一覧
+
+ Route::get('/portfolio', [PortfolioController::class, 'index'])->name('dashboard');
+
 // 認証済みユーザー用ルート
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    // ポートフォリオ関連
-    Route::get('/portfolio', [PortfolioController::class, 'index'])->name('dashboard');
+    // ポートフォリオ関連（作成・編集・削除など）
     Route::get('/portfolio/create', [PortfolioController::class, 'create'])->name('portfolio.create');
     Route::post('/portfolio', [PortfolioController::class, 'store'])->name('portfolio.store');
 

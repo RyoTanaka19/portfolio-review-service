@@ -1,19 +1,21 @@
-// resources/js/Home.jsx
+// resources/js/Pages/Home.jsx
 import React, { useEffect } from "react";
-import { InertiaLink } from "@inertiajs/inertia-react";
+import { Link, usePage } from "@inertiajs/react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 
-const Home = ({ canLogin, canRegister }) => {
+const Home = () => {
+    const { auth } = usePage().props; // Laravel の auth.user を取得
+
     useEffect(() => {
         AOS.init({
-            once: true, // 1回だけアニメーション（上に戻っても再生しない）
+            once: true,
             duration: 600,
             offset: 120,
             easing: "ease-out-cubic",
-            disable: "mobile", // 必要ならモバイルで無効化
+            disable: "mobile",
         });
-        AOS.refresh(); // 確実に位置を計算し直す
+        AOS.refresh();
     }, []);
 
     const items = [
@@ -40,30 +42,56 @@ const Home = ({ canLogin, canRegister }) => {
             </div>
 
             <div className="space-x-4 mb-8">
-                {canLogin && (
-                    <InertiaLink
-                        href={route("login")}
-                        className="btn py-2 px-4 bg-blue-500 text-white rounded-md"
-                    >
-                        ログイン
-                    </InertiaLink>
+                {auth.user ? (
+                    // ログイン中
+                    <>
+                        <Link
+                            href={route("logout")}
+                            method="post"
+                            className="btn py-2 px-4 bg-red-500 text-white rounded-md"
+                        >
+                            ログアウト
+                        </Link>
+                        <Link
+                            href={route("portfolio.create")}
+                            className="btn py-2 px-4 bg-green-500 text-white rounded-md"
+                        >
+                            ポートフォリオ投稿
+                        </Link>
+                    </>
+                ) : (
+                    // ログアウト中
+                    <>
+                        <Link
+                            href={route("login")}
+                            className="btn py-2 px-4 bg-blue-500 text-white rounded-md"
+                        >
+                            ログイン
+                        </Link>
+                        <Link
+                            href={route("register")}
+                            className="btn py-2 px-4 bg-green-500 text-white rounded-md"
+                        >
+                            新規登録
+                        </Link>
+                    </>
                 )}
-                {canRegister && (
-                    <InertiaLink
-                        href={route("register")}
-                        className="btn py-2 px-4 bg-green-500 text-white rounded-md"
-                    >
-                        新規登録
-                    </InertiaLink>
-                )}
+
+                {/* ログイン関係なく常に表示 */}
+                <Link
+                    href={route("dashboard")}
+                    className="btn py-2 px-4 bg-purple-500 text-white rounded-md"
+                >
+                    ポートフォリオ一覧
+                </Link>
             </div>
 
             <div className="w-full max-w-3xl space-y-6 px-4">
                 {items.map((it, i) => (
                     <div
                         key={i}
-                        data-aos="fade-up" // アニメーションの種類
-                        data-aos-delay={i * 150} // i による遅延で 1つずつ表示される
+                        data-aos="fade-up"
+                        data-aos-delay={i * 150}
                         className="bg-white p-6 rounded-lg shadow"
                     >
                         <h3 className="text-xl font-semibold">{it.title}</h3>
