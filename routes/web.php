@@ -9,6 +9,7 @@ use App\Http\Controllers\TagController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\StaticPagesController;
 use App\Http\Controllers\BookmarkController;
+use App\Http\Controllers\AutocompleteController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -22,6 +23,7 @@ Route::get('/', function () {
         'phpVersion' => PHP_VERSION,
     ]);
 });
+Route::get('/autocomplete/users', [AutocompleteController::class, 'user']);
 
 Route::get('/terms', [StaticPagesController::class, 'terms'])->name('terms');
 Route::get('/privacy', [StaticPagesController::class, 'privacy'])->name('privacy');

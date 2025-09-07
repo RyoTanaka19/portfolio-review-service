@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Inertia } from "@inertiajs/inertia";
 import { InertiaLink } from "@inertiajs/inertia-react";
 import AppLayout from "@/Layouts/AppLayout";
+import axios from "axios";
 
 export default function Index({
     portfolios,
@@ -13,6 +14,7 @@ export default function Index({
         filters.user_name || ""
     );
     const [tagFilter, setTagFilter] = useState(filters.tag || "");
+    const [suggestions, setSuggestions] = useState([]); // オートコンプリート候補
 
     // ブックマーク状態を保持
     const initialBookmarks = {};
@@ -21,18 +23,21 @@ export default function Index({
     });
     const [bookmarks, setBookmarks] = useState(initialBookmarks);
 
+    // 削除処理
     const handleDelete = (id) => {
         if (confirm("本当に削除しますか？")) {
             Inertia.delete(`/portfolio/${id}`);
         }
     };
 
+    // 検索処理
     const handleSearch = () => {
         Inertia.get(
             route("dashboard"),
             { user_name: userNameFilter, tag: tagFilter },
             { preserveState: true }
         );
+        setSuggestions([]); // 検索時は候補を消す
     };
 
     // ブックマークの登録・解除
@@ -59,6 +64,31 @@ export default function Index({
                 }
             );
         }
+    };
+
+    // 🔍 ユーザー候補取得
+    const fetchUserSuggestions = async (query) => {
+        if (!query) {
+            setSuggestions([]);
+            return;
+        }
+
+        try {
+            const res = await axios.get("/autocomplete/users", {
+                params: { query },
+            });
+            setSuggestions(res.data);
+        } catch (err) {
+            console.error("ユーザー候補取得エラー:", err);
+            setSuggestions([]);
+        }
+    };
+
+    // 入力時にサジェスト取得
+    const handleUserInput = (e) => {
+        const value = e.target.value;
+        setUserNameFilter(value);
+        fetchUserSuggestions(value);
     };
 
     return (
@@ -88,7 +118,7 @@ export default function Index({
                         </div>
 
                         {/* ユーザー名検索（中央） */}
-                        <div className="flex flex-col">
+                        <div className="flex flex-col relative">
                             <label className="text-sm font-medium mb-1">
                                 ユーザー名で検索
                             </label>
@@ -96,11 +126,26 @@ export default function Index({
                                 type="text"
                                 placeholder="例: Tanaka"
                                 value={userNameFilter}
-                                onChange={(e) =>
-                                    setUserNameFilter(e.target.value)
-                                }
+                                onChange={handleUserInput}
                                 className="border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                             />
+                            {/* 候補リスト */}
+                            {suggestions.length > 0 && (
+                                <ul className="absolute top-full mt-2 z-10 bg-white border w-full max-h-48 overflow-y-auto shadow rounded">
+                                    {suggestions.map((user) => (
+                                        <li
+                                            key={user.id}
+                                            className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                                            onClick={() => {
+                                                setUserNameFilter(user.name);
+                                                setSuggestions([]);
+                                            }}
+                                        >
+                                            {user.name}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
                         </div>
 
                         {/* 検索ボタン（右） */}
@@ -117,6 +162,7 @@ export default function Index({
                 </div>
             </header>
 
+            {/* 以下はポートフォリオ一覧部分（省略せず残してOK） */}
             <main className="px-8 py-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {portfolios.map((p) => {
                     const averageRating =
