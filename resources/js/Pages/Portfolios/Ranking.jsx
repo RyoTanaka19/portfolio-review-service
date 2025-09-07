@@ -16,6 +16,34 @@ export default function Ranking({ portfolios }) {
                 <p className="text-gray-600 mt-2 text-base">
                     平均評価（同点はレビュー件数が多い順）
                 </p>
+
+                {/* 評価項目別ランキングリンク */}
+                <div className="mt-4 flex justify-center gap-4 flex-wrap">
+                    <a
+                        href="/ranking/technical"
+                        className="px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium hover:bg-blue-200"
+                    >
+                        技術力
+                    </a>
+                    <a
+                        href="/ranking/usability"
+                        className="px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium hover:bg-green-200"
+                    >
+                        使いやすさ
+                    </a>
+                    <a
+                        href="/ranking/design"
+                        className="px-4 py-2 bg-pink-100 text-pink-800 rounded-full text-sm font-medium hover:bg-pink-200"
+                    >
+                        デザイン性
+                    </a>
+                    <a
+                        href="/ranking/user-focus"
+                        className="px-4 py-2 bg-purple-100 text-purple-800 rounded-full text-sm font-medium hover:bg-purple-200"
+                    >
+                        ユーザー目線
+                    </a>
+                </div>
             </header>
 
             <main className="px-8 py-10 max-w-4xl mx-auto">
