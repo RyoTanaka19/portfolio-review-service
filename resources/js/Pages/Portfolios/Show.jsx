@@ -23,10 +23,11 @@ ChartJS.register(
     Legend
 );
 
+// （省略：importやChart.js設定はそのまま）
+
 export default function Show({ portfolio, auth, errors, flash }) {
     const reviewCount = portfolio.reviews?.length || 0;
 
-    // 各評価の平均計算
     const avg = (key) =>
         reviewCount
             ? (
@@ -35,7 +36,6 @@ export default function Show({ portfolio, auth, errors, flash }) {
               ).toFixed(1)
             : 0;
 
-    // Chart.js データ
     const chartData = {
         labels: [
             "総合評価",
@@ -55,11 +55,11 @@ export default function Show({ portfolio, auth, errors, flash }) {
                     avg("user_focus"),
                 ],
                 backgroundColor: [
-                    "rgba(107, 114, 128, 0.7)", // 総合評価: グレー
-                    "rgba(37, 99, 235, 0.7)", // 技術力: ブルー
-                    "rgba(16, 185, 129, 0.7)", // 使いやすさ: グリーン
-                    "rgba(234, 179, 8, 0.7)", // デザイン性: イエロー
-                    "rgba(239, 68, 68, 0.7)", // ユーザー目線: レッド
+                    "rgba(107, 114, 128, 0.7)",
+                    "rgba(37, 99, 235, 0.7)",
+                    "rgba(16, 185, 129, 0.7)",
+                    "rgba(234, 179, 8, 0.7)",
+                    "rgba(239, 68, 68, 0.7)",
                 ],
                 borderColor: [
                     "rgba(107, 114, 128, 1)",
@@ -84,11 +84,7 @@ export default function Show({ portfolio, auth, errors, flash }) {
             },
         },
         scales: {
-            y: {
-                min: 0,
-                max: 5,
-                ticks: { stepSize: 1 },
-            },
+            y: { min: 0, max: 5, ticks: { stepSize: 1 } },
         },
     };
 
@@ -185,12 +181,23 @@ export default function Show({ portfolio, auth, errors, flash }) {
                         )}
 
                         {/* レビュー */}
-                        <ReviewIndex
-                            portfolio={portfolio}
-                            auth={auth}
-                            errors={errors}
-                            flash={flash}
-                        />
+                        {auth.user ? (
+                            <ReviewIndex
+                                portfolio={portfolio}
+                                auth={auth}
+                                errors={errors}
+                                flash={flash}
+                            />
+                        ) : (
+                            <div className="text-center text-gray-600 mt-8">
+                                <InertiaLink
+                                    href={route("login")}
+                                    className="text-blue-500 hover:underline"
+                                >
+                                    レビューを投稿するにはログインしてください
+                                </InertiaLink>
+                            </div>
+                        )}
 
                         {/* 一覧に戻る */}
                         <div className="text-center mt-8">
