@@ -62,16 +62,19 @@ public function index(Request $request)
         ];
     });
 
-    return Inertia::render('Portfolios/Index', [
-        'portfolios' => $portfolios,
-        'filters' => $request->only(['user_name', 'tag']),
-        'auth' => [
-            'user' => $userId ? [
-                'id' => $userId,
-                'name' => auth()->user()->name,
-            ] : null,
-        ],
-    ]);
+    $allTags = Tag::pluck('name'); 
+
+return Inertia::render('Portfolios/Index', [
+    'portfolios' => $portfolios,
+    'filters' => $request->only(['user_name', 'tag']),
+    'auth' => [
+        'user' => $userId ? [
+            'id' => $userId,
+            'name' => auth()->user()->name,
+        ] : null,
+    ],
+    'allTags' => $allTags,
+]);
 }
 
 
