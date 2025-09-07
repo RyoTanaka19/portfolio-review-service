@@ -140,6 +140,23 @@ export default function Show({ portfolio, auth, errors, flash }) {
                             </div>
                         )}
 
+                        {/* GitHub URL */}
+                        {portfolio.github_url && (
+                            <div className="mb-6">
+                                <h2 className="text-xl font-semibold mb-2 text-gray-700">
+                                    GitHub URL
+                                </h2>
+                                <a
+                                    href={portfolio.github_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-500 hover:underline break-all"
+                                >
+                                    {portfolio.github_url}
+                                </a>
+                            </div>
+                        )}
+
                         {/* タグ */}
                         {portfolio.tags && portfolio.tags.length > 0 && (
                             <div className="mb-6">
