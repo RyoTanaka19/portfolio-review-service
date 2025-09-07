@@ -3,7 +3,12 @@ import { Inertia } from "@inertiajs/inertia";
 import { InertiaLink } from "@inertiajs/inertia-react";
 import AppLayout from "@/Layouts/AppLayout";
 
-export default function Index({ portfolios, auth, filters = {} }) {
+export default function Index({
+    portfolios,
+    auth,
+    filters = {},
+    allTags = [],
+}) {
     const [userNameFilter, setUserNameFilter] = useState(
         filters.user_name || ""
     );
@@ -35,14 +40,12 @@ export default function Index({ portfolios, auth, filters = {} }) {
         const isBookmarked = bookmarks[portfolioId];
 
         if (isBookmarked) {
-            // ブックマーク解除
             Inertia.delete(route("bookmark.destroy", portfolioId), {
                 onSuccess: () => {
                     setBookmarks((prev) => ({ ...prev, [portfolioId]: false }));
                 },
             });
         } else {
-            // ブックマーク登録
             Inertia.post(
                 route("bookmark.store", portfolioId),
                 {},
@@ -60,31 +63,57 @@ export default function Index({ portfolios, auth, filters = {} }) {
 
     return (
         <AppLayout>
-            <header className="px-8 py-4 bg-white shadow flex flex-col items-center">
+            <header className="px-8 py-6 bg-white shadow flex flex-col items-center">
                 <h1 className="text-2xl font-bold mb-4">投稿一覧</h1>
 
-                <div className="flex gap-2 items-center">
-                    <input
-                        type="text"
-                        placeholder="ユーザー名で検索"
-                        value={userNameFilter}
-                        onChange={(e) => setUserNameFilter(e.target.value)}
-                        className="border px-2 py-1 rounded"
-                    />
-                    <input
-                        type="text"
-                        placeholder="タグで検索"
-                        value={tagFilter}
-                        onChange={(e) => setTagFilter(e.target.value)}
-                        className="border px-2 py-1 rounded"
-                    />
-                    <button
-                        type="button"
-                        onClick={handleSearch}
-                        className="px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                    >
-                        検索
-                    </button>
+                <div className="w-full max-w-3xl">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                        {/* タグ検索（左） */}
+                        <div className="flex flex-col">
+                            <label className="text-sm font-medium mb-1">
+                                タグで検索
+                            </label>
+                            <select
+                                value={tagFilter}
+                                onChange={(e) => setTagFilter(e.target.value)}
+                                className="border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            >
+                                <option value="">タグを選択</option>
+                                {allTags.map((tag, idx) => (
+                                    <option key={idx} value={tag}>
+                                        {tag}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* ユーザー名検索（中央） */}
+                        <div className="flex flex-col">
+                            <label className="text-sm font-medium mb-1">
+                                ユーザー名で検索
+                            </label>
+                            <input
+                                type="text"
+                                placeholder="例: Tanaka"
+                                value={userNameFilter}
+                                onChange={(e) =>
+                                    setUserNameFilter(e.target.value)
+                                }
+                                className="border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            />
+                        </div>
+
+                        {/* 検索ボタン（右） */}
+                        <div className="flex items-center mt-2 md:mt-0">
+                            <button
+                                type="button"
+                                onClick={handleSearch}
+                                className="w-full md:w-auto px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                            >
+                                検索
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </header>
 
@@ -121,7 +150,6 @@ export default function Index({ portfolios, auth, filters = {} }) {
                                 </span>
                             </div>
 
-                            {/* 画像表示 */}
                             {p.image_url && (
                                 <img
                                     src={p.image_url}
@@ -145,7 +173,6 @@ export default function Index({ portfolios, auth, filters = {} }) {
                                 </p>
                             )}
 
-                            {/* タグ */}
                             {p.tags && p.tags.length > 0 && (
                                 <div className="mt-2 flex flex-wrap gap-1">
                                     {p.tags.map((tag, idx) => (
@@ -165,7 +192,6 @@ export default function Index({ portfolios, auth, filters = {} }) {
                                 </div>
                             )}
 
-                            {/* ブックマークボタン */}
                             {auth?.user && (
                                 <button
                                     type="button"
@@ -189,7 +215,7 @@ export default function Index({ portfolios, auth, filters = {} }) {
                                     rel="noopener noreferrer"
                                     className="text-blue-500 text-sm block mt-2"
                                 >
-                                    Visit
+                                    サイトを見る→
                                 </a>
                             )}
 
