@@ -94,6 +94,115 @@ public function index(Request $request)
         ]);
     }
 
+    // 評価項目別ランキング（技術力）
+public function rankingTechnical()
+{
+    $portfolios = Portfolio::with(['user', 'tags', 'reviews'])
+        ->withAvg('reviews', 'technical')
+        ->orderByDesc('reviews_avg_technical')
+        ->take(10)
+        ->get()
+        ->map(function ($p) {
+            return [
+                'id' => $p->id,
+                'title' => $p->title,
+                'description' => $p->description,
+                'url' => $p->url,
+                'user_name' => $p->user->name ?? '未設定',
+                'image_url' => $p->image_path ? Storage::url($p->image_path) : null,
+                'tags' => $p->tags->map(fn($t) => $t->name)->toArray(),
+                'avg_rating' => round($p->reviews_avg_technical, 2),
+                'review_count' => $p->reviews->count(),
+            ];
+        });
+
+    return Inertia::render('Portfolios/RankingTechnical', [
+        'portfolios' => $portfolios,
+    ]);
+}
+
+// 評価項目別ランキング（使いやすさ）
+public function rankingUsability()
+{
+    $portfolios = Portfolio::with(['user', 'tags', 'reviews'])
+        ->withAvg('reviews', 'usability')
+        ->orderByDesc('reviews_avg_usability')
+        ->take(10)
+        ->get()
+        ->map(function ($p) {
+            return [
+                'id' => $p->id,
+                'title' => $p->title,
+                'description' => $p->description,
+                'url' => $p->url,
+                'user_name' => $p->user->name ?? '未設定',
+                'image_url' => $p->image_path ? Storage::url($p->image_path) : null,
+                'tags' => $p->tags->map(fn($t) => $t->name)->toArray(),
+                'avg_rating' => round($p->reviews_avg_usability, 2),
+                'review_count' => $p->reviews->count(),
+            ];
+        });
+
+    return Inertia::render('Portfolios/RankingUsability', [
+        'portfolios' => $portfolios,
+    ]);
+}
+
+// 評価項目別ランキング（デザイン性）
+public function rankingDesign()
+{
+    $portfolios = Portfolio::with(['user', 'tags', 'reviews'])
+        ->withAvg('reviews', 'design')
+        ->orderByDesc('reviews_avg_design')
+        ->take(10)
+        ->get()
+        ->map(function ($p) {
+            return [
+                'id' => $p->id,
+                'title' => $p->title,
+                'description' => $p->description,
+                'url' => $p->url,
+                'user_name' => $p->user->name ?? '未設定',
+                'image_url' => $p->image_path ? Storage::url($p->image_path) : null,
+                'tags' => $p->tags->map(fn($t) => $t->name)->toArray(),
+                'avg_rating' => round($p->reviews_avg_design, 2),
+                'review_count' => $p->reviews->count(),
+            ];
+        });
+
+    return Inertia::render('Portfolios/RankingDesign', [
+        'portfolios' => $portfolios,
+    ]);
+}
+
+// 評価項目別ランキング（ユーザー目線）
+public function rankingUserFocus()
+{
+    $portfolios = Portfolio::with(['user', 'tags', 'reviews'])
+        ->withAvg('reviews', 'user_focus')
+        ->orderByDesc('reviews_avg_user_focus')
+        ->take(10)
+        ->get()
+        ->map(function ($p) {
+            return [
+                'id' => $p->id,
+                'title' => $p->title,
+                'description' => $p->description,
+                'url' => $p->url,
+                'user_name' => $p->user->name ?? '未設定',
+                'image_url' => $p->image_path ? Storage::url($p->image_path) : null,
+                'tags' => $p->tags->map(fn($t) => $t->name)->toArray(),
+                'avg_rating' => round($p->reviews_avg_user_focus, 2),
+                'review_count' => $p->reviews->count(),
+            ];
+        });
+
+    return Inertia::render('Portfolios/RankingUserFocus', [
+        'portfolios' => $portfolios,
+    ]);
+}
+
+
     // 新規投稿フォーム
     public function create()
     {

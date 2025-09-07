@@ -38,6 +38,11 @@ Route::get('/bookmarks', [BookmarkController::class, 'index'])->name('bookmarks.
 // ランキング（未ログインでもアクセス可能）
 Route::get('/ranking', [PortfolioController::class, 'ranking'])->name('ranking');
 
+Route::get('/ranking/technical', [PortfolioController::class, 'rankingTechnical'])->name('ranking.technical');
+Route::get('/ranking/usability', [PortfolioController::class, 'rankingUsability'])->name('ranking.usability');
+Route::get('/ranking/design', [PortfolioController::class, 'rankingDesign'])->name('ranking.design');
+Route::get('/ranking/user-focus', [PortfolioController::class, 'rankingUserFocus'])->name('ranking.user_focus');
+
 // 通知関連（要ログイン）
 Route::middleware('auth')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index']);
