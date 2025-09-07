@@ -42,6 +42,7 @@ public function index(Request $request)
             'title' => $p->title,
             'description' => $p->description,
             'url' => $p->url,
+            'github_url' => $p->github_url, 
             'user_id' => $p->user_id,
             'user_name' => $p->user->name ?? '未設定',
             'image_url' => $p->image_path ? Storage::url($p->image_path) : null,
@@ -92,6 +93,7 @@ return Inertia::render('Portfolios/Index', [
                     'title' => $p->title,
                     'description' => $p->description,
                     'url' => $p->url,
+                    'github_url' => $p->github_url, 
                     'user_name' => $p->user->name ?? '未設定',
                     'image_url' => $p->image_path ? Storage::url($p->image_path) : null,
                     'tags' => $p->tags->map(fn($t) => $t->name)->toArray(),
@@ -119,6 +121,7 @@ public function rankingTechnical()
                 'title' => $p->title,
                 'description' => $p->description,
                 'url' => $p->url,
+                'github_url' => $p->github_url,
                 'user_name' => $p->user->name ?? '未設定',
                 'image_url' => $p->image_path ? Storage::url($p->image_path) : null,
                 'tags' => $p->tags->map(fn($t) => $t->name)->toArray(),
@@ -146,6 +149,7 @@ public function rankingUsability()
                 'title' => $p->title,
                 'description' => $p->description,
                 'url' => $p->url,
+                'github_url' => $p->github_url,
                 'user_name' => $p->user->name ?? '未設定',
                 'image_url' => $p->image_path ? Storage::url($p->image_path) : null,
                 'tags' => $p->tags->map(fn($t) => $t->name)->toArray(),
@@ -173,6 +177,7 @@ public function rankingDesign()
                 'title' => $p->title,
                 'description' => $p->description,
                 'url' => $p->url,
+                'github_url' => $p->github_url,
                 'user_name' => $p->user->name ?? '未設定',
                 'image_url' => $p->image_path ? Storage::url($p->image_path) : null,
                 'tags' => $p->tags->map(fn($t) => $t->name)->toArray(),
@@ -200,6 +205,7 @@ public function rankingUserFocus()
                 'title' => $p->title,
                 'description' => $p->description,
                 'url' => $p->url,
+                'github_url' => $p->github_url,
                 'user_name' => $p->user->name ?? '未設定',
                 'image_url' => $p->image_path ? Storage::url($p->image_path) : null,
                 'tags' => $p->tags->map(fn($t) => $t->name)->toArray(),
@@ -269,6 +275,7 @@ public function show(Portfolio $portfolio)
             'title' => $portfolio->title,
             'description' => $portfolio->description,
             'url' => $portfolio->url,
+            'github_url' => $portfolio->github_url, // ← 追加
             'user_id' => $portfolio->user_id,
             'user_name' => $portfolio->user->name ?? '未設定',
             'image_url' => $portfolio->image_path ? Storage::url($portfolio->image_path) : null,
@@ -278,10 +285,10 @@ public function show(Portfolio $portfolio)
                     'id' => $r->id,
                     'comment' => $r->comment,
                     'rating' => $r->rating,
-                    'technical' => $r->technical,       // 技術力
-                    'usability' => $r->usability,       // 使いやすさ
-                    'design' => $r->design,             // デザイン性
-                    'user_focus' => $r->user_focus,     // ユーザー目線
+                    'technical' => $r->technical,
+                    'usability' => $r->usability,
+                    'design' => $r->design,
+                    'user_focus' => $r->user_focus,
                     'user' => [
                         'id' => $r->user->id,
                         'name' => $r->user->name ?? '未設定',
@@ -316,6 +323,7 @@ public function show(Portfolio $portfolio)
                 'title' => $portfolio->title,
                 'description' => $portfolio->description,
                 'url' => $portfolio->url,
+                'github_url' => $p->github_url,
                 'image_url' => $portfolio->image_path ? Storage::url($portfolio->image_path) : null,
                 'tags' => $portfolio->tags->map(fn($t) => $t->name)->toArray(),
             ],

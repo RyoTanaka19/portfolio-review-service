@@ -59,6 +59,8 @@ Route::middleware(['auth'])->group(function () {
 // 誰でもアクセスできるポートフォリオ一覧
 
  Route::get('/portfolio', [PortfolioController::class, 'index'])->name('dashboard');
+ Route::get('/portfolio/{portfolio}', [PortfolioController::class, 'show'])
+        ->whereNumber('portfolio')->name('portfolio.show');
 
 // 認証済みユーザー用ルート
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -67,8 +69,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/portfolio/create', [PortfolioController::class, 'create'])->name('portfolio.create');
     Route::post('/portfolio', [PortfolioController::class, 'store'])->name('portfolio.store');
 
-    Route::get('/portfolio/{portfolio}', [PortfolioController::class, 'show'])
-        ->whereNumber('portfolio')->name('portfolio.show');
+  
     Route::get('/portfolio/{portfolio}/edit', [PortfolioController::class, 'edit'])
         ->whereNumber('portfolio')->name('portfolio.edit');
     Route::put('/portfolio/{portfolio}', [PortfolioController::class, 'update'])
