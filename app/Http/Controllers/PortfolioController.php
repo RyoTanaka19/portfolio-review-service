@@ -211,7 +211,7 @@ public function rankingUserFocus()
 }
 
 
-    // 新規投稿フォーム
+ // 新規投稿フォーム
     public function create()
     {
         return Inertia::render('Portfolios/Create');
@@ -222,9 +222,10 @@ public function rankingUserFocus()
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'url' => 'nullable|url|max:255',
-            'tags' => 'nullable|array',
+            'description' => 'nullable|string',
+            'url' => 'required|url|max:255',
+            'github_url' => 'nullable|url|max:255', // 追加
+            'tags' => 'required|array',
             'tags.*' => 'string|max:50',
             'image' => 'nullable|image|max:2048',
         ]);
@@ -236,8 +237,9 @@ public function rankingUserFocus()
         $portfolio = Portfolio::create([
             'user_id' => auth()->id(),
             'title' => $validated['title'],
-            'description' => $validated['description'],
-            'url' => $validated['url'] ?? null,
+            'description' => $validated['description'] ?? null,
+            'url' => $validated['url'],
+            'github_url' => $validated['github_url'] ?? null,
             'image_path' => $imagePath,
         ]);
 
@@ -318,7 +320,7 @@ public function show(Portfolio $portfolio)
     }
 
     // 投稿更新
-    public function update(Request $request, Portfolio $portfolio)
+ public function update(Request $request, Portfolio $portfolio)
     {
         if ($portfolio->user_id !== auth()->id()) {
             abort(403, 'Unauthorized action.');
@@ -326,8 +328,9 @@ public function show(Portfolio $portfolio)
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'required|string',
+            'description' => 'nullable|string',
             'url' => 'nullable|url|max:255',
+            'github_url' => 'nullable|url|max:255', // 追加
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:50',
             'image' => 'nullable|image|max:2048',
@@ -335,11 +338,11 @@ public function show(Portfolio $portfolio)
 
         $portfolio->update([
             'title' => $validated['title'],
-            'description' => $validated['description'],
+            'description' => $validated['description'] ?? null,
             'url' => $validated['url'] ?? null,
+            'github_url' => $validated['github_url'] ?? null,
         ]);
 
-        // 画像更新
         if ($request->file('image')) {
             if ($portfolio->image_path) {
                 Storage::disk('public')->delete($portfolio->image_path);
@@ -348,7 +351,6 @@ public function show(Portfolio $portfolio)
             $portfolio->save();
         }
 
-        // タグ更新
         $tagIds = [];
         if (!empty($validated['tags'])) {
             foreach ($validated['tags'] as $tagName) {

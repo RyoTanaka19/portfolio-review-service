@@ -7,6 +7,7 @@ export default function Create() {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [url, setUrl] = useState("");
+    const [githubUrl, setGithubUrl] = useState(""); // GitHub URL の状態
     const [tags, setTags] = useState([]);
     const [image, setImage] = useState(null);
     const [errors, setErrors] = useState({});
@@ -14,10 +15,20 @@ export default function Create() {
     const handleSubmit = (e) => {
         e.preventDefault();
 
+        // タグが選択されていない場合、エラーをセット
+        if (tags.length === 0) {
+            setErrors((prevErrors) => ({
+                ...prevErrors,
+                tags: "このフィールドに選択してください",
+            }));
+            return; // タグが未選択の場合は処理を停止
+        }
+
         const formData = new FormData();
         formData.append("title", title);
         formData.append("description", description);
         formData.append("url", url);
+        formData.append("github_url", githubUrl); // GitHub URL をフォームデータに追加
 
         // タグ送信
         tags.forEach((t, index) => formData.append(`tags[${index}]`, t.name));
@@ -51,16 +62,18 @@ export default function Create() {
                         className="bg-white p-6 rounded shadow-md"
                         encType="multipart/form-data" // 🔹 追加
                     >
-                        {/* 作品タイトル */}
+                        {/* 作品タイトル（必須） */}
                         <div className="mb-4">
                             <label className="block font-medium mb-1">
-                                作品タイトル
+                                作品タイトル{" "}
+                                <span className="text-red-500">*</span>
                             </label>
                             <input
                                 type="text"
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
                                 className="w-full border px-3 py-2 rounded"
+                                required
                             />
                             {errors.title && (
                                 <p className="text-red-500 mt-1">
@@ -69,10 +82,10 @@ export default function Create() {
                             )}
                         </div>
 
-                        {/* 作品説明 */}
+                        {/* 作品説明（任意） */}
                         <div className="mb-4">
                             <label className="block font-medium mb-1">
-                                作品説明
+                                作品説明(任意)
                             </label>
                             <textarea
                                 value={description}
@@ -105,16 +118,18 @@ export default function Create() {
                             )}
                         </div>
 
-                        {/* 任意URL */}
+                        {/* サービスのURL（必須） */}
                         <div className="mb-4">
                             <label className="block font-medium mb-1">
-                                任意URL
+                                作品のURL{" "}
+                                <span className="text-red-500">*</span>
                             </label>
                             <input
                                 type="url"
                                 value={url}
                                 onChange={(e) => setUrl(e.target.value)}
                                 className="w-full border px-3 py-2 rounded"
+                                required
                             />
                             {errors.url && (
                                 <p className="text-red-500 mt-1">
@@ -123,10 +138,29 @@ export default function Create() {
                             )}
                         </div>
 
-                        {/* タグ */}
+                        {/* GitHubのリポジトリURL（任意） */}
                         <div className="mb-4">
                             <label className="block font-medium mb-1">
-                                タグ（技術）
+                                GitHubのリポジトリURL（任意）
+                            </label>
+                            <input
+                                type="url"
+                                value={githubUrl}
+                                onChange={(e) => setGithubUrl(e.target.value)}
+                                className="w-full border px-3 py-2 rounded"
+                            />
+                            {errors.github_url && (
+                                <p className="text-red-500 mt-1">
+                                    {errors.github_url}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* タグ（技術）【必須】 */}
+                        <div className="mb-4">
+                            <label className="block font-medium mb-1">
+                                タグ（技術）{" "}
+                                <span className="text-red-500">*</span>
                             </label>
                             <TagsInput value={tags} onChange={setTags} />
                             {errors.tags && (
