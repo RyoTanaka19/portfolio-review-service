@@ -7,6 +7,7 @@ use App\Models\Tag;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\JsonResponse;
 
 class PortfolioController extends Controller
 {
@@ -383,19 +384,36 @@ public function update(Request $request, Portfolio $portfolio)
     return redirect()->route('dashboard')->with('success', 'ポートフォリオを更新しました');
 }
     // 投稿削除
-    public function destroy(Portfolio $portfolio)
-    {
-        if ($portfolio->user_id !== auth()->id()) {
-            abort(403, 'Unauthorized action.');
-        }
+public function destroy(Portfolio $portfolio): JsonResponse
+{
+    // 所有者チェック
+    if ($portfolio->user_id !== auth()->id()) {
+        return response()->json([
+            'success' => false,
+            'error' => '権限がありません'
+        ], 403);
+    }
 
+    try {
         // 画像削除
         if ($portfolio->image_path) {
             Storage::disk('public')->delete($portfolio->image_path);
         }
 
+        // ポートフォリオ削除
         $portfolio->delete();
 
-        return redirect()->route('dashboard')->with('success', 'ポートフォリオを削除しました');
+        // JSON で成功メッセージを返す
+        return response()->json([
+            'success' => true,
+            'message' => 'ポートフォリオを削除しました',
+        ]);
+    } catch (\Exception $e) {
+        // 例外発生時
+        return response()->json([
+            'success' => false,
+            'error' => '削除中にエラーが発生しました: ' . $e->getMessage(),
+        ], 500);
     }
+}
 }
