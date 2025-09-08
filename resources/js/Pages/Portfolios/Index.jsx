@@ -14,7 +14,10 @@ export default function Index({
         filters.user_name || ""
     );
     const [tagFilter, setTagFilter] = useState(filters.tag || "");
-    const [suggestions, setSuggestions] = useState([]); // オートコンプリート候補
+    const [suggestions, setSuggestions] = useState([]);
+
+    // ポートフォリオ一覧を state で保持（削除後に更新可能）
+    const [portfolioList, setPortfolioList] = useState(portfolios);
 
     // ブックマーク状態を保持
     const initialBookmarks = {};
@@ -24,9 +27,29 @@ export default function Index({
     const [bookmarks, setBookmarks] = useState(initialBookmarks);
 
     // 削除処理
-    const handleDelete = (id) => {
-        if (confirm("本当に削除しますか？")) {
-            Inertia.delete(`/portfolio/${id}`);
+    const handleDelete = async (id) => {
+        if (!confirm("本当に削除しますか？")) return;
+
+        try {
+            const response = await axios.delete(`/portfolio/${id}`);
+
+            if (response.status === 200) {
+                alert("ポートフォリオを削除しました");
+
+                // 削除したカードだけ state から除外
+                setPortfolioList((prev) => prev.filter((p) => p.id !== id));
+            } else {
+                alert(response.data.error || "削除に失敗しました");
+            }
+        } catch (error) {
+            if (error.response) {
+                alert(`削除に失敗しました: ${error.response.data.error}`);
+            } else if (error.request) {
+                alert("サーバーに接続できませんでした");
+            } else {
+                alert(`削除に失敗しました: ${error.message}`);
+            }
+            console.error(error);
         }
     };
 
@@ -37,7 +60,7 @@ export default function Index({
             { user_name: userNameFilter, tag: tagFilter },
             { preserveState: true }
         );
-        setSuggestions([]); // 検索時は候補を消す
+        setSuggestions([]);
     };
 
     // ブックマークの登録・解除
@@ -46,33 +69,30 @@ export default function Index({
 
         if (isBookmarked) {
             Inertia.delete(route("bookmark.destroy", portfolioId), {
-                onSuccess: () => {
-                    setBookmarks((prev) => ({ ...prev, [portfolioId]: false }));
-                },
+                onSuccess: () =>
+                    setBookmarks((prev) => ({ ...prev, [portfolioId]: false })),
             });
         } else {
             Inertia.post(
                 route("bookmark.store", portfolioId),
                 {},
                 {
-                    onSuccess: () => {
+                    onSuccess: () =>
                         setBookmarks((prev) => ({
                             ...prev,
                             [portfolioId]: true,
-                        }));
-                    },
+                        })),
                 }
             );
         }
     };
 
-    // 🔍 ユーザー候補取得
+    // ユーザー候補取得
     const fetchUserSuggestions = async (query) => {
         if (!query) {
             setSuggestions([]);
             return;
         }
-
         try {
             const res = await axios.get("/autocomplete/users", {
                 params: { query },
@@ -84,7 +104,6 @@ export default function Index({
         }
     };
 
-    // 入力時にサジェスト取得
     const handleUserInput = (e) => {
         const value = e.target.value;
         setUserNameFilter(value);
@@ -95,10 +114,9 @@ export default function Index({
         <AppLayout>
             <header className="px-8 py-6 bg-white shadow flex flex-col items-center">
                 <h1 className="text-2xl font-bold mb-4">投稿一覧</h1>
-
                 <div className="w-full max-w-3xl">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                        {/* タグ検索（左） */}
+                        {/* タグ検索 */}
                         <div className="flex flex-col">
                             <label className="text-sm font-medium mb-1">
                                 タグで検索
@@ -117,7 +135,7 @@ export default function Index({
                             </select>
                         </div>
 
-                        {/* ユーザー名検索（中央） */}
+                        {/* ユーザー名検索 */}
                         <div className="flex flex-col relative">
                             <label className="text-sm font-medium mb-1">
                                 ユーザー名で検索
@@ -129,7 +147,6 @@ export default function Index({
                                 onChange={handleUserInput}
                                 className="border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                             />
-                            {/* 候補リスト */}
                             {suggestions.length > 0 && (
                                 <ul className="absolute top-full mt-2 z-10 bg-white border w-full max-h-48 overflow-y-auto shadow rounded">
                                     {suggestions.map((user) => (
@@ -148,7 +165,7 @@ export default function Index({
                             )}
                         </div>
 
-                        {/* 検索ボタン（右） */}
+                        {/* 検索ボタン */}
                         <div className="flex items-center mt-2 md:mt-0">
                             <button
                                 type="button"
@@ -162,18 +179,14 @@ export default function Index({
                 </div>
             </header>
 
-            {/* 以下はポートフォリオ一覧部分（省略せず残してOK） */}
             <main className="px-8 py-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {portfolios.map((p) => {
-                    const averageRating =
-                        p.reviews && p.reviews.length > 0
-                            ? (
-                                  p.reviews.reduce(
-                                      (sum, r) => sum + r.rating,
-                                      0
-                                  ) / p.reviews.length
-                              ).toFixed(1)
-                            : null;
+                {portfolioList.map((p) => {
+                    const averageRating = p.reviews?.length
+                        ? (
+                              p.reviews.reduce((sum, r) => sum + r.rating, 0) /
+                              p.reviews.length
+                          ).toFixed(1)
+                        : null;
 
                     return (
                         <div
@@ -219,7 +232,7 @@ export default function Index({
                                 </p>
                             )}
 
-                            {p.tags && p.tags.length > 0 && (
+                            {p.tags?.length > 0 && (
                                 <div className="mt-2 flex flex-wrap gap-1">
                                     {p.tags.map((tag, idx) => (
                                         <button
