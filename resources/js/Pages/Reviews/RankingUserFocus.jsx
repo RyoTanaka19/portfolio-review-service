@@ -1,51 +1,57 @@
-// resources/js/Pages/Portfolios/Ranking.jsx
 import React from "react";
 import { Link } from "@inertiajs/react";
 import AppLayout from "@/Layouts/AppLayout";
 
-export default function Ranking({ portfolios }) {
+export default function RankingUserFocus({ portfolios }) {
     const rankColors = ["text-yellow-500", "text-gray-400", "text-orange-500"];
 
     return (
         <AppLayout>
-            {/* ヘッダー中央寄せ */}
-            <header className="px-8 py-8 bg-gradient-to-r from-blue-50 to-indigo-50 shadow text-center">
+            {/* ヘッダー */}
+            <header className="px-8 py-8 bg-gradient-to-r from-purple-50 to-purple-100 shadow text-center">
                 <h1 className="text-3xl font-bold">
-                    レビュー総合ランキング TOP10
+                    ユーザー目線ランキング TOP10
                 </h1>
                 <p className="text-gray-600 mt-2 text-base">
-                    平均評価（同点はレビュー件数が多い順）
+                    ユーザー目線の平均評価でランキング
                 </p>
 
-                {/* 評価項目別ランキングリンク */}
+                {/* 評価項目別リンク */}
                 <div className="mt-4 flex justify-center gap-4 flex-wrap">
-                    <a
+                    <Link
+                        href="/ranking"
+                        className="px-4 py-2 bg-gray-100 text-gray-800 rounded-full text-sm font-medium hover:bg-gray-200"
+                    >
+                        総合
+                    </Link>
+                    <Link
                         href="/ranking/technical"
                         className="px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium hover:bg-blue-200"
                     >
                         技術力
-                    </a>
-                    <a
+                    </Link>
+                    <Link
                         href="/ranking/usability"
                         className="px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium hover:bg-green-200"
                     >
                         使いやすさ
-                    </a>
-                    <a
+                    </Link>
+                    <Link
                         href="/ranking/design"
                         className="px-4 py-2 bg-pink-100 text-pink-800 rounded-full text-sm font-medium hover:bg-pink-200"
                     >
                         デザイン性
-                    </a>
-                    <a
+                    </Link>
+                    <Link
                         href="/ranking/user-focus"
-                        className="px-4 py-2 bg-purple-100 text-purple-800 rounded-full text-sm font-medium hover:bg-purple-200"
+                        className="px-4 py-2 bg-purple-200 text-purple-900 rounded-full text-sm font-medium"
                     >
                         ユーザー目線
-                    </a>
+                    </Link>
                 </div>
             </header>
 
+            {/* メイン */}
             <main className="px-8 py-10 max-w-4xl mx-auto">
                 {portfolios.length === 0 ? (
                     <p className="text-gray-500 text-center text-lg">
@@ -82,7 +88,7 @@ export default function Ranking({ portfolios }) {
                                         </div>
                                     </div>
 
-                                    {/* 右側: 評価情報 */}
+                                    {/* 右側: 評価 */}
                                     <div className="text-right">
                                         <div className="text-2xl font-bold text-gray-800">
                                             {p.avg_rating}
@@ -112,7 +118,7 @@ export default function Ranking({ portfolios }) {
                                         {p.tags.map((t, i) => (
                                             <span
                                                 key={i}
-                                                className="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-medium"
+                                                className="px-3 py-1 rounded-full bg-purple-50 text-purple-700 text-xs font-medium"
                                             >
                                                 #{t}
                                             </span>
