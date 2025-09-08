@@ -7,9 +7,15 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Advice;
+use Inertia\Inertia;
 
 class AdviceController extends Controller
 {
+    public function create()
+    {
+        return Inertia::render('Advices/Create');
+    }
+    
     public function store(Request $request)
     {
         // バリデーション
@@ -17,17 +23,17 @@ class AdviceController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'target_users' => 'required|string',
-            'issues' => 'nullable|string',
-        ]);
+            'issues' => 'required|string',  // 'nullable' から 'required' に変更
+            ]);
 
         $prompt = "私はポートフォリオレビューサービスの開発者です。
-サービス名: {$request->name}
-サービス概要: {$request->description}
-ユーザー層: {$request->target_users}
-現在の進捗: {$request->issues}
+            サービス名: {$request->name}
+            サービス概要: {$request->description}
+            ユーザー層: {$request->target_users}
+            現在の進捗: {$request->issues}
 
-上記を元に、このサービスに関して**結論から簡潔に改善点やアドバイスを説明し、最後にまとめとして締めくくる形式**で教えてください。
-箇条書きや短文を使って、ユーザーに分かりやすく伝えるようにしてください。";
+            上記を元に、このサービスに関して**結論から簡潔に改善点やアドバイスを説明し、最後にまとめとして締めくくる形式**で教えてください。
+            箇条書きや短文を使って、ユーザーに分かりやすく伝えるようにしてください。";
 
         try {
             $response = Http::withHeaders([
@@ -115,3 +121,4 @@ class AdviceController extends Controller
     }
 }
 }
+

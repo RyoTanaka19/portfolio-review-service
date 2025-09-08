@@ -55,10 +55,11 @@ export default function Advice() {
                     </h1>
 
                     <form onSubmit={handleSubmit} className="space-y-5">
-                        {/* フォーム入力 */}
+                        {/* サービス名 */}
                         <div className="flex flex-col">
                             <label className="mb-2 font-semibold text-gray-700">
-                                サービス名
+                                サービス名{" "}
+                                <span className="text-red-500">*</span>
                             </label>
                             <input
                                 type="text"
@@ -66,13 +67,16 @@ export default function Advice() {
                                 value={form.name}
                                 onChange={handleChange}
                                 className="w-full border border-gray-300 p-3 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                placeholder="例: 新しいアプリ名"
+                                placeholder="例: アドバイスをしてもらいたいサービス名"
                                 required
                             />
                         </div>
+
+                        {/* サービス概要 */}
                         <div className="flex flex-col">
                             <label className="mb-2 font-semibold text-gray-700">
-                                サービス概要
+                                サービス概要{" "}
+                                <span className="text-red-500">*</span>
                             </label>
                             <textarea
                                 name="description"
@@ -84,9 +88,12 @@ export default function Advice() {
                                 required
                             />
                         </div>
+
+                        {/* ターゲットユーザー */}
                         <div className="flex flex-col">
                             <label className="mb-2 font-semibold text-gray-700">
-                                ターゲットユーザー
+                                ターゲットユーザー{" "}
+                                <span className="text-red-500">*</span>
                             </label>
                             <input
                                 type="text"
@@ -98,9 +105,12 @@ export default function Advice() {
                                 required
                             />
                         </div>
+
+                        {/* 悩み・相談したいこと */}
                         <div className="flex flex-col">
                             <label className="mb-2 font-semibold text-gray-700">
-                                悩み・相談したいこと
+                                悩み・相談したいこと{" "}
+                                <span className="text-red-500">*</span>
                             </label>
                             <textarea
                                 name="issues"
@@ -109,9 +119,11 @@ export default function Advice() {
                                 className="w-full border border-gray-300 p-3 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                                 rows={4}
                                 placeholder="例: サービス改善のアイデアが欲しい"
+                                required
                             />
                         </div>
 
+                        {/* 送信ボタン */}
                         <button
                             type="submit"
                             className="w-full py-3 bg-blue-500 text-white font-semibold rounded hover:bg-blue-600 transition-colors duration-200"
