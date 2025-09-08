@@ -5,25 +5,32 @@ import AppLayout from "@/Layouts/AppLayout";
 export default function AdvicesIndex() {
     const [advices, setAdvices] = useState([]);
 
+    // データ取得関数
+    const fetchAdvices = async () => {
+        try {
+            const response = await axios.get("/api/advices");
+            setAdvices(response.data);
+        } catch (error) {
+            console.error("アドバイス取得エラー:", error);
+            alert("アドバイスの取得中にエラーが発生しました");
+        }
+    };
+
     useEffect(() => {
-        axios
-            .get("/api/advices")
-            .then((response) => setAdvices(response.data))
-            .catch((error) => console.error(error));
+        fetchAdvices();
     }, []);
 
-    const handleDelete = (id) => {
+    // 削除関数
+    const handleDelete = async (id) => {
         if (!window.confirm("本当に削除しますか？")) return;
 
-        axios
-            .delete(`/api/advices/${id}`)
-            .then(() => {
-                setAdvices((prev) => prev.filter((advice) => advice.id !== id));
-            })
-            .catch((error) => {
-                console.error(error);
-                alert("削除中にエラーが発生しました");
-            });
+        try {
+            await axios.delete(`/api/advices/${id}`);
+            setAdvices((prev) => prev.filter((advice) => advice.id !== id));
+        } catch (error) {
+            console.error("削除エラー:", error);
+            alert("削除中にエラーが発生しました");
+        }
     };
 
     return (
