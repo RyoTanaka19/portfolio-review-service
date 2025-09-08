@@ -13,32 +13,49 @@ use Inertia\Inertia;
 class ReviewController extends Controller
 {
     // レビュー投稿
-    public function store(Request $request, Portfolio $portfolio)
-    {
-        $request->validate([
-            'rating' => 'required|integer|min:1|max:5',
-            'comment' => 'nullable|string|max:1000',
-            'technical' => 'required|integer|min:1|max:5',
-            'usability' => 'required|integer|min:1|max:5',
-            'design' => 'required|integer|min:1|max:5',
-            'user_focus' => 'required|integer|min:1|max:5',
-        ]);
+public function store(Request $request, Portfolio $portfolio)
+{
+    // バリデーション
+    $request->validate([
+        'rating' => 'required|integer|min:1|max:5',
+        'comment' => 'nullable|string|max:1000',
+        'technical' => 'required|integer|min:1|max:5',
+        'usability' => 'required|integer|min:1|max:5',
+        'design' => 'required|integer|min:1|max:5',
+        'user_focus' => 'required|integer|min:1|max:5',
+    ]);
 
-        $review = Review::create([
-            'user_id' => $request->user()->id,
-            'portfolio_id' => $portfolio->id,
-            'rating' => $request->rating,
-            'comment' => $request->comment,
-            'technical' => $request->technical,
-            'usability' => $request->usability,
-            'design' => $request->design,
-            'user_focus' => $request->user_focus,
-        ]);
+    // レビュー作成
+    $review = Review::create([
+        'user_id' => $request->user()->id,
+        'portfolio_id' => $portfolio->id,
+        'rating' => $request->rating,
+        'comment' => $request->comment,
+        'technical' => $request->technical,
+        'usability' => $request->usability,
+        'design' => $request->design,
+        'user_focus' => $request->user_focus,
+    ]);
 
-        $portfolio->user->notify(new ReviewCreated($review));
+    // 通知処理（コメントがある場合のみ）
+    if (!empty($review->comment)) {
+        $reviewer = $review->user;                 // 自分
+        $portfolioOwner = $portfolio->user;        // ポートフォリオ所有者
 
-        return redirect()->back()->with('success', 'レビューしました！');
+        // 1. ポートフォリオ所有者に通知
+        $portfolioOwner->notify(new ReviewCreated($review));
+
+        // 2. 自分にも通知（ポートフォリオが自分のものじゃない場合）
+        if ($reviewer->id !== $portfolioOwner->id) {
+            $reviewer->notify(new ReviewCreated($review));
+        }
+
+        // 3. 必要なら他ユーザーにも通知可能（フォロワーなど）
+        // Notification::send($otherUsers, new ReviewCreated($review));
     }
+
+    return redirect()->back()->with('success', 'レビューしました！');
+}
 
     // レビュー削除
     public function destroy(Portfolio $portfolio, Review $review)

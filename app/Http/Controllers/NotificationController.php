@@ -10,15 +10,20 @@ class NotificationController extends Controller
     // 未読通知を取得（レビュー確認済みフラグも含む）
     public function index(Request $request)
     {
-        $notifications = $request->user()->unreadNotifications->map(function ($n) {
-            return [
-                'id' => $n->id,
-                'data' => $n->data, // そのまま配列を返す
-                'read_at' => $n->read_at,
-                'created_at' => $n->created_at,
-                'review_checked' => $n->review_checked ?? false, // 追加
-            ];
-        });
+        $notifications = $request->user()->unreadNotifications
+            ->filter(function ($n) {
+                // comment が空の通知は除外
+                return !empty($n->data['comment'] ?? null);
+            })
+            ->map(function ($n) {
+                return [
+                    'id' => $n->id,
+                    'data' => $n->data, // そのまま配列を返す
+                    'read_at' => $n->read_at,
+                    'created_at' => $n->created_at,
+                    'review_checked' => $n->review_checked ?? false, // 追加
+                ];
+            });
 
         return response()->json([
             'notifications' => $notifications,
