@@ -1,8 +1,10 @@
-// resources/js/Pages/Portfolios/Index.jsx
+// Index.jsx
 import React, { useState } from "react";
+import { Inertia } from "@inertiajs/inertia";
 import { InertiaLink } from "@inertiajs/inertia-react";
 import AppLayout from "@/Layouts/AppLayout";
-import BookmarkButton from "@/Pages/Bookmarks/Create.jsx";
+import axios from "axios";
+import BookmarkButton from "@/Pages/Bookmarks/Create"; // 変更
 
 export default function Index({
     portfolios,
@@ -19,8 +21,29 @@ export default function Index({
     // ポートフォリオ一覧を state で保持（削除後に更新可能）
     const [portfolioList, setPortfolioList] = useState(portfolios);
 
+    // 削除処理
+    const handleDelete = async (id) => {
+        if (!confirm("本当に削除しますか？")) return;
+
+        try {
+            const response = await axios.delete(`/portfolio/${id}`);
+
+            if (response.status === 200) {
+                alert("ポートフォリオを削除しました");
+
+                // 削除したカードだけ state から除外
+                setPortfolioList((prev) => prev.filter((p) => p.id !== id));
+            } else {
+                alert(response.data.error || "削除に失敗しました");
+            }
+        } catch (error) {
+            alert("削除に失敗しました");
+            console.error(error);
+        }
+    };
+
+    // 検索処理
     const handleSearch = () => {
-        // Inertiaで検索処理
         Inertia.get(
             route("dashboard"),
             { user_name: userNameFilter, tag: tagFilter },
@@ -29,10 +52,27 @@ export default function Index({
         setSuggestions([]);
     };
 
+    // ユーザー候補取得
+    const fetchUserSuggestions = async (query) => {
+        if (!query) {
+            setSuggestions([]);
+            return;
+        }
+        try {
+            const res = await axios.get("/autocomplete/users", {
+                params: { query },
+            });
+            setSuggestions(res.data);
+        } catch (err) {
+            console.error("ユーザー候補取得エラー:", err);
+            setSuggestions([]);
+        }
+    };
+
     const handleUserInput = (e) => {
         const value = e.target.value;
         setUserNameFilter(value);
-        // サジェスト取得関数を呼ぶ場合はここで fetchUserSuggestions(value)
+        fetchUserSuggestions(value);
     };
 
     return (
@@ -176,7 +216,7 @@ export default function Index({
                                 </div>
                             )}
 
-                            {/* ここで BookmarkButton コンポーネントを呼び出す */}
+                            {/* BookmarkButton へ移行 */}
                             {auth?.user && (
                                 <BookmarkButton
                                     portfolioId={p.id}
@@ -193,6 +233,24 @@ export default function Index({
                                 >
                                     サイトを見る→
                                 </a>
+                            )}
+
+                            {auth?.user?.id === p.user_id && (
+                                <div className="mt-4 flex justify-end space-x-2">
+                                    <InertiaLink
+                                        href={`/portfolio/${p.id}/edit`}
+                                        className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm"
+                                    >
+                                        編集
+                                    </InertiaLink>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleDelete(p.id)}
+                                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
+                                    >
+                                        削除
+                                    </button>
+                                </div>
                             )}
                         </div>
                     );
