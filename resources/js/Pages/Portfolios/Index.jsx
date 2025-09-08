@@ -1,8 +1,8 @@
+// resources/js/Pages/Portfolios/Index.jsx
 import React, { useState } from "react";
-import { Inertia } from "@inertiajs/inertia";
 import { InertiaLink } from "@inertiajs/inertia-react";
 import AppLayout from "@/Layouts/AppLayout";
-import axios from "axios";
+import BookmarkButton from "@/Pages/Bookmarks/Create.jsx";
 
 export default function Index({
     portfolios,
@@ -19,42 +19,8 @@ export default function Index({
     // ポートフォリオ一覧を state で保持（削除後に更新可能）
     const [portfolioList, setPortfolioList] = useState(portfolios);
 
-    // ブックマーク状態を保持
-    const initialBookmarks = {};
-    portfolios.forEach((p) => {
-        initialBookmarks[p.id] = p.is_bookmarked || false;
-    });
-    const [bookmarks, setBookmarks] = useState(initialBookmarks);
-
-    // 削除処理
-    const handleDelete = async (id) => {
-        if (!confirm("本当に削除しますか？")) return;
-
-        try {
-            const response = await axios.delete(`/portfolio/${id}`);
-
-            if (response.status === 200) {
-                alert("ポートフォリオを削除しました");
-
-                // 削除したカードだけ state から除外
-                setPortfolioList((prev) => prev.filter((p) => p.id !== id));
-            } else {
-                alert(response.data.error || "削除に失敗しました");
-            }
-        } catch (error) {
-            if (error.response) {
-                alert(`削除に失敗しました: ${error.response.data.error}`);
-            } else if (error.request) {
-                alert("サーバーに接続できませんでした");
-            } else {
-                alert(`削除に失敗しました: ${error.message}`);
-            }
-            console.error(error);
-        }
-    };
-
-    // 検索処理
     const handleSearch = () => {
+        // Inertiaで検索処理
         Inertia.get(
             route("dashboard"),
             { user_name: userNameFilter, tag: tagFilter },
@@ -63,51 +29,10 @@ export default function Index({
         setSuggestions([]);
     };
 
-    // ブックマークの登録・解除
-    const toggleBookmark = (portfolioId) => {
-        const isBookmarked = bookmarks[portfolioId];
-
-        if (isBookmarked) {
-            Inertia.delete(route("bookmark.destroy", portfolioId), {
-                onSuccess: () =>
-                    setBookmarks((prev) => ({ ...prev, [portfolioId]: false })),
-            });
-        } else {
-            Inertia.post(
-                route("bookmark.store", portfolioId),
-                {},
-                {
-                    onSuccess: () =>
-                        setBookmarks((prev) => ({
-                            ...prev,
-                            [portfolioId]: true,
-                        })),
-                }
-            );
-        }
-    };
-
-    // ユーザー候補取得
-    const fetchUserSuggestions = async (query) => {
-        if (!query) {
-            setSuggestions([]);
-            return;
-        }
-        try {
-            const res = await axios.get("/autocomplete/users", {
-                params: { query },
-            });
-            setSuggestions(res.data);
-        } catch (err) {
-            console.error("ユーザー候補取得エラー:", err);
-            setSuggestions([]);
-        }
-    };
-
     const handleUserInput = (e) => {
         const value = e.target.value;
         setUserNameFilter(value);
-        fetchUserSuggestions(value);
+        // サジェスト取得関数を呼ぶ場合はここで fetchUserSuggestions(value)
     };
 
     return (
@@ -251,20 +176,12 @@ export default function Index({
                                 </div>
                             )}
 
+                            {/* ここで BookmarkButton コンポーネントを呼び出す */}
                             {auth?.user && (
-                                <button
-                                    type="button"
-                                    onClick={() => toggleBookmark(p.id)}
-                                    className={`mt-2 px-2 py-1 rounded text-sm ${
-                                        bookmarks[p.id]
-                                            ? "bg-yellow-400 text-white"
-                                            : "bg-gray-200 text-gray-800"
-                                    }`}
-                                >
-                                    {bookmarks[p.id]
-                                        ? "★ お気に入り"
-                                        : "☆ お気に入り"}
-                                </button>
+                                <BookmarkButton
+                                    portfolioId={p.id}
+                                    initialBookmarked={p.is_bookmarked || false}
+                                />
                             )}
 
                             {p.url && (
@@ -276,24 +193,6 @@ export default function Index({
                                 >
                                     サイトを見る→
                                 </a>
-                            )}
-
-                            {auth?.user?.id === p.user_id && (
-                                <div className="mt-4 flex justify-end space-x-2">
-                                    <InertiaLink
-                                        href={`/portfolio/${p.id}/edit`}
-                                        className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm"
-                                    >
-                                        編集
-                                    </InertiaLink>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleDelete(p.id)}
-                                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
-                                    >
-                                        削除
-                                    </button>
-                                </div>
                             )}
                         </div>
                     );
