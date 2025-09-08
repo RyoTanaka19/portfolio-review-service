@@ -1,17 +1,20 @@
 import React, { useState } from "react";
-import { router } from "@inertiajs/react";
+import { Inertia } from "@inertiajs/inertia";
 import AppLayout from "@/Layouts/AppLayout";
+import { InertiaLink } from "@inertiajs/inertia-react";
 import TagsInput from "../Tags/Index";
 
 export default function Edit({ portfolio, errors: serverErrors = {} }) {
     const [title, setTitle] = useState(portfolio.title);
     const [description, setDescription] = useState(portfolio.description);
     const [url, setUrl] = useState(portfolio.url || "");
+    const [githubUrl, setGithubUrl] = useState(portfolio.github_url || "");
     const [tags, setTags] = useState(portfolio.tags.map((name) => ({ name })));
     const [image, setImage] = useState(null);
     const [imagePreview, setImagePreview] = useState(
-        portfolio.image_url || `/storage/${portfolio.image_path}` || null
+        portfolio.image_url || null
     );
+    const [deleteImage, setDeleteImage] = useState(false); // 削除フラグ
     const [errors, setErrors] = useState(serverErrors);
 
     const handleImageChange = (e) => {
@@ -19,33 +22,52 @@ export default function Edit({ portfolio, errors: serverErrors = {} }) {
         setImage(file);
         if (file) {
             setImagePreview(URL.createObjectURL(file));
+            setDeleteImage(false); // 新しい画像選択時は削除フラグ解除
         } else {
-            setImagePreview(
-                portfolio.image_url ||
-                    `/storage/${portfolio.image_path}` ||
-                    null
-            );
+            setImagePreview(portfolio.image_url || null);
         }
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        router.post(
-            `/portfolio/${portfolio.id}`,
-            {
-                _method: "put", // ← Laravel の update ルートに通す
-                title,
-                description,
-                url,
-                tags: tags.map((t) => t.name),
-                image,
-            },
-            {
-                forceFormData: true, // ← 必須
-                onError: (err) => setErrors(err),
-            }
-        );
+        if (!title.trim()) {
+            setErrors((prev) => ({ ...prev, title: "作品タイトルは必須です" }));
+            return;
+        }
+
+        if (!url.trim()) {
+            setErrors((prev) => ({ ...prev, url: "作品のURLは必須です" }));
+            return;
+        }
+
+        if (tags.length === 0) {
+            setErrors((prev) => ({ ...prev, tags: "タグ（技術）は必須です" }));
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("_method", "put");
+        formData.append("title", title);
+        formData.append("description", description);
+        formData.append("url", url);
+        formData.append("github_url", githubUrl);
+
+        tags.forEach((t, index) => formData.append(`tags[${index}]`, t.name));
+
+        if (image) {
+            formData.append("image", image);
+        }
+
+        if (deleteImage) {
+            formData.append("delete_image", "1"); // 削除フラグ
+        }
+
+        Inertia.post(`/portfolio/${portfolio.id}`, formData, {
+            onError: (err) => setErrors(err),
+            preserveScroll: true,
+            preserveState: true,
+        });
     };
 
     return (
@@ -59,11 +81,13 @@ export default function Edit({ portfolio, errors: serverErrors = {} }) {
                     <form
                         onSubmit={handleSubmit}
                         className="bg-white p-6 rounded shadow-md"
+                        encType="multipart/form-data"
                     >
-                        {/* タイトル */}
+                        {/* 作品タイトル */}
                         <div className="mb-4">
                             <label className="block font-medium mb-1">
-                                タイトル
+                                作品タイトル{" "}
+                                <span className="text-red-500">*</span>
                             </label>
                             <input
                                 type="text"
@@ -88,7 +112,7 @@ export default function Edit({ portfolio, errors: serverErrors = {} }) {
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
                                 className="w-full border px-3 py-2 rounded"
-                                required
+                                rows={4}
                             />
                             {errors.description && (
                                 <p className="text-red-500 mt-1">
@@ -97,20 +121,40 @@ export default function Edit({ portfolio, errors: serverErrors = {} }) {
                             )}
                         </div>
 
-                        {/* URL */}
+                        {/* 作品のURL */}
                         <div className="mb-4">
                             <label className="block font-medium mb-1">
-                                URL（任意）
+                                作品のURL{" "}
+                                <span className="text-red-500">*</span>
                             </label>
                             <input
                                 type="url"
                                 value={url}
                                 onChange={(e) => setUrl(e.target.value)}
                                 className="w-full border px-3 py-2 rounded"
+                                required
                             />
                             {errors.url && (
                                 <p className="text-red-500 mt-1">
                                     {errors.url}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* GitHub URL */}
+                        <div className="mb-4">
+                            <label className="block font-medium mb-1">
+                                GitHubのリポジトリURL（任意）
+                            </label>
+                            <input
+                                type="url"
+                                value={githubUrl}
+                                onChange={(e) => setGithubUrl(e.target.value)}
+                                className="w-full border px-3 py-2 rounded"
+                            />
+                            {errors.github_url && (
+                                <p className="text-red-500 mt-1">
+                                    {errors.github_url}
                                 </p>
                             )}
                         </div>
@@ -120,6 +164,7 @@ export default function Edit({ portfolio, errors: serverErrors = {} }) {
                             <label className="block font-medium mb-1">
                                 画像（任意）
                             </label>
+
                             {imagePreview && (
                                 <div className="mb-2">
                                     <img
@@ -130,8 +175,27 @@ export default function Edit({ portfolio, errors: serverErrors = {} }) {
                                     <p className="text-sm text-gray-500 mt-1">
                                         {image ? image.name : "現在の画像"}
                                     </p>
+
+                                    {!image && portfolio.image_url && (
+                                        <label className="inline-flex items-center mt-2">
+                                            <input
+                                                type="checkbox"
+                                                className="form-checkbox"
+                                                checked={deleteImage}
+                                                onChange={(e) =>
+                                                    setDeleteImage(
+                                                        e.target.checked
+                                                    )
+                                                }
+                                            />
+                                            <span className="ml-2 text-sm text-gray-700">
+                                                現在の画像を削除
+                                            </span>
+                                        </label>
+                                    )}
                                 </div>
                             )}
+
                             <input
                                 type="file"
                                 accept="image/*"
@@ -148,7 +212,8 @@ export default function Edit({ portfolio, errors: serverErrors = {} }) {
                         {/* タグ */}
                         <div className="mb-4">
                             <label className="block font-medium mb-1">
-                                タグ（技術）
+                                タグ（技術）{" "}
+                                <span className="text-red-500">*</span>
                             </label>
                             <TagsInput value={tags} onChange={setTags} />
                             {errors.tags && (
@@ -158,14 +223,19 @@ export default function Edit({ portfolio, errors: serverErrors = {} }) {
                             )}
                         </div>
 
-                        {/* ボタン */}
-                        <div className="flex items-center">
-                            <button
-                                type="submit"
-                                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                        <button
+                            type="submit"
+                            className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                        >
+                            更新
+                        </button>
+                        <div className="text-center mt-8">
+                            <InertiaLink
+                                href="/portfolio"
+                                className="inline-block px-6 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
                             >
-                                更新
-                            </button>
+                                一覧に戻る
+                            </InertiaLink>
                         </div>
                     </form>
                 </div>
