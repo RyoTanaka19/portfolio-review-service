@@ -2,6 +2,7 @@ import { Link, usePage, router } from "@inertiajs/react";
 import { useState, useEffect } from "react";
 import axios from "axios";
 axios.defaults.withCredentials = true;
+
 export default function Header() {
     const { auth = {}, nav = [], url } = usePage().props;
     const user = auth.user;
@@ -78,9 +79,9 @@ export default function Header() {
                             </Link>
                         ))}
 
-                        {user && (
+                        {user ? (
+                            // ログイン時
                             <div className="flex items-center gap-4">
-                                {/* こんにちはメッセージ */}
                                 <span className="text-sm text-gray-500">
                                     こんにちは、{user.name} さん
                                 </span>
@@ -98,7 +99,6 @@ export default function Header() {
                                             </span>
                                         )}
                                     </button>
-
                                     {notifOpen && (
                                         <div className="absolute right-0 mt-2 w-80 bg-white border rounded shadow-md z-50">
                                             {notifications.length === 0 && (
@@ -141,8 +141,7 @@ export default function Header() {
                                     )}
                                 </div>
 
-                                {/* AI相談 / ランキング / 投稿リンク */}
-                                {/* AI相談 / ランキング / 投稿 / お気に入りリンク */}
+                                {/* AI相談 / ランキング / 投稿 / お気に入り */}
                                 <div className="flex items-center gap-2">
                                     <Link
                                         href="/advice/create"
@@ -198,6 +197,22 @@ export default function Header() {
                                     )}
                                 </div>
                             </div>
+                        ) : (
+                            // 未ログイン時
+                            <div className="flex items-center gap-4">
+                                <Link
+                                    href={route("login")}
+                                    className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+                                >
+                                    ログイン
+                                </Link>
+                                <Link
+                                    href={route("register")}
+                                    className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm"
+                                >
+                                    新規登録
+                                </Link>
+                            </div>
                         )}
                     </nav>
 
@@ -232,7 +247,7 @@ export default function Header() {
                             </Link>
                         ))}
 
-                        {user && (
+                        {user ? (
                             <div className="py-2 text-gray-500 text-sm flex flex-col gap-2">
                                 <span>こんにちは、{user.name} さん</span>
                                 <Link
@@ -271,6 +286,21 @@ export default function Header() {
                                 >
                                     ログアウト
                                 </button>
+                            </div>
+                        ) : (
+                            <div className="py-2 text-gray-500 text-sm flex flex-col gap-2">
+                                <Link
+                                    href={route("login")}
+                                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                >
+                                    ログイン
+                                </Link>
+                                <Link
+                                    href={route("register")}
+                                    className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                                >
+                                    新規登録
+                                </Link>
                             </div>
                         )}
                     </div>
