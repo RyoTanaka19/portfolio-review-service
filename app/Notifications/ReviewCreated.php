@@ -5,7 +5,6 @@ namespace App\Notifications;
 use App\Models\Review;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
-use Illuminate\Notifications\Messages\DatabaseMessage;
 
 class ReviewCreated extends Notification
 {
@@ -18,9 +17,13 @@ class ReviewCreated extends Notification
         $this->review = $review;
     }
 
-    // 通知をDBに保存する
+    // コメントが空なら通知を送らない
     public function via($notifiable)
     {
+        if (empty($this->review->comment)) {
+            return []; // 空配列を返すと通知は送信されない
+        }
+
         return ['database'];
     }
 
