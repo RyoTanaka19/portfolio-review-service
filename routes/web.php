@@ -22,7 +22,8 @@ Route::get('/', function () {
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
     ]);
-});
+})->name('home'); 
+
 Route::get('/autocomplete/users', [AutocompleteController::class, 'user']);
 
 Route::get('/terms', [StaticPagesController::class, 'terms'])->name('terms');
