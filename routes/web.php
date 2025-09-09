@@ -89,8 +89,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // AIアドバイス
     Route::get('/advices', fn () => Inertia::render('Advices/Index'))->name('advices.index');
     Route::get('/api/advices', [AdviceController::class, 'index'])->name('api.advices.index');
-    Route::post('/ai/advice', [AdviceController::class, 'store'])->name('advices.store');
-    Route::get('/advice/create', [AdviceController::class, 'create'])->name('advice.create');
+    Route::post('advices', [AdviceController::class, 'store'])->name('advices.store');
+    Route::get('/advices/create', [AdviceController::class, 'create'])->name('advices.create');
     Route::delete('/api/advices/{id}', [AdviceController::class, 'destroy'])->name('api.advices.destroy');
 
     // プロフィール

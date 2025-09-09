@@ -144,7 +144,7 @@ export default function Header() {
                                 {/* AI相談 / ランキング / 投稿 / お気に入り */}
                                 <div className="flex items-center gap-2">
                                     <Link
-                                        href="/advice/create"
+                                        href="/advices/create"
                                         className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm"
                                     >
                                         AI相談
