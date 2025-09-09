@@ -1,25 +1,33 @@
-// Index.jsx
-import React, { useState } from "react";
+// resources/js/Pages/Portfolios/Index.jsx
+import React, { useState, useEffect } from "react";
 import { Inertia } from "@inertiajs/inertia";
 import { InertiaLink } from "@inertiajs/inertia-react";
 import AppLayout from "@/Layouts/AppLayout";
 import axios from "axios";
-import BookmarkButton from "@/Pages/Bookmarks/Create"; // 変更
+import BookmarkButton from "@/Pages/Bookmarks/Create";
 
 export default function Index({
     portfolios,
     auth,
     filters = {},
     allTags = [],
+    flash = {},
 }) {
     const [userNameFilter, setUserNameFilter] = useState(
         filters.user_name || ""
     );
     const [tagFilter, setTagFilter] = useState(filters.tag || "");
     const [suggestions, setSuggestions] = useState([]);
-
-    // ポートフォリオ一覧を state で保持（削除後に更新可能）
     const [portfolioList, setPortfolioList] = useState(portfolios);
+    const [showFlash, setShowFlash] = useState(true);
+
+    // フラッシュメッセージの自動消去
+    useEffect(() => {
+        if (flash.success || flash.error) {
+            const timer = setTimeout(() => setShowFlash(false), 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [flash]);
 
     // 削除処理
     const handleDelete = async (id) => {
@@ -27,11 +35,8 @@ export default function Index({
 
         try {
             const response = await axios.delete(`/portfolio/${id}`);
-
             if (response.status === 200) {
                 alert("ポートフォリオを削除しました");
-
-                // 削除したカードだけ state から除外
                 setPortfolioList((prev) => prev.filter((p) => p.id !== id));
             } else {
                 alert(response.data.error || "削除に失敗しました");
@@ -77,6 +82,20 @@ export default function Index({
 
     return (
         <AppLayout>
+            {/* フラッシュメッセージ */}
+            {(flash.success || flash.error) && showFlash && (
+                <div
+                    className={`mb-4 p-2 rounded text-center ${
+                        flash.success
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                    }`}
+                >
+                    {flash.success || flash.error}
+                </div>
+            )}
+
+            {/* ヘッダー検索部分 */}
             <header className="px-8 py-6 bg-white shadow flex flex-col items-center">
                 <h1 className="text-2xl font-bold mb-4">投稿一覧</h1>
                 <div className="w-full max-w-3xl">
@@ -144,6 +163,7 @@ export default function Index({
                 </div>
             </header>
 
+            {/* ポートフォリオ一覧 */}
             <main className="px-8 py-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {portfolioList.map((p) => {
                     const averageRating = p.reviews?.length
@@ -216,7 +236,6 @@ export default function Index({
                                 </div>
                             )}
 
-                            {/* BookmarkButton へ移行 */}
                             {auth?.user && (
                                 <BookmarkButton
                                     portfolioId={p.id}

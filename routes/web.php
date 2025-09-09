@@ -66,8 +66,8 @@ Route::get('/portfolio/{portfolio}', [PortfolioController::class, 'show'])
 // 認証済みユーザー用ルート（ポートフォリオ作成・編集・削除など）
 Route::middleware(['auth', 'verified'])->group(function () {
     // ポートフォリオ
-    Route::get('/portfolio/create', [PortfolioController::class, 'create'])->name('portfolio.create');
-    Route::post('/portfolio', [PortfolioController::class, 'store'])->name('portfolio.store');
+    Route::get('/portfolios/create', [PortfolioController::class, 'create'])->name('portfolios.create');
+    Route::post('/portfolios', [PortfolioController::class, 'store'])->name('portfolios.store');
     Route::get('/portfolio/{portfolio}/edit', [PortfolioController::class, 'edit'])
         ->whereNumber('portfolio')->name('portfolio.edit');
     Route::put('/portfolio/{portfolio}', [PortfolioController::class, 'update'])
