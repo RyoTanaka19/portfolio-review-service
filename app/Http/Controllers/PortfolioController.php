@@ -205,7 +205,7 @@ return redirect()->route('dashboard')
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'description' => 'required|string',
             'url' => 'required|url|max:255',
             'github_url' => 'nullable|url|max:255',
             'tags' => 'required|array',
@@ -216,17 +216,10 @@ return redirect()->route('dashboard')
 
         $portfolio->update([
             'title' => $validated['title'],
-            'description' => $validated['description'] ?? null,
+            'description' => $validated['description'],
             'url' => $validated['url'],
             'github_url' => $validated['github_url'] ?? null,
         ]);
-
-        // 画像削除
-        if ($request->has('delete_image') && $portfolio->image_path) {
-            Storage::disk('public')->delete($portfolio->image_path);
-            $portfolio->image_path = null;
-            $portfolio->save();
-        }
 
         // 新しい画像アップロード
         if ($request->file('image')) {
