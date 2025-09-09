@@ -1,10 +1,11 @@
 // resources/js/Pages/Privacy.jsx
 import React from "react";
 import { Head, Link } from "@inertiajs/react";
+import AppLayout from "@/Layouts/AppLayout";
 
 export default function Privacy() {
     return (
-        <>
+        <AppLayout>
             <Head title="プライバシーポリシー" />
             <div className="max-w-screen-lg mx-auto px-4">
                 <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12 my-10 leading-relaxed">
@@ -156,6 +157,6 @@ export default function Privacy() {
                 </div>
                 <div className="h-20"></div>
             </div>
-        </>
+        </AppLayout>
     );
 }

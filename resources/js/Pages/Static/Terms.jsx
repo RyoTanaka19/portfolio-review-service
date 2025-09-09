@@ -1,10 +1,11 @@
 // resources/js/Pages/Terms.jsx
 import React from "react";
 import { Head } from "@inertiajs/react";
+import AppLayout from "@/Layouts/AppLayout";
 
 export default function Terms() {
     return (
-        <>
+        <AppLayout>
             <Head title="利用規約" />
             <div className="max-w-screen-lg mx-auto px-4">
                 <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12 my-10 leading-relaxed">
@@ -117,6 +118,6 @@ export default function Terms() {
                 </div>
                 <div className="h-20"></div>
             </div>
-        </>
+        </AppLayout>
     );
 }
