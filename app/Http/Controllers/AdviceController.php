@@ -83,13 +83,17 @@ public function store(Request $request)
     }
 }
 
-    public function index()
+public function index()
     {
+        // ログインユーザーのアドバイスを取得
         $advices = Advice::where('user_id', Auth::id())
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return response()->json($advices);
+        // Inertiaでコンポーネントに渡す
+        return Inertia::render('Advices/Index', [
+            'advices' => $advices,
+        ]);
     }
 
     public function destroy($id)
