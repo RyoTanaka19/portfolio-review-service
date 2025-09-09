@@ -19,15 +19,23 @@ export default function Index({
     const [tagFilter, setTagFilter] = useState(filters.tag || "");
     const [suggestions, setSuggestions] = useState([]);
     const [portfolioList, setPortfolioList] = useState(portfolios);
-    const [showFlash, setShowFlash] = useState(true);
 
-    // フラッシュメッセージの自動消去
+    // フラッシュメッセージ用 state を統一
+    const [flashMessage, setFlashMessage] = useState({
+        success: flash.success || null,
+        error: flash.error || null,
+    });
+    const [showFlash, setShowFlash] = useState(
+        !!flash.success || !!flash.error
+    );
+
+    // フラッシュ自動消去
     useEffect(() => {
-        if (flash.success || flash.error) {
+        if (flashMessage.success || flashMessage.error) {
             const timer = setTimeout(() => setShowFlash(false), 5000);
             return () => clearTimeout(timer);
         }
-    }, [flash]);
+    }, [flashMessage]);
 
     // 削除処理
     const handleDelete = async (id) => {
@@ -35,15 +43,26 @@ export default function Index({
 
         try {
             const response = await axios.delete(`/portfolio/${id}`);
-            if (response.status === 200) {
-                alert("ポートフォリオを削除しました");
+            if (response.status === 200 && response.data.success) {
+                // ポートフォリオをリストから削除
                 setPortfolioList((prev) => prev.filter((p) => p.id !== id));
+                // フラッシュメッセージに反映
+                setFlashMessage({
+                    success: response.data.message,
+                    error: null,
+                });
+                setShowFlash(true);
             } else {
-                alert(response.data.error || "削除に失敗しました");
+                setFlashMessage({
+                    success: null,
+                    error: response.data.error || "削除に失敗しました",
+                });
+                setShowFlash(true);
             }
         } catch (error) {
-            alert("削除に失敗しました");
             console.error(error);
+            setFlashMessage({ success: null, error: "削除に失敗しました" });
+            setShowFlash(true);
         }
     };
 
@@ -83,15 +102,15 @@ export default function Index({
     return (
         <AppLayout>
             {/* フラッシュメッセージ */}
-            {(flash.success || flash.error) && showFlash && (
+            {showFlash && (flashMessage.success || flashMessage.error) && (
                 <div
                     className={`mb-4 p-2 rounded text-center ${
-                        flash.success
+                        flashMessage.success
                             ? "bg-green-100 text-green-800"
                             : "bg-red-100 text-red-800"
                     }`}
                 >
-                    {flash.success || flash.error}
+                    {flashMessage.success || flashMessage.error}
                 </div>
             )}
 
