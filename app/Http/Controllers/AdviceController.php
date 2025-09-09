@@ -17,18 +17,17 @@ class AdviceController extends Controller
         return Inertia::render('Advices/Create');
     }
 
-    public function store(Request $request)
-    {
-        try {
-            // バリデーション（失敗時に 422 JSON で返す）
-            $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'description' => 'required|string',
-                'target_users' => 'required|string',
-                'issues' => 'required|string',
-            ]);
+public function store(Request $request)
+{
+    try {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'target_users' => 'required|string',
+            'issues' => 'required|string',
+        ]);
 
-            $prompt = "私はポートフォリオレビューサービスの開発者です。
+        $prompt = "私はポートフォリオレビューサービスの開発者です。
 サービス名: {$validated['name']}
 サービス概要: {$validated['description']}
 ユーザー層: {$validated['target_users']}
@@ -37,56 +36,52 @@ class AdviceController extends Controller
 上記を元に、このサービスに関して結論から簡潔に改善点やアドバイスを説明し、最後にまとめとして締めくくる形式で教えてください。
 箇条書きや短文を使って、ユーザーに分かりやすく伝えるようにしてください。";
 
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . env('OPENAI_API_KEY'),
-                'Content-Type' => 'application/json',
-            ])->post('https://api.openai.com/v1/chat/completions', [
-                'model' => 'gpt-4',
-                'messages' => [
-                    ['role' => 'user', 'content' => $prompt]
-                ],
-                'temperature' => 0.7,
-                'max_tokens' => 1500,
-            ]);
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . env('OPENAI_API_KEY'),
+            'Content-Type' => 'application/json',
+        ])->post('https://api.openai.com/v1/chat/completions', [
+            'model' => 'gpt-4',
+            'messages' => [
+                ['role' => 'user', 'content' => $prompt]
+            ],
+            'temperature' => 0.7,
+            'max_tokens' => 1500,
+        ]);
 
-            if (!$response->ok()) {
-                return response()->json([
-                    'error' => 'OpenAI APIから正常なレスポンスが返りませんでした',
-                    'http_status' => $response->status(),
-                    'raw_response' => $response->body(),
-                ], 500);
-            }
-
-            $responseData = $response->json();
-            $adviceText = $responseData['choices'][0]['message']['content'] ?? 'AIからの応答がありません。';
-
-            // DBに保存
-            $advice = Advice::create([
-                'user_id' => Auth::id(),
-                'service_name' => $validated['name'],
-                'service_description' => $validated['description'],
-                'target_users' => $validated['target_users'],
-                'service_issues' => $validated['issues'],
-                'ai_advice' => $adviceText,
-            ]);
-
+        if (!$response->ok()) {
             return response()->json([
-                'advice' => $adviceText,
-            ]);
-
-        } catch (ValidationException $e) {
-            // バリデーションエラーを JSON で返す
-            return response()->json([
-                'errors' => $e->errors(),
-            ], 422);
-        } catch (\Exception $e) {
-            Log::error('AI API Exception: ' . $e->getMessage());
-            return response()->json([
-                'error' => 'AI APIへの接続で例外が発生しました',
-                'exception_message' => $e->getMessage(),
+                'error' => 'OpenAI APIから正常なレスポンスが返りませんでした',
             ], 500);
         }
+
+        $responseData = $response->json();
+        $adviceText = $responseData['choices'][0]['message']['content'] ?? 'AIからの応答がありません。';
+
+        Advice::create([
+            'user_id' => Auth::id(),
+            'service_name' => $validated['name'],
+            'service_description' => $validated['description'],
+            'target_users' => $validated['target_users'],
+            'service_issues' => $validated['issues'],
+            'ai_advice' => $adviceText,
+        ]);
+
+        return response()->json([
+            'advice' => $adviceText,
+            'flashMessage' => 'アドバイスをもらうことに成功しました',
+        ]);
+
+    } catch (ValidationException $e) {
+        return response()->json([
+            'errors' => $e->errors(),
+        ], 422);
+    } catch (\Exception $e) {
+        Log::error('AI API Exception: ' . $e->getMessage());
+        return response()->json([
+            'error' => 'AI APIへの接続で例外が発生しました',
+        ], 500);
     }
+}
 
     public function index()
     {

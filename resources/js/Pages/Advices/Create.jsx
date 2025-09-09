@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { InertiaLink } from "@inertiajs/inertia-react";
 import AppLayout from "@/Layouts/AppLayout";
 
@@ -11,7 +11,8 @@ export default function Advice() {
     });
     const [advice, setAdvice] = useState("");
     const [loading, setLoading] = useState(false);
-    const [errors, setErrors] = useState({}); // フィールドごとのエラー
+    const [errors, setErrors] = useState({});
+    const [flashMessage, setFlashMessage] = useState("");
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -22,6 +23,7 @@ export default function Advice() {
         setLoading(true);
         setAdvice("");
         setErrors({});
+        setFlashMessage("");
 
         try {
             const res = await fetch("/advices", {
@@ -39,7 +41,6 @@ export default function Advice() {
 
             if (!res.ok) {
                 if (res.status === 422) {
-                    // バリデーションエラー時は Laravel 形式の errors をセット
                     setErrors(data.errors || {});
                 } else {
                     throw new Error(data.error || "AIからの応答に失敗しました");
@@ -47,7 +48,13 @@ export default function Advice() {
                 return;
             }
 
-            setAdvice(data.advice);
+            setAdvice(data.advice || "");
+            setFlashMessage(data.flashMessage || "");
+
+            // 自動でフラッシュを3秒で消す
+            if (data.flashMessage) {
+                setTimeout(() => setFlashMessage(""), 3000);
+            }
         } catch (err) {
             setErrors({ general: err.message || "エラーが発生しました" });
         } finally {
@@ -55,7 +62,6 @@ export default function Advice() {
         }
     };
 
-    // 各フィールドのエラーを表示
     const renderError = (field) => {
         if (errors && errors[field]) {
             return (
@@ -69,9 +75,12 @@ export default function Advice() {
         <AppLayout>
             <div className="flex-1 flex justify-center bg-gray-50 p-4">
                 <div className="w-full max-w-2xl mt-10 bg-white p-8 rounded-lg shadow-md">
-                    <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
-                        AIアドバイスをもらう
-                    </h1>
+                    {/* フラッシュメッセージ */}
+                    {flashMessage && (
+                        <div className="mb-4 p-4 bg-green-100 text-green-700 rounded">
+                            {flashMessage}
+                        </div>
+                    )}
 
                     <form onSubmit={handleSubmit} className="space-y-5">
                         {/* サービス名 */}
@@ -160,13 +169,11 @@ export default function Advice() {
 
                     {/* AIからのアドバイス */}
                     {advice && (
-                        <div className="mt-8 p-6 bg-gray-100 border-l-4 border-blue-500 rounded shadow-sm">
+                        <div className="mt-8 p-6 bg-gray-100 border-l-4 border-blue-500 rounded shadow-sm whitespace-pre-line">
                             <h2 className="text-xl font-bold mb-2 text-gray-800">
                                 AIからのアドバイス
                             </h2>
-                            <p className="text-gray-700 whitespace-pre-line">
-                                {advice}
-                            </p>
+                            <p className="text-gray-700">{advice}</p>
                         </div>
                     )}
 
