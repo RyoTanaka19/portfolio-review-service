@@ -1,68 +1,67 @@
-import React, { useState } from "react";
+// resources/js/Pages/Portfolios/Create.jsx
+import React, { useState, useEffect } from "react";
 import { Inertia } from "@inertiajs/inertia";
+import { usePage } from "@inertiajs/react";
 import AppLayout from "@/Layouts/AppLayout";
 import TagsInput from "../Tags/Index";
 
 export default function Create() {
+    const { errors: serverErrors } = usePage().props; // Laravel バリデーションエラー
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [url, setUrl] = useState("");
-    const [githubUrl, setGithubUrl] = useState(""); // GitHub URL の状態
+    const [githubUrl, setGithubUrl] = useState("");
     const [tags, setTags] = useState([]);
     const [image, setImage] = useState(null);
     const [errors, setErrors] = useState({});
 
+    // サーバーからのエラーを state に反映
+    useEffect(() => {
+        setErrors(serverErrors || {});
+    }, [serverErrors]);
+
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // タグが選択されていない場合、エラーをセット
-        if (tags.length === 0) {
-            setErrors((prevErrors) => ({
-                ...prevErrors,
-                tags: "このフィールドに選択してください",
-            }));
-            return; // タグが未選択の場合は処理を停止
+        // クライアント側バリデーション
+        const newErrors = {};
+        if (!title.trim()) newErrors.title = "タイトルは必須です";
+        if (!description.trim()) newErrors.description = "説明は必須です";
+        if (!url.trim()) newErrors.url = "URLは必須です";
+        if (tags.length === 0) newErrors.tags = "タグは必須です";
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
         }
 
         const formData = new FormData();
         formData.append("title", title);
         formData.append("description", description);
         formData.append("url", url);
-        formData.append("github_url", githubUrl); // GitHub URL をフォームデータに追加
-
-        // タグ送信
-        tags.forEach((t, index) => formData.append(`tags[${index}]`, t.name));
-
-        // 画像送信
-        if (image) {
-            console.log("送信する画像:", image); // デバッグ用
-            formData.append("image", image);
-        }
+        formData.append("github_url", githubUrl);
+        tags.forEach((t, idx) => formData.append(`tags[${idx}]`, t.name));
+        if (image) formData.append("image", image);
 
         Inertia.post(route("portfolios.store"), formData, {
-            onError: (err) => {
-                console.log("送信エラー:", err);
-                setErrors(err);
-            },
-            preserveScroll: true,
-            preserveState: true,
+            onError: (err) => setErrors(err),
         });
     };
 
     return (
         <AppLayout>
-            <div className="flex-1 flex items-center justify-center bg-gray-50 px-4 py-6">
+            <div className="flex justify-center items-center py-6 bg-gray-50 min-h-screen">
                 <div className="w-full max-w-md">
-                    <h1 className="text-2xl font-bold mb-6 text-center">
+                    <h1 className="text-2xl font-bold text-center mb-6">
                         新規投稿
                     </h1>
 
                     <form
                         onSubmit={handleSubmit}
                         className="bg-white p-6 rounded shadow-md"
-                        encType="multipart/form-data" // 🔹 追加
+                        encType="multipart/form-data"
                     >
-                        {/* 作品タイトル（必須） */}
+                        {/* タイトル */}
                         <div className="mb-4">
                             <label className="block font-medium mb-1">
                                 作品タイトル{" "}
@@ -72,8 +71,9 @@ export default function Create() {
                                 type="text"
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
-                                className="w-full border px-3 py-2 rounded"
-                                required
+                                className={`w-full border px-3 py-2 rounded ${
+                                    errors.title ? "border-red-500" : ""
+                                }`}
                             />
                             {errors.title && (
                                 <p className="text-red-500 mt-1">
@@ -82,7 +82,7 @@ export default function Create() {
                             )}
                         </div>
 
-                        {/* 作品説明 */}
+                        {/* 説明 */}
                         <div className="mb-4">
                             <label className="block font-medium mb-1">
                                 作品説明 <span className="text-red-500">*</span>
@@ -90,9 +90,10 @@ export default function Create() {
                             <textarea
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
-                                className="w-full border px-3 py-2 rounded"
+                                className={`w-full border px-3 py-2 rounded ${
+                                    errors.description ? "border-red-500" : ""
+                                }`}
                                 rows={4}
-                                required
                             />
                             {errors.description && (
                                 <p className="text-red-500 mt-1">
@@ -101,10 +102,10 @@ export default function Create() {
                             )}
                         </div>
 
-                        {/* 画像アップロード */}
+                        {/* 画像 */}
                         <div className="mb-4">
                             <label className="block font-medium mb-1">
-                                画像（任意）
+                                画像 (任意)
                             </label>
                             <input
                                 type="file"
@@ -112,25 +113,20 @@ export default function Create() {
                                 onChange={(e) => setImage(e.target.files[0])}
                                 className="w-full"
                             />
-                            {errors.image && (
-                                <p className="text-red-500 mt-1">
-                                    {errors.image}
-                                </p>
-                            )}
                         </div>
 
-                        {/* サービスのURL（必須） */}
+                        {/* URL */}
                         <div className="mb-4">
                             <label className="block font-medium mb-1">
-                                作品のURL{" "}
-                                <span className="text-red-500">*</span>
+                                作品URL <span className="text-red-500">*</span>
                             </label>
                             <input
                                 type="url"
                                 value={url}
                                 onChange={(e) => setUrl(e.target.value)}
-                                className="w-full border px-3 py-2 rounded"
-                                required
+                                className={`w-full border px-3 py-2 rounded ${
+                                    errors.url ? "border-red-500" : ""
+                                }`}
                             />
                             {errors.url && (
                                 <p className="text-red-500 mt-1">
@@ -139,10 +135,10 @@ export default function Create() {
                             )}
                         </div>
 
-                        {/* GitHubのリポジトリURL（任意） */}
+                        {/* GitHub URL */}
                         <div className="mb-4">
                             <label className="block font-medium mb-1">
-                                GitHubのリポジトリURL（任意）
+                                GitHub URL (任意)
                             </label>
                             <input
                                 type="url"
@@ -150,18 +146,12 @@ export default function Create() {
                                 onChange={(e) => setGithubUrl(e.target.value)}
                                 className="w-full border px-3 py-2 rounded"
                             />
-                            {errors.github_url && (
-                                <p className="text-red-500 mt-1">
-                                    {errors.github_url}
-                                </p>
-                            )}
                         </div>
 
-                        {/* タグ（技術）【必須】 */}
+                        {/* タグ */}
                         <div className="mb-4">
                             <label className="block font-medium mb-1">
-                                タグ（技術）{" "}
-                                <span className="text-red-500">*</span>
+                                タグ <span className="text-red-500">*</span>
                             </label>
                             <TagsInput value={tags} onChange={setTags} />
                             {errors.tags && (
