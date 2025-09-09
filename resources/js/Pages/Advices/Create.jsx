@@ -11,7 +11,7 @@ export default function Advice() {
     });
     const [advice, setAdvice] = useState("");
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
+    const [errors, setErrors] = useState({}); // フィールドごとのエラー
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -20,11 +20,11 @@ export default function Advice() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setError("");
         setAdvice("");
+        setErrors({});
 
         try {
-            const res = await fetch("/ai/advice", {
+            const res = await fetch("/advices", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -35,15 +35,34 @@ export default function Advice() {
                 body: JSON.stringify(form),
             });
 
-            if (!res.ok) throw new Error("AIからの応答に失敗しました");
-
             const data = await res.json();
+
+            if (!res.ok) {
+                if (res.status === 422) {
+                    // バリデーションエラー時は Laravel 形式の errors をセット
+                    setErrors(data.errors || {});
+                } else {
+                    throw new Error(data.error || "AIからの応答に失敗しました");
+                }
+                return;
+            }
+
             setAdvice(data.advice);
         } catch (err) {
-            setError(err.message || "エラーが発生しました");
+            setErrors({ general: err.message || "エラーが発生しました" });
         } finally {
             setLoading(false);
         }
+    };
+
+    // 各フィールドのエラーを表示
+    const renderError = (field) => {
+        if (errors && errors[field]) {
+            return (
+                <p className="text-red-500 text-sm mt-1">{errors[field][0]}</p>
+            );
+        }
+        return null;
     };
 
     return (
@@ -68,8 +87,8 @@ export default function Advice() {
                                 onChange={handleChange}
                                 className="w-full border border-gray-300 p-3 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                                 placeholder="例: アドバイスをしてもらいたいサービス名"
-                                required
                             />
+                            {renderError("name")}
                         </div>
 
                         {/* サービス概要 */}
@@ -85,8 +104,8 @@ export default function Advice() {
                                 className="w-full border border-gray-300 p-3 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                                 rows={4}
                                 placeholder="例: このサービスの特徴や目的"
-                                required
                             />
+                            {renderError("description")}
                         </div>
 
                         {/* ターゲットユーザー */}
@@ -102,8 +121,8 @@ export default function Advice() {
                                 onChange={handleChange}
                                 className="w-full border border-gray-300 p-3 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                                 placeholder="例: 学生、社会人など"
-                                required
                             />
+                            {renderError("target_users")}
                         </div>
 
                         {/* 悩み・相談したいこと */}
@@ -119,11 +138,10 @@ export default function Advice() {
                                 className="w-full border border-gray-300 p-3 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                                 rows={4}
                                 placeholder="例: サービス改善のアイデアが欲しい"
-                                required
                             />
+                            {renderError("issues")}
                         </div>
 
-                        {/* 送信ボタン */}
                         <button
                             type="submit"
                             className="w-full py-3 bg-blue-500 text-white font-semibold rounded hover:bg-blue-600 transition-colors duration-200"
@@ -133,12 +151,14 @@ export default function Advice() {
                         </button>
                     </form>
 
-                    {error && (
+                    {/* 一般的なエラー */}
+                    {errors.general && (
                         <div className="mt-6 p-4 bg-red-100 text-red-700 rounded">
-                            {error}
+                            {errors.general}
                         </div>
                     )}
 
+                    {/* AIからのアドバイス */}
                     {advice && (
                         <div className="mt-8 p-6 bg-gray-100 border-l-4 border-blue-500 rounded shadow-sm">
                             <h2 className="text-xl font-bold mb-2 text-gray-800">
