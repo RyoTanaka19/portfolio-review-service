@@ -53,7 +53,7 @@ const Home = () => {
                             ログアウト
                         </Link>
                         <Link
-                            href={route("portfolio.create")}
+                            href={route("portfolios.create")}
                             className="btn py-2 px-4 bg-green-500 text-white rounded-md"
                         >
                             ポートフォリオ投稿

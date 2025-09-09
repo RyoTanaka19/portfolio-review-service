@@ -39,7 +39,7 @@ export default function Create() {
             formData.append("image", image);
         }
 
-        Inertia.post(route("portfolio.store"), formData, {
+        Inertia.post(route("portfolios.store"), formData, {
             onError: (err) => {
                 console.log("送信エラー:", err);
                 setErrors(err);
@@ -82,16 +82,17 @@ export default function Create() {
                             )}
                         </div>
 
-                        {/* 作品説明（任意） */}
+                        {/* 作品説明 */}
                         <div className="mb-4">
                             <label className="block font-medium mb-1">
-                                作品説明(任意)
+                                作品説明 <span className="text-red-500">*</span>
                             </label>
                             <textarea
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
                                 className="w-full border px-3 py-2 rounded"
                                 rows={4}
+                                required
                             />
                             {errors.description && (
                                 <p className="text-red-500 mt-1">
