@@ -59,7 +59,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // 誰でもアクセスできるポートフォリオ一覧
-Route::get('/portfolio', [PortfolioController::class, 'index'])->name('dashboard');
+Route::get('/portfolios', [PortfolioController::class, 'index'])->name('dashboard');
 Route::get('/portfolio/{portfolio}', [PortfolioController::class, 'show'])
     ->whereNumber('portfolio')->name('portfolio.show');
 
@@ -68,10 +68,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ポートフォリオ
     Route::get('/portfolios/create', [PortfolioController::class, 'create'])->name('portfolios.create');
     Route::post('/portfolios', [PortfolioController::class, 'store'])->name('portfolios.store');
-    Route::get('/portfolio/{portfolio}/edit', [PortfolioController::class, 'edit'])
-        ->whereNumber('portfolio')->name('portfolio.edit');
-    Route::put('/portfolio/{portfolio}', [PortfolioController::class, 'update'])
-        ->whereNumber('portfolio')->name('portfolio.update');
+    Route::get('/portfolios/{portfolio}/edit', [PortfolioController::class, 'edit'])
+        ->whereNumber('portfolio')->name('portfolios.edit');
+    Route::put('/portfolios/{portfolio}', [PortfolioController::class, 'update'])
+        ->whereNumber('portfolio')->name('portfolios.update');
     Route::delete('/portfolio/{portfolio}', [PortfolioController::class, 'destroy'])
         ->whereNumber('portfolio')->name('portfolio.destroy');
 
