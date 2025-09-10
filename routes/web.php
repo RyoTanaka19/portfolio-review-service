@@ -54,8 +54,8 @@ Route::middleware('auth')->group(function () {
 
 // 認証済みユーザー用ルート
 Route::middleware(['auth'])->group(function () {
-    Route::post('/portfolio/{portfolio}/bookmark', [BookmarkController::class, 'store'])->name('bookmark.store');
-    Route::delete('/portfolio/{portfolio}/bookmark', [BookmarkController::class, 'destroy'])->name('bookmark.destroy');
+    Route::post('/portfolios/{portfolio}/bookmark', [BookmarkController::class, 'store'])->name('bookmark.store');
+    Route::delete('/portfolios/{portfolio}/bookmark', [BookmarkController::class, 'destroy'])->name('bookmark.destroy');
 });
 
 // 誰でもアクセスできるポートフォリオ一覧
