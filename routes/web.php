@@ -36,7 +36,7 @@ Route::post('/contact', [StaticPagesController::class, 'submitContact'])->name('
 Route::get('auth/google', [GoogleLoginController::class, 'redirectToGoogle'])->name('google.login');
 Route::get('auth/google/callback', [GoogleLoginController::class, 'handleGoogleCallback']);
 
-Route::get('/bookmarks', [BookmarkController::class, 'index'])->name('bookmarks.index');
+
 
 // ランキング（未ログインでもアクセス可能）
 // → ReviewController に移動したランキングメソッドを参照
@@ -54,6 +54,7 @@ Route::middleware('auth')->group(function () {
 
 // 認証済みユーザー用ルート
 Route::middleware(['auth'])->group(function () {
+    Route::get('/bookmarks', [BookmarkController::class, 'index'])->name('bookmarks.index');
     Route::post('/portfolios/{portfolio}/bookmark', [BookmarkController::class, 'store'])->name('bookmark.store');
     Route::delete('/portfolios/{portfolio}/bookmark', [BookmarkController::class, 'destroy'])->name('bookmark.destroy');
 });

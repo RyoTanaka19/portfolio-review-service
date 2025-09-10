@@ -4,15 +4,13 @@ import axios from "axios";
 export default function BookmarkButton({
     portfolioId,
     initialBookmarked,
-    setFlashMessage,
-    setShowFlash,
+    onToggle, // ← 新しく追加
 }) {
     const [isBookmarked, setIsBookmarked] = useState(initialBookmarked);
     const [loading, setLoading] = useState(false);
 
     const toggleBookmark = async () => {
         if (loading) return;
-
         setLoading(true);
 
         try {
@@ -20,26 +18,21 @@ export default function BookmarkButton({
             if (isBookmarked) {
                 // ブックマーク解除
                 res = await axios.delete(`/portfolios/${portfolioId}/bookmark`);
-                if (res.data.success) setIsBookmarked(false);
+                if (res.data.success) {
+                    setIsBookmarked(false);
+                    onToggle(false, res.data.message); // ← 親に通知
+                }
             } else {
-                // ブックマーク作成
+                // ブックマーク登録
                 res = await axios.post(`/portfolios/${portfolioId}/bookmark`);
-                if (res.data.success) setIsBookmarked(true);
+                if (res.data.success) {
+                    setIsBookmarked(true);
+                    onToggle(true, res.data.message); // ← 親に通知
+                }
             }
-
-            // フラッシュメッセージを表示
-            setFlashMessage({
-                success: res.data.success ? res.data.message : null,
-                error: res.data.success ? null : res.data.message,
-            });
-            setShowFlash(true);
         } catch (err) {
             console.error(err);
-            setFlashMessage({
-                success: null,
-                error: "通信エラーが発生しました",
-            });
-            setShowFlash(true);
+            onToggle(isBookmarked, "通信エラーが発生しました");
         } finally {
             setLoading(false);
         }
