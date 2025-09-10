@@ -40,11 +40,11 @@ Route::get('/bookmarks', [BookmarkController::class, 'index'])->name('bookmarks.
 
 // ランキング（未ログインでもアクセス可能）
 // → ReviewController に移動したランキングメソッドを参照
-Route::get('/ranking', [ReviewController::class, 'ranking'])->name('ranking');
-Route::get('/ranking/technical', [ReviewController::class, 'rankingTechnical'])->name('ranking.technical');
-Route::get('/ranking/usability', [ReviewController::class, 'rankingUsability'])->name('ranking.usability');
-Route::get('/ranking/design', [ReviewController::class, 'rankingDesign'])->name('ranking.design');
-Route::get('/ranking/user-focus', [ReviewController::class, 'rankingUserFocus'])->name('ranking.user_focus');
+Route::get('reviews/rankings/total', [ReviewController::class, 'ranking'])->name('ranking.total');
+Route::get('reviews/rankings/technical', [ReviewController::class, 'rankingTechnical'])->name('ranking.technical');
+Route::get('reviews/rankings/usability', [ReviewController::class, 'rankingUsability'])->name('ranking.usability');
+Route::get('reviews/rankings/design', [ReviewController::class, 'rankingDesign'])->name('ranking.design');
+Route::get('reviews/rankings/user-focus', [ReviewController::class, 'rankingUserFocus'])->name('ranking.user-focus');
 
 // 通知関連（要ログイン）
 Route::middleware('auth')->group(function () {

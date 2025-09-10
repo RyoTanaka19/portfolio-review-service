@@ -93,7 +93,7 @@ public function store(Request $request, Portfolio $portfolio)
             ->get()
             ->map(fn($p) => $this->formatPortfolio($p));
 
-        return Inertia::render('Reviews/Ranking', [
+        return Inertia::render('Reviews/Rankings/TotalRanking', [
             'portfolios' => $portfolios,
         ]);
     }
@@ -109,7 +109,7 @@ public function store(Request $request, Portfolio $portfolio)
             ->get()
             ->map(fn($p) => $this->formatPortfolio($p, 'reviews_avg_technical'));
 
-        return Inertia::render('Reviews/RankingTechnical', [
+        return Inertia::render('Reviews/Rankings/TechnicalRanking', [
             'portfolios' => $portfolios,
         ]);
     }
@@ -125,7 +125,7 @@ public function store(Request $request, Portfolio $portfolio)
             ->get()
             ->map(fn($p) => $this->formatPortfolio($p, 'reviews_avg_usability'));
 
-        return Inertia::render('Reviews/RankingUsability', [
+        return Inertia::render('Reviews/Rankings/UsabilityRanking', [
             'portfolios' => $portfolios,
         ]);
     }
@@ -141,7 +141,7 @@ public function store(Request $request, Portfolio $portfolio)
             ->get()
             ->map(fn($p) => $this->formatPortfolio($p, 'reviews_avg_design'));
 
-        return Inertia::render('Reviews/RankingDesign', [
+        return Inertia::render('Reviews/Rankings/DesignRanking', [
             'portfolios' => $portfolios,
         ]);
     }
@@ -157,7 +157,7 @@ public function store(Request $request, Portfolio $portfolio)
             ->get()
             ->map(fn($p) => $this->formatPortfolio($p, 'reviews_avg_user_focus'));
 
-        return Inertia::render('Reviews/RankingUserFocus', [
+        return Inertia::render('Reviews/Rankings/UserFocusRanking', [
             'portfolios' => $portfolios,
         ]);
     }
