@@ -4,7 +4,7 @@ import { Inertia } from "@inertiajs/inertia";
 import { InertiaLink } from "@inertiajs/inertia-react";
 import AppLayout from "@/Layouts/AppLayout";
 import axios from "axios";
-import BookmarkButton from "@/Pages/Bookmarks/Create";
+import BookmarkButton from "@/Pages/Bookmarks/Bookmark";
 
 export default function Index({
     portfolios,
