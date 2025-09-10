@@ -150,7 +150,7 @@ export default function Header() {
                                         AI相談
                                     </Link>
                                     <Link
-                                        href={route("ranking")}
+                                        href="/reviews/rankings/total"
                                         className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-sm"
                                     >
                                         ランキング

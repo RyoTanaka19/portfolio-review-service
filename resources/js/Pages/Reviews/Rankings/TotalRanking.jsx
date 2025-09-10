@@ -1,49 +1,50 @@
 import React from "react";
 import { Link } from "@inertiajs/react";
 import AppLayout from "@/Layouts/AppLayout";
+import { route } from "ziggy-js"; // Ziggyのroute関数をインポート
 
-export default function RankingDesign({ portfolios }) {
+export default function Ranking({ portfolios }) {
     const rankColors = ["text-yellow-500", "text-gray-400", "text-orange-500"];
 
     return (
         <AppLayout>
-            {/* ヘッダー */}
-            <header className="px-8 py-8 bg-gradient-to-r from-pink-50 to-pink-100 shadow text-center">
+            {/* ヘッダー中央寄せ */}
+            <header className="px-8 py-8 bg-gradient-to-r from-gray-50 to-gray-50 shadow text-center">
                 <h1 className="text-3xl font-bold">
-                    デザイン性ランキング TOP10
+                    レビュー総合ランキング TOP10
                 </h1>
                 <p className="text-gray-600 mt-2 text-base">
-                    デザイン性の平均評価でランキング
+                    総合の平均評価ランキング
                 </p>
 
-                {/* 評価項目別リンク */}
+                {/* 評価項目別ランキングリンク */}
                 <div className="mt-4 flex justify-center gap-4 flex-wrap">
                     <Link
-                        href="/ranking"
+                        href={route("ranking.total")} // Ziggyのroute関数を使用
                         className="px-4 py-2 bg-gray-100 text-gray-800 rounded-full text-sm font-medium hover:bg-gray-200"
                     >
                         総合
                     </Link>
                     <Link
-                        href="/ranking/technical"
+                        href={route("ranking.technical")} // Ziggyのroute関数を使用
                         className="px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium hover:bg-blue-200"
                     >
                         技術力
                     </Link>
                     <Link
-                        href="/ranking/usability"
+                        href={route("ranking.usability")} // Ziggyのroute関数を使用
                         className="px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium hover:bg-green-200"
                     >
                         使いやすさ
                     </Link>
                     <Link
-                        href="/ranking/design"
+                        href={route("ranking.design")} // Ziggyのroute関数を使用
                         className="px-4 py-2 bg-pink-100 text-pink-800 rounded-full text-sm font-medium hover:bg-pink-200"
                     >
                         デザイン性
                     </Link>
                     <Link
-                        href="/ranking/user-focus"
+                        href={route("ranking.user-focus")} // Ziggyのroute関数を使用
                         className="px-4 py-2 bg-purple-100 text-purple-800 rounded-full text-sm font-medium hover:bg-purple-200"
                     >
                         ユーザー目線
@@ -51,7 +52,6 @@ export default function RankingDesign({ portfolios }) {
                 </div>
             </header>
 
-            {/* メイン */}
             <main className="px-8 py-10 max-w-4xl mx-auto">
                 {portfolios.length === 0 ? (
                     <p className="text-gray-500 text-center text-lg">
@@ -88,7 +88,7 @@ export default function RankingDesign({ portfolios }) {
                                         </div>
                                     </div>
 
-                                    {/* 右側: 評価 */}
+                                    {/* 右側: 評価情報 */}
                                     <div className="text-right">
                                         <div className="text-2xl font-bold text-gray-800">
                                             {p.avg_rating}
@@ -118,7 +118,7 @@ export default function RankingDesign({ portfolios }) {
                                         {p.tags.map((t, i) => (
                                             <span
                                                 key={i}
-                                                className="px-3 py-1 rounded-full bg-pink-50 text-pink-700 text-xs font-medium"
+                                                className="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-medium"
                                             >
                                                 #{t}
                                             </span>
@@ -139,7 +139,7 @@ export default function RankingDesign({ portfolios }) {
                                         href={p.url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="inline-block mt-4 text-pink-600 text-sm font-medium hover:underline"
+                                        className="inline-block mt-4 text-blue-600 text-sm font-medium hover:underline"
                                     >
                                         サイトを見る →
                                     </a>

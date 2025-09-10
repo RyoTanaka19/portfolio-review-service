@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "@inertiajs/react";
 import AppLayout from "@/Layouts/AppLayout";
+import { route } from "ziggy-js"; // Ziggyのroute関数をインポート
 
 export default function RankingUsability({ portfolios }) {
     const rankColors = ["text-yellow-500", "text-gray-400", "text-orange-500"];
@@ -19,31 +20,31 @@ export default function RankingUsability({ portfolios }) {
                 {/* 評価項目別リンク */}
                 <div className="mt-4 flex justify-center gap-4 flex-wrap">
                     <Link
-                        href="/ranking"
+                        href={route("ranking.total")} // 総合リンク
                         className="px-4 py-2 bg-gray-100 text-gray-800 rounded-full text-sm font-medium hover:bg-gray-200"
                     >
                         総合
                     </Link>
                     <Link
-                        href="/ranking/technical"
+                        href={route("ranking.technical")} // 技術力リンク
                         className="px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium hover:bg-blue-200"
                     >
                         技術力
                     </Link>
                     <Link
-                        href="/ranking/usability"
+                        href={route("ranking.usability")} // 使いやすさリンク
                         className="px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium hover:bg-green-200"
                     >
                         使いやすさ
                     </Link>
                     <Link
-                        href="/ranking/design"
+                        href={route("ranking.design")} // デザイン性リンク
                         className="px-4 py-2 bg-pink-100 text-pink-800 rounded-full text-sm font-medium hover:bg-pink-200"
                     >
                         デザイン性
                     </Link>
                     <Link
-                        href="/ranking/user-focus"
+                        href={route("ranking.user-focus")} // ユーザー目線リンク
                         className="px-4 py-2 bg-purple-100 text-purple-800 rounded-full text-sm font-medium hover:bg-purple-200"
                     >
                         ユーザー目線
