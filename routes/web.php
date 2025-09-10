@@ -89,9 +89,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // AIアドバイス
     Route::get('/advices', [AdviceController::class, 'index'])->name('advices.index');
 
-    Route::post('api/advices', [AdviceController::class, 'store'])->name('api.advices.store');
+    Route::post('/advices', [AdviceController::class, 'store'])->name('api.advices.store');
     Route::get('/advices/create', [AdviceController::class, 'create'])->name('advices.create');
-    Route::delete('/api/advices/{id}', [AdviceController::class, 'destroy'])->name('api.advices.destroy');
+    Route::delete('/advices/{id}', [AdviceController::class, 'destroy'])->name('api.advices.destroy');
 
     // プロフィール
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

@@ -9,7 +9,7 @@ export default function AdvicesIndex({ advices }) {
         if (!window.confirm("本当に削除しますか？")) return;
 
         try {
-            const response = await fetch(`/api/advices/${id}`, {
+            const response = await fetch(`/advices/${id}`, {
                 method: "DELETE",
                 headers: {
                     "Content-Type": "application/json",

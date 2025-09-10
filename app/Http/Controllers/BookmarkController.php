@@ -11,30 +11,50 @@ use Illuminate\Support\Facades\Storage;
 class BookmarkController extends Controller
 {
     // ブックマーク登録
-    public function store(Portfolio $portfolio)
-    {
-        $user = auth()->user();
+public function store(Portfolio $portfolio)
+{
+    $user = auth()->user();
 
-        Bookmark::firstOrCreate([
+    try {
+        $bookmark = Bookmark::firstOrCreate([
             'user_id' => $user->id,
             'portfolio_id' => $portfolio->id,
         ]);
 
-        // Inertiaリクエスト向けにバックするだけでOK
-        return back()->with('success', 'ブックマークしました');
+        return response()->json([
+            'success' => true,
+            'message' => 'ブックマークしました', // フラッシュメッセージとして使える
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'ブックマークに失敗しました',
+        ], 500);
     }
+}
 
     // ブックマーク解除
-    public function destroy(Portfolio $portfolio)
-    {
-        $user = auth()->user();
 
+public function destroy(Portfolio $portfolio)
+{
+    $user = auth()->user();
+
+    try {
         Bookmark::where('user_id', $user->id)
-                ->where('portfolio_id', $portfolio->id)
-                ->delete();
+            ->where('portfolio_id', $portfolio->id)
+            ->delete();
 
-        return back()->with('success', 'ブックマークを解除しました');
+        return response()->json([
+            'success' => true,
+            'message' => 'ブックマークを解除しました',
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'ブックマーク解除に失敗しました',
+        ], 500);
     }
+}
 
     // お気に入り一覧ページ
     public function index()

@@ -26,7 +26,7 @@ export default function Advice() {
         setFlashMessage("");
 
         try {
-            const res = await fetch("/api/advices", {
+            const res = await fetch("/advices", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

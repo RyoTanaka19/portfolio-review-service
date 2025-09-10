@@ -4,7 +4,7 @@ import { Inertia } from "@inertiajs/inertia";
 import { InertiaLink } from "@inertiajs/inertia-react";
 import AppLayout from "@/Layouts/AppLayout";
 import axios from "axios";
-import BookmarkButton from "@/Pages/Bookmarks/Bookmark";
+import BookmarkButton from "@/Pages/Bookmarks/BookmarkButton";
 
 export default function Index({
     portfolios,
@@ -259,6 +259,8 @@ export default function Index({
                                 <BookmarkButton
                                     portfolioId={p.id}
                                     initialBookmarked={p.is_bookmarked || false}
+                                    setFlashMessage={setFlashMessage}
+                                    setShowFlash={setShowFlash}
                                 />
                             )}
 
