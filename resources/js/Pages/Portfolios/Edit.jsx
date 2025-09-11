@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Inertia } from "@inertiajs/inertia";
 import { usePage, Link } from "@inertiajs/react";
 import AppLayout from "@/Layouts/AppLayout";
-import TagsInput from "../Tags/Index";
+import TagsInput from "@/Components/Tags/TagsInput";
 
 export default function Edit({ portfolio }) {
     const { errors: serverErrors } = usePage().props;

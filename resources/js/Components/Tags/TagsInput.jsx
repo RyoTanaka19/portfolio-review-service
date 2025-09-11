@@ -16,16 +16,22 @@ export default function TagsInput({ value = [], onChange }) {
     const tagsIndexUrl =
         typeof route === "function" ? route("tags.index") : "/tags";
 
+    // タグ取得を async/await + try/catch に変更
+    const fetchTags = async () => {
+        try {
+            const response = await axios.get(tagsIndexUrl);
+            const data = response.data;
+
+            if (Array.isArray(data)) setAllTags(data);
+            else if (Array.isArray(data.tags)) setAllTags(data.tags);
+            else console.error("タグ配列が取得できませんでした");
+        } catch (error) {
+            console.error("タグ取得エラー:", error);
+        }
+    };
+
     useEffect(() => {
-        axios
-            .get(tagsIndexUrl)
-            .then((r) => {
-                console.log("tags from API:", r.data); // デバッグ
-                if (Array.isArray(r.data)) setAllTags(r.data);
-                else if (Array.isArray(r.data.tags)) setAllTags(r.data.tags);
-                else console.error("タグ配列が取得できませんでした");
-            })
-            .catch((e) => console.error("タグ取得エラー:", e));
+        fetchTags();
     }, []);
 
     useEffect(() => {
@@ -36,7 +42,7 @@ export default function TagsInput({ value = [], onChange }) {
         onChange && onChange(selected);
     }, [selected]);
 
-    // クリック外で閉じる
+    // クリック外でドロップダウンを閉じる
     useEffect(() => {
         const onDoc = (e) => {
             if (!rootRef.current) return;
@@ -46,25 +52,24 @@ export default function TagsInput({ value = [], onChange }) {
         return () => document.removeEventListener("click", onDoc);
     }, []);
 
-    // query が空の場合は全件表示、入力がある場合は絞り込み
+    // ドロップダウンに表示するタグをフィルタ
     const filtered = allTags
-        .filter((t) => !selected.some((s) => s.id === t.id))
+        .filter((t) => !selected.some((s) => s.id === t.id)) // 選択済みは除外
         .filter((t) =>
             query ? t.name.toLowerCase().includes(query.toLowerCase()) : true
         );
 
+    // タグ選択
     const toggleTag = (tag) => {
         if (!selected.some((s) => s.id === tag.id)) {
             setSelected([...selected, tag]);
         }
         setQuery("");
-        // setOpen(false); // 連続選択したい場合は閉じない
     };
 
+    // タグ削除
     const removeTag = (tag) => {
-        setSelected(
-            selected.filter((s) => (s.id ?? s.name) !== (tag.id ?? tag.name))
-        );
+        setSelected(selected.filter((s) => s.id !== tag.id));
     };
 
     return (
@@ -73,7 +78,7 @@ export default function TagsInput({ value = [], onChange }) {
             <div className="flex flex-wrap gap-2 mb-2">
                 {selected.map((tag) => (
                     <span
-                        key={tag.id ?? tag.name}
+                        key={tag.id}
                         className="inline-flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm"
                     >
                         {tag.name}
@@ -99,27 +104,28 @@ export default function TagsInput({ value = [], onChange }) {
                 onFocus={() => setOpen(true)}
                 placeholder="タグを選択"
                 className="w-full border px-3 py-2 rounded cursor-pointer"
-                readOnly={false} // 入力可能にする場合は true にしない
+                readOnly={false}
             />
 
             {/* ドロップダウン */}
             {open && filtered.length >= 0 && (
                 <div className="absolute z-50 w-full bg-white border rounded mt-1 max-h-48 overflow-auto shadow">
-                    {filtered.length === 0 && (
+                    {filtered.length === 0 ? (
                         <div className="px-3 py-2 text-gray-500">
                             タグはありません
                         </div>
+                    ) : (
+                        filtered.map((t) => (
+                            <button
+                                key={t.id}
+                                type="button"
+                                onClick={() => toggleTag(t)}
+                                className="w-full text-left px-3 py-2 hover:bg-gray-100"
+                            >
+                                {t.name}
+                            </button>
+                        ))
                     )}
-                    {filtered.map((t) => (
-                        <button
-                            key={t.id}
-                            type="button"
-                            onClick={() => toggleTag(t)}
-                            className="w-full text-left px-3 py-2 hover:bg-gray-100"
-                        >
-                            {t.name}
-                        </button>
-                    ))}
                 </div>
             )}
         </div>
