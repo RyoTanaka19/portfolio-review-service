@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User; 
+use App\Models\Portfolio; 
 use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
@@ -24,6 +26,25 @@ class ProfileController extends Controller
         ]);
     }
 
+public function show(User $user)
+{
+    $authUserId = auth()->id();
+
+    // 自分か他人か関係なく、そのユーザーのポートフォリオを取得
+    $portfolios = $user->portfolios()->with('reviews', 'tags')->get();
+
+    // 画像URLを生成
+    $portfolios = $portfolios->map(function ($p) {
+        $p->image_url = $p->image_path ? asset('storage/' . $p->image_path) : null;
+        return $p;
+    });
+
+    return Inertia::render('Profile/Show', [
+        'user' => $user,
+        'authUserId' => $authUserId,
+        'portfolios' => $portfolios,
+    ]);
+}
     /**
      * Update the user's profile information.
      */
