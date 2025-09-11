@@ -22,21 +22,21 @@ class GoogleLoginController extends Controller
         try {
             $googleUser = Socialite::driver('google')->stateless()->user();
 
-            // 例: メールでユーザー検索、なければ作成
+            // メールでユーザー検索、なければ作成
             $user = User::firstOrCreate(
-                ['email' => $googleUser->getEmail()],
+                ['email' => $googleUser->getEmail()], // ここで検索
                 [
-                    'name' => $googleUser->getName(),
+                    'name' => $googleUser->getName() ?? '名無し', // 名前がない場合はデフォルト
                     'password' => bcrypt(Str::random(16)),
                 ]
             );
 
             Auth::login($user);
 
-            return redirect('/portfolio');
+            // 元々アクセスしていたページにリダイレクト、なければ /portfolios
+            return redirect()->intended('/portfolios');
 
         } catch (\Exception $e) {
-            // エラー時はログに出力してリダイレクト
             \Log::error('Google OAuth Error: '.$e->getMessage());
             return redirect('/login')->with('error', 'Googleログインに失敗しました');
         }
