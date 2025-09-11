@@ -12,79 +12,84 @@ use Illuminate\Http\JsonResponse;
 class PortfolioController extends Controller
 {
     // 投稿一覧表示（検索対応）
-public function index(Request $request)
+public function index()
 {
-    $userId = auth()->id(); // 未ログイン時は null
+    $userId = auth()->id();
 
-    // 全ポートフォリオ取得（ログインユーザー絞り込みはしない）
+    $portfolios = Portfolio::with(['tags', 'reviews.user', 'user', 'bookmarks'])
+        ->get()
+        ->map(fn($p) => $this->mapPortfolio($p, $userId));
+
+    $allTags = Tag::pluck('name');
+
+    return Inertia::render('Portfolios/Index', [
+        'portfolios' => $portfolios,
+        'filters' => [],
+        'auth' => $userId ? ['user' => ['id' => $userId, 'name' => auth()->user()->name]] : null,
+        'allTags' => $allTags,
+        'flash' => [
+            'success' => session('success'),
+            'error' => session('error'),
+        ],
+    ]);
+}
+public function search(Request $request)
+{
+    $userId = auth()->id();
+
     $query = Portfolio::with(['tags', 'reviews.user', 'user', 'bookmarks']);
 
-    // ユーザー名で検索
+    // 🔹 ユーザー名で検索
     if ($request->filled('user_name')) {
         $userName = $request->input('user_name');
-        $query->whereHas('user', function ($q) use ($userName) {
-            $q->where('name', 'like', "%{$userName}%");
-        });
+        $query->whereHas('user', fn($q) => $q->where('name', 'like', "%{$userName}%"));
     }
 
-    // タグで検索
+    // 🔹 タグで検索
     if ($request->filled('tag')) {
         $tagName = $request->input('tag');
-        $query->whereHas('tags', function ($q) use ($tagName) {
-            $q->where('name', 'like', "%{$tagName}%");
-        });
+        $query->whereHas('tags', fn($q) => $q->where('name', 'like', "%{$tagName}%"));
     }
 
-    $portfolios = $query->get()->map(function ($p) use ($userId) {
-        $isBookmarked = $userId ? $p->bookmarks->contains('user_id', $userId) : false;
+    $portfolios = $query->get()->map(fn($p) => $this->mapPortfolio($p, $userId));
 
-        return [
-            'id' => $p->id,
-            'title' => $p->title,
-            'description' => $p->description,
-            'url' => $p->url,
-            'github_url' => $p->github_url, 
-            'user_id' => $p->user_id,
-            'user_name' => $p->user->name ?? '未設定',
-            'image_url' => $p->image_path ? Storage::url($p->image_path) : null,
-            'tags' => $p->tags->map(fn($t) => $t->name)->toArray(),
-            'reviews' => $p->reviews->map(function ($r) {
-                return [
-                    'id' => $r->id,
-                    'comment' => $r->comment,
-                    'rating' => $r->rating,
-                    'user' => [
-                        'id' => $r->user->id,
-                        'name' => $r->user->name ?? '未設定',
-                    ],
-                    'created_at' => $r->created_at->format('Y-m-d H:i'),
-                ];
-            }),
-            'is_bookmarked' => $isBookmarked,
-        ];
-    });
-
-    $allTags = Tag::pluck('name'); 
-
-    // 🔹 flash を追加
-    $flash = [
-        'success' => session('success'),
-        'error' => session('error'),
-    ];
+    $allTags = Tag::pluck('name');
 
     return Inertia::render('Portfolios/Index', [
         'portfolios' => $portfolios,
         'filters' => $request->only(['user_name', 'tag']),
-        'auth' => [
-            'user' => $userId ? [
-                'id' => $userId,
-                'name' => auth()->user()->name,
-            ] : null,
-        ],
+        'auth' => $userId ? ['user' => ['id' => $userId, 'name' => auth()->user()->name]] : null,
         'allTags' => $allTags,
-        'flash' => $flash, // 🔹ここで渡す
     ]);
 }
+private function mapPortfolio($p, $userId)
+{
+    $isBookmarked = $userId ? $p->bookmarks->contains('user_id', $userId) : false;
+
+    return [
+        'id' => $p->id,
+        'title' => $p->title,
+        'description' => $p->description,
+        'url' => $p->url,
+        'github_url' => $p->github_url,
+        'user_id' => $p->user_id,
+        'user_name' => $p->user->name ?? '未設定',
+        'image_url' => $p->image_path ? Storage::url($p->image_path) : null,
+        'tags' => $p->tags->map(fn($t) => $t->name)->toArray(),
+        'reviews' => $p->reviews->map(fn($r) => [
+            'id' => $r->id,
+            'comment' => $r->comment,
+            'rating' => $r->rating,
+            'user' => [
+                'id' => $r->user->id,
+                'name' => $r->user->name ?? '未設定',
+            ],
+            'created_at' => $r->created_at->format('Y-m-d H:i'),
+        ]),
+        'is_bookmarked' => $isBookmarked,
+    ];
+}
+
     // 新規投稿フォーム
     public function create()
     {
