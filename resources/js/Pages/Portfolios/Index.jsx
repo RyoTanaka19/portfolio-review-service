@@ -1,6 +1,5 @@
-// resources/js/Pages/Portfolios/Index.jsx
 import React, { useState, useEffect } from "react";
-import { InertiaLink } from "@inertiajs/inertia-react";
+import { Link } from "@inertiajs/react"; // InertiaLink → Link
 import AppLayout from "@/Layouts/AppLayout";
 import axios from "axios";
 import BookmarkButton from "@/Pages/Bookmarks/BookmarkButton";
@@ -95,17 +94,23 @@ export default function Index({
                         >
                             <div className="p-4 flex flex-col flex-1">
                                 <div className="flex justify-between items-start mb-2">
-                                    <InertiaLink
+                                    {/* タイトル */}
+                                    <Link
                                         href={`/portfolio/${p.id}`}
                                         className="font-bold text-lg text-blue-500 hover:underline truncate max-w-[70%]"
                                     >
                                         {p.title.length > 30
                                             ? p.title.slice(0, 30) + "…"
                                             : p.title}
-                                    </InertiaLink>
-                                    <span className="text-sm text-gray-500">
+                                    </Link>
+
+                                    {/* ユーザー名リンク */}
+                                    <Link
+                                        href={`/profile/${p.user_id}`}
+                                        className="text-sm text-gray-500 hover:underline"
+                                    >
                                         {p.user_name}
-                                    </span>
+                                    </Link>
                                 </div>
 
                                 {p.image_url && (
@@ -169,12 +174,12 @@ export default function Index({
 
                             {auth?.user?.id === p.user_id && (
                                 <div className="px-4 pb-4 flex justify-end gap-2 mt-auto">
-                                    <InertiaLink
+                                    <Link
                                         href={`/portfolios/${p.id}/edit`}
                                         className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm"
                                     >
                                         編集
-                                    </InertiaLink>
+                                    </Link>
                                     <button
                                         type="button"
                                         onClick={() => handleDelete(p.id)}

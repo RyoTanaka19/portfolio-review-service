@@ -95,6 +95,16 @@ export default function Header() {
                                     </button>
                                     {dropdownOpen && (
                                         <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-md z-10">
+                                            {/* マイページリンクを追加 */}
+                                            <Link
+                                                href={route(
+                                                    "profile.show",
+                                                    user.id
+                                                )} // ルートに user.id を渡す
+                                                className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                                            >
+                                                マイページ
+                                            </Link>
                                             <Link
                                                 href="/profile"
                                                 className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
