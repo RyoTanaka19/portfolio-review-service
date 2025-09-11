@@ -79,7 +79,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // タグ
     Route::get('/tags', [TagController::class, 'index'])->name('tags.index');
-    Route::post('/tags', [TagController::class, 'store'])->name('tags.store');
+
 
     // レビュー
     Route::post('/portfolio/{portfolio}/reviews', [ReviewController::class, 'store'])

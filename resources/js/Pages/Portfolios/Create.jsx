@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Inertia } from "@inertiajs/inertia";
 import { usePage } from "@inertiajs/react";
 import AppLayout from "@/Layouts/AppLayout";
-import TagsInput from "../Tags/Index";
+import TagsInput from "@/Components/Tags/TagsInput";
 
 export default function Create() {
     const { errors: serverErrors } = usePage().props; // Laravel バリデーションエラー
