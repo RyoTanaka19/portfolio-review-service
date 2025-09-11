@@ -25,6 +25,10 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            // プロフィール画像（任意、画像ファイル、2MBまで）
+            'profile_image' => ['nullable', 'image', 'max:2048'],
+            // 削除フラグ（チェックボックスやフロントから送られる場合）
+            'delete_profile_image' => ['sometimes', 'boolean'],
         ];
     }
 }

@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import PrimaryButton from "@/Components/PrimaryButton";
@@ -12,15 +13,45 @@ export default function UpdateProfileInformation({
 }) {
     const user = usePage().props.auth.user;
 
-    const { data, setData, patch, errors, processing, recentlySuccessful } =
+    const { data, setData, post, errors, processing, recentlySuccessful } =
         useForm({
+            _method: "patch", // PATCH を明示
             name: user.name,
             email: user.email,
+            profile_image: null,
+            delete_profile_image: false,
         });
+
+    const [preview, setPreview] = useState(user?.profile_image_url || null);
+
+    useEffect(() => {
+        return () => {
+            if (preview && preview.startsWith("blob:")) {
+                URL.revokeObjectURL(preview);
+            }
+        };
+    }, [preview]);
+
+    const onFileChange = (e) => {
+        const file = e.target.files[0];
+        setData("profile_image", file);
+        setData("delete_profile_image", false);
+        if (file) {
+            setPreview(URL.createObjectURL(file));
+        }
+    };
+
+    const removeImage = () => {
+        setData("profile_image", null);
+        setData("delete_profile_image", true);
+        setPreview(null);
+    };
 
     const submit = (e) => {
         e.preventDefault();
-        patch(route("profile.update"));
+        post(route("profile.update"), {
+            forceFormData: true, // useForm が FormData を使うようにする
+        });
     };
 
     return (
@@ -31,11 +62,16 @@ export default function UpdateProfileInformation({
                 </h2>
 
                 <p className="mt-1 text-sm text-gray-600">
-                    アカウントのプロフィール情報とメールアドレスを更新できます。
+                    アカウントのプロフィール情報、メールアドレス、プロフィール画像を更新できます。
                 </p>
             </header>
 
-            <form onSubmit={submit} className="mt-6 space-y-6">
+            <form
+                onSubmit={submit}
+                encType="multipart/form-data"
+                className="mt-6 space-y-6"
+            >
+                {/* 名前 */}
                 <div>
                     <InputLabel htmlFor="name" value="名前" />
 
@@ -52,6 +88,7 @@ export default function UpdateProfileInformation({
                     <InputError className="mt-2" message={errors.name} />
                 </div>
 
+                {/* メール */}
                 <div>
                     <InputLabel htmlFor="email" value="メールアドレス" />
 
@@ -68,6 +105,49 @@ export default function UpdateProfileInformation({
                     <InputError className="mt-2" message={errors.email} />
                 </div>
 
+                {/* プロフィール画像 */}
+                <div>
+                    <InputLabel
+                        htmlFor="profile_image"
+                        value="プロフィール画像"
+                    />
+
+                    {preview ? (
+                        <div className="flex items-center space-x-4 mt-2">
+                            <img
+                                src={preview}
+                                alt="preview"
+                                className="w-24 h-24 rounded-full object-cover"
+                            />
+                            <button
+                                type="button"
+                                onClick={removeImage}
+                                className="text-sm text-red-600"
+                            >
+                                画像を削除
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="mt-2 text-sm text-gray-500">
+                            画像がありません
+                        </div>
+                    )}
+
+                    <input
+                        type="file"
+                        id="profile_image"
+                        accept="image/*"
+                        onChange={onFileChange}
+                        className="mt-2"
+                    />
+
+                    <InputError
+                        className="mt-2"
+                        message={errors.profile_image}
+                    />
+                </div>
+
+                {/* メール確認再送 */}
                 {mustVerifyEmail && user.email_verified_at === null && (
                     <div>
                         <p className="mt-2 text-sm text-gray-800">
@@ -90,6 +170,7 @@ export default function UpdateProfileInformation({
                     </div>
                 )}
 
+                {/* 保存 */}
                 <div className="flex items-center gap-4">
                     <PrimaryButton disabled={processing}>保存</PrimaryButton>
 
