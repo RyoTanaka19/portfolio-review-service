@@ -2,91 +2,10 @@ import React from "react";
 import { InertiaLink } from "@inertiajs/inertia-react";
 import ReviewIndex from "../Reviews/Index";
 import AppLayout from "@/Layouts/AppLayout";
-import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend,
-} from "chart.js";
-import { Bar } from "react-chartjs-2";
-
-// Chart.js 初期化
-ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend
-);
-
-// （省略：importやChart.js設定はそのまま）
+import ReviewChart from "@/Components/ReviewChart"; // ← 新しく追加
 
 export default function Show({ portfolio, auth, errors, flash }) {
     const reviewCount = portfolio.reviews?.length || 0;
-
-    const avg = (key) =>
-        reviewCount
-            ? (
-                  portfolio.reviews.reduce((sum, r) => sum + (r[key] || 0), 0) /
-                  reviewCount
-              ).toFixed(1)
-            : 0;
-
-    const chartData = {
-        labels: [
-            "総合評価",
-            "技術力",
-            "使いやすさ",
-            "デザイン性",
-            "ユーザー目線",
-        ],
-        datasets: [
-            {
-                label: "平均点",
-                data: [
-                    avg("rating"),
-                    avg("technical"),
-                    avg("usability"),
-                    avg("design"),
-                    avg("user_focus"),
-                ],
-                backgroundColor: [
-                    "rgba(107, 114, 128, 0.7)",
-                    "rgba(37, 99, 235, 0.7)",
-                    "rgba(16, 185, 129, 0.7)",
-                    "rgba(234, 179, 8, 0.7)",
-                    "rgba(239, 68, 68, 0.7)",
-                ],
-                borderColor: [
-                    "rgba(107, 114, 128, 1)",
-                    "rgba(37, 99, 235, 1)",
-                    "rgba(16, 185, 129, 1)",
-                    "rgba(234, 179, 8, 1)",
-                    "rgba(239, 68, 68, 1)",
-                ],
-                borderWidth: 1,
-            },
-        ],
-    };
-
-    const chartOptions = {
-        responsive: true,
-        plugins: {
-            legend: { display: false },
-            title: {
-                display: true,
-                text: "レビュー平均スコア",
-                font: { size: 18 },
-            },
-        },
-        scales: {
-            y: { min: 0, max: 5, ticks: { stepSize: 1 } },
-        },
-    };
 
     return (
         <AppLayout auth={auth}>
@@ -153,7 +72,7 @@ export default function Show({ portfolio, auth, errors, flash }) {
                             </div>
                         )}
 
-                        {/* タグ */}
+                        {/* タグ（クリック不可） */}
                         {portfolio.tags && portfolio.tags.length > 0 && (
                             <div className="mb-6">
                                 <h2 className="text-xl font-semibold mb-2 text-gray-700">
@@ -161,13 +80,12 @@ export default function Show({ portfolio, auth, errors, flash }) {
                                 </h2>
                                 <div className="flex flex-wrap gap-2">
                                     {portfolio.tags.map((tag, idx) => (
-                                        <InertiaLink
+                                        <span
                                             key={idx}
-                                            href={route("dashboard", { tag })}
-                                            className="inline-flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm hover:bg-blue-200"
+                                            className="inline-flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm cursor-default"
                                         >
                                             {tag}
-                                        </InertiaLink>
+                                        </span>
                                     ))}
                                 </div>
                             </div>
@@ -175,9 +93,7 @@ export default function Show({ portfolio, auth, errors, flash }) {
 
                         {/* Chart.js */}
                         {reviewCount > 0 && (
-                            <div className="mb-8">
-                                <Bar data={chartData} options={chartOptions} />
-                            </div>
+                            <ReviewChart reviews={portfolio.reviews} />
                         )}
 
                         {/* レビュー */}
@@ -202,7 +118,7 @@ export default function Show({ portfolio, auth, errors, flash }) {
                         {/* 一覧に戻る */}
                         <div className="text-center mt-8">
                             <InertiaLink
-                                href="/portfolio"
+                                href="/portfolios"
                                 className="inline-block px-6 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
                             >
                                 一覧に戻る
