@@ -64,7 +64,7 @@ export default function Index({ portfolios: initialPortfolios = [], auth }) {
                                     <div className="flex justify-between items-center mb-2">
                                         <h2 className="font-bold text-lg truncate">
                                             <Link
-                                                href={`/portfolios/${p.id}`}
+                                                href={`/portfolio/${p.id}`}
                                                 className="text-blue-500 hover:underline"
                                             >
                                                 {p.title.length > 30
