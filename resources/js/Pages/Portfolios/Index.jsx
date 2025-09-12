@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "@inertiajs/react"; // InertiaLink → Link
 import AppLayout from "@/Layouts/AppLayout";
 import axios from "axios";
-import BookmarkButton from "@/Pages/Bookmarks/BookmarkButton";
+import BookmarkButton from "@/Components/BookmarkButton";
 import PortfolioSearch from "@/Components/PortfolioSearch";
 
 export default function Index({
