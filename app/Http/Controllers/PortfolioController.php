@@ -97,43 +97,44 @@ private function mapPortfolio($p, $userId)
     }
 
     // 投稿保存
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'url' => 'required|url|max:255',
-            'github_url' => 'nullable|url|max:255',
-            'tags' => 'required|array',
-            'tags.*' => 'string|max:50',
-            'image' => 'nullable|image|max:2048',
-        ]);
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'title' => 'required|string|max:255',
+        'description' => 'required|string',
+        'url' => 'required|url|max:255',
+        'github_url' => 'nullable|url|max:255',
+        'tags' => 'required|array',
+        'tags.*' => 'string|max:50',
+        'image' => 'nullable|image|max:2048',
+    ]);
 
-        $imagePath = $request->hasFile('image')
-            ? $request->file('image')->store('portfolios', 'public')
-            : null;
+    $imagePath = $request->hasFile('image')
+        ? $request->file('image')->store('portfolios', 'public')
+        : null;
 
-        $portfolio = Portfolio::create([
-            'user_id' => auth()->id(),
-            'title' => $validated['title'],
-            'description' => $validated['description'],
-            'url' => $validated['url'],
-            'github_url' => $validated['github_url'] ?? null,
-            'image_path' => $imagePath,
-        ]);
+    $portfolio = Portfolio::create([
+        'user_id' => auth()->id(),
+        'title' => $validated['title'],
+        'description' => $validated['description'],
+        'url' => $validated['url'],
+        'github_url' => $validated['github_url'] ?? null,
+        'image_path' => $imagePath,
+    ]);
 
-        if (!empty($validated['tags'])) {
-            $tagIds = [];
-            foreach ($validated['tags'] as $tagName) {
-                $tag = Tag::firstOrCreate(['name' => trim($tagName)]);
-                $tagIds[] = $tag->id;
-            }
-            $portfolio->tags()->sync($tagIds);
+    if (!empty($validated['tags'])) {
+        $tagIds = [];
+        foreach ($validated['tags'] as $tagName) {
+            $tag = Tag::firstOrCreate(['name' => trim($tagName)]);
+            $tagIds[] = $tag->id;
         }
-
-return redirect()->route('dashboard')
-                 ->with('success', 'ポートフォリオを作成しました');
+        $portfolio->tags()->sync($tagIds);
     }
+
+    // Inertiaリダイレクト + flash
+    return redirect()->route('dashboard')->with('success', 'ポートフォリオを作成しました');
+}
+
 
     // 投稿詳細
     public function show(Portfolio $portfolio)
@@ -202,51 +203,54 @@ return redirect()->route('dashboard')
     }
 
     // 投稿更新
-    public function update(Request $request, Portfolio $portfolio)
-    {
-        if ($portfolio->user_id !== auth()->id()) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'url' => 'required|url|max:255',
-            'github_url' => 'nullable|url|max:255',
-            'tags' => 'required|array',
-            'tags.*' => 'string|max:50',
-            'image' => 'nullable|image|max:2048',
-            'delete_image' => 'nullable|boolean',
-        ]);
-
-        $portfolio->update([
-            'title' => $validated['title'],
-            'description' => $validated['description'],
-            'url' => $validated['url'],
-            'github_url' => $validated['github_url'] ?? null,
-        ]);
-
-        // 新しい画像アップロード
-        if ($request->file('image')) {
-            if ($portfolio->image_path) {
-                Storage::disk('public')->delete($portfolio->image_path);
-            }
-            $portfolio->image_path = $request->file('image')->store('portfolios', 'public');
-            $portfolio->save();
-        }
-
-        // タグ更新
-        $tagIds = [];
-        if (!empty($validated['tags'])) {
-            foreach ($validated['tags'] as $tagName) {
-                $tag = Tag::firstOrCreate(['name' => trim($tagName)]);
-                $tagIds[] = $tag->id;
-            }
-        }
-        $portfolio->tags()->sync($tagIds);
-
-        return redirect()->route('dashboard')->with('success', 'ポートフォリオを更新しました');
+// 投稿更新
+public function update(Request $request, Portfolio $portfolio)
+{
+    if ($portfolio->user_id !== auth()->id()) {
+        abort(403, 'Unauthorized action.');
     }
+
+    $validated = $request->validate([
+        'title' => 'required|string|max:255',
+        'description' => 'required|string',
+        'url' => 'required|url|max:255',
+        'github_url' => 'nullable|url|max:255',
+        'tags' => 'required|array',
+        'tags.*' => 'string|max:50',
+        'image' => 'nullable|image|max:2048',
+        'delete_image' => 'nullable|boolean',
+    ]);
+
+    $portfolio->update([
+        'title' => $validated['title'],
+        'description' => $validated['description'],
+        'url' => $validated['url'],
+        'github_url' => $validated['github_url'] ?? null,
+    ]);
+
+    // 新しい画像アップロード
+    if ($request->file('image')) {
+        if ($portfolio->image_path) {
+            Storage::disk('public')->delete($portfolio->image_path);
+        }
+        $portfolio->image_path = $request->file('image')->store('portfolios', 'public');
+        $portfolio->save();
+    }
+
+    // タグ更新
+    $tagIds = [];
+    if (!empty($validated['tags'])) {
+        foreach ($validated['tags'] as $tagName) {
+            $tag = Tag::firstOrCreate(['name' => trim($tagName)]);
+            $tagIds[] = $tag->id;
+        }
+    }
+    $portfolio->tags()->sync($tagIds);
+
+    // Inertiaリダイレクト + flash
+    return redirect()->route('dashboard')->with('success', 'ポートフォリオを更新しました');
+}
+
 
     // 投稿削除
     public function destroy(Portfolio $portfolio): JsonResponse

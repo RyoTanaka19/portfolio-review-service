@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import AppLayout from "@/Layouts/AppLayout";
+import FlashMessage from "@/Components/FlashMessage";
 
 export default function AdvicesIndex({ advices }) {
     const [advicesList, setAdvicesList] = useState(advices || []);
-    const [flashMessage, setFlashMessage] = useState(null); // フラッシュ用 state
+    const [flashMessage, setFlashMessage] = useState(null);
+    const [flashType, setFlashType] = useState("success"); // success or error
 
     const handleDelete = async (id) => {
         if (!window.confirm("本当に削除しますか？")) return;
@@ -22,6 +24,7 @@ export default function AdvicesIndex({ advices }) {
             const data = await response.json();
 
             if (!response.ok) {
+                setFlashType("error");
                 setFlashMessage(data.error || "削除中にエラーが発生しました");
                 return;
             }
@@ -30,14 +33,12 @@ export default function AdvicesIndex({ advices }) {
             setAdvicesList((prev) => prev.filter((advice) => advice.id !== id));
 
             // フラッシュメッセージを表示
+            setFlashType("success");
             setFlashMessage(data.message || "削除しました");
-
-            // 3秒後にフラッシュを消す
-            setTimeout(() => setFlashMessage(null), 3000);
         } catch (error) {
             console.error("削除エラー:", error);
+            setFlashType("error");
             setFlashMessage("削除中に予期せぬエラーが発生しました");
-            setTimeout(() => setFlashMessage(null), 3000);
         }
     };
 
@@ -48,12 +49,12 @@ export default function AdvicesIndex({ advices }) {
                     過去のアドバイス一覧
                 </h1>
 
-                {/* フラッシュメッセージ表示 */}
-                {flashMessage && (
-                    <div className="bg-green-100 text-green-800 p-3 rounded mb-4 text-center">
-                        {flashMessage}
-                    </div>
-                )}
+                {/* FlashMessageコンポーネントを利用 */}
+                <FlashMessage
+                    message={flashMessage}
+                    type={flashType}
+                    onClose={() => setFlashMessage(null)}
+                />
 
                 {advicesList.length === 0 ? (
                     <p className="text-center text-gray-500 text-lg">

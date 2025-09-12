@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "@inertiajs/react"; // InertiaLink → Link
+import React, { useState } from "react";
+import { Link } from "@inertiajs/react";
 import AppLayout from "@/Layouts/AppLayout";
 import axios from "axios";
 import BookmarkButton from "@/Components/BookmarkButton";
 import PortfolioSearch from "@/Components/PortfolioSearch";
+import FlashMessage from "@/Components/FlashMessage";
 
 export default function Index({
     portfolios,
@@ -13,61 +14,41 @@ export default function Index({
     flash = {},
 }) {
     const [portfolioList, setPortfolioList] = useState(portfolios);
-    const [flashMessage, setFlashMessage] = useState({
-        success: flash.success || null,
-        error: flash.error || null,
-    });
-    const [showFlash, setShowFlash] = useState(
-        !!flash.success || !!flash.error
-    );
 
-    useEffect(() => {
-        if (flashMessage.success || flashMessage.error) {
-            const timer = setTimeout(() => setShowFlash(false), 5000);
-            return () => clearTimeout(timer);
-        }
-    }, [flashMessage]);
+    // flash props を初期 state にセット
+    const [flashMessage, setFlashMessage] = useState({
+        message: flash.success || flash.error || null,
+        type: flash.success ? "success" : flash.error ? "error" : null,
+    });
 
     const handleDelete = async (id) => {
         if (!confirm("本当に削除しますか？")) return;
 
         try {
-            const response = await axios.delete(`/portfolio/${id}`);
-            if (response.status === 200 && response.data.success) {
+            const res = await axios.delete(`/portfolio/${id}`);
+            if (res.data.success) {
                 setPortfolioList((prev) => prev.filter((p) => p.id !== id));
-                setFlashMessage({
-                    success: response.data.message,
-                    error: null,
-                });
-                setShowFlash(true);
+                setFlashMessage({ message: res.data.message, type: "success" });
             } else {
                 setFlashMessage({
-                    success: null,
-                    error: response.data.error || "削除に失敗しました",
+                    message: res.data.error || "削除に失敗しました",
+                    type: "error",
                 });
-                setShowFlash(true);
             }
-        } catch (error) {
-            console.error(error);
-            setFlashMessage({ success: null, error: "削除に失敗しました" });
-            setShowFlash(true);
+        } catch (err) {
+            console.error(err);
+            setFlashMessage({ message: "削除に失敗しました", type: "error" });
         }
     };
 
     return (
         <AppLayout>
             {/* フラッシュメッセージ */}
-            {showFlash && (flashMessage.success || flashMessage.error) && (
-                <div
-                    className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 p-3 rounded shadow-lg text-center ${
-                        flashMessage.success
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
-                    }`}
-                >
-                    {flashMessage.success || flashMessage.error}
-                </div>
-            )}
+            <FlashMessage
+                message={flashMessage.message}
+                type={flashMessage.type}
+                onClose={() => setFlashMessage({ message: null, type: null })}
+            />
 
             {/* 検索フォーム */}
             <div className="px-4 py-6 bg-white shadow mb-6">
@@ -94,7 +75,6 @@ export default function Index({
                         >
                             <div className="p-4 flex flex-col flex-1">
                                 <div className="flex justify-between items-start mb-2">
-                                    {/* タイトル */}
                                     <Link
                                         href={`/portfolio/${p.id}`}
                                         className="font-bold text-lg text-blue-500 hover:underline truncate max-w-[70%]"
@@ -104,7 +84,6 @@ export default function Index({
                                             : p.title}
                                     </Link>
 
-                                    {/* ユーザー名リンク */}
                                     <Link
                                         href={`/profile/${p.user_id}`}
                                         className="text-sm text-gray-500 hover:underline"
@@ -120,7 +99,6 @@ export default function Index({
                                         className="w-full h-40 object-cover rounded mb-3"
                                     />
                                 )}
-
                                 <p className="text-gray-700 text-sm mb-3 line-clamp-3">
                                     {p.description}
                                 </p>
@@ -166,8 +144,12 @@ export default function Index({
                                         initialBookmarked={
                                             p.is_bookmarked || false
                                         }
-                                        setFlashMessage={setFlashMessage}
-                                        setShowFlash={setShowFlash}
+                                        setFlashMessage={(msg) =>
+                                            setFlashMessage({
+                                                message: msg,
+                                                type: "success",
+                                            })
+                                        }
                                     />
                                 )}
                             </div>

@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { InertiaLink } from "@inertiajs/inertia-react";
 import AppLayout from "@/Layouts/AppLayout";
+import FlashMessage from "@/Components/FlashMessage";
 
 export default function Advice() {
     const [form, setForm] = useState({
@@ -13,6 +14,7 @@ export default function Advice() {
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
     const [flashMessage, setFlashMessage] = useState("");
+    const [flashType, setFlashType] = useState("success"); // success or error
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -43,20 +45,20 @@ export default function Advice() {
                 if (res.status === 422) {
                     setErrors(data.errors || {});
                 } else {
-                    throw new Error(data.error || "AIからの応答に失敗しました");
+                    setFlashType("error");
+                    setFlashMessage(data.error || "AIからの応答に失敗しました");
                 }
                 return;
             }
 
             setAdvice(data.advice || "");
-            setFlashMessage(data.flashMessage || "");
-
-            // 自動でフラッシュを3秒で消す
             if (data.flashMessage) {
-                setTimeout(() => setFlashMessage(""), 3000);
+                setFlashType("success");
+                setFlashMessage(data.flashMessage);
             }
         } catch (err) {
-            setErrors({ general: err.message || "エラーが発生しました" });
+            setFlashType("error");
+            setFlashMessage(err.message || "エラーが発生しました");
         } finally {
             setLoading(false);
         }
@@ -76,11 +78,11 @@ export default function Advice() {
             <div className="flex-1 flex justify-center bg-gray-50 p-4">
                 <div className="w-full max-w-2xl mt-10 bg-white p-8 rounded-lg shadow-md">
                     {/* フラッシュメッセージ */}
-                    {flashMessage && (
-                        <div className="mb-4 p-4 bg-green-100 text-green-700 rounded">
-                            {flashMessage}
-                        </div>
-                    )}
+                    <FlashMessage
+                        message={flashMessage}
+                        type={flashType}
+                        onClose={() => setFlashMessage("")}
+                    />
 
                     <form onSubmit={handleSubmit} className="space-y-5">
                         {/* サービス名 */}
@@ -181,13 +183,6 @@ export default function Advice() {
                             {loading ? "AI生成中..." : "アドバイスをもらう"}
                         </button>
                     </form>
-
-                    {/* 一般的なエラー */}
-                    {errors.general && (
-                        <div className="mt-6 p-4 bg-red-100 text-red-700 rounded">
-                            {errors.general}
-                        </div>
-                    )}
 
                     {/* AIからのアドバイス */}
                     {advice && (

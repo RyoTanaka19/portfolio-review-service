@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "@inertiajs/react";
 import AppLayout from "@/Layouts/AppLayout";
-import BookmarkButton from "@/Pages/Bookmarks/BookmarkButton";
+import BookmarkButton from "@/Components/BookmarkButton";
 
 export default function Index({ portfolios: initialPortfolios = [], auth }) {
     const [portfolioList, setPortfolioList] = useState(initialPortfolios);
