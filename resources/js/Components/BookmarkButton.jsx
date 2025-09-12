@@ -2,7 +2,11 @@ import React, { useState } from "react";
 import axios from "axios";
 import FlashMessage from "@/Components/FlashMessage";
 
-export default function BookmarkButton({ portfolioId, initialBookmarked }) {
+export default function BookmarkButton({
+    portfolioId,
+    initialBookmarked,
+    onToggle, // ← 親に通知するコールバックを追加
+}) {
     const [isBookmarked, setIsBookmarked] = useState(initialBookmarked);
     const [loading, setLoading] = useState(false);
     const [flashMessage, setFlashMessage] = useState(null);
@@ -21,6 +25,7 @@ export default function BookmarkButton({ portfolioId, initialBookmarked }) {
                     setIsBookmarked(false);
                     setFlashMessage(res.data.message);
                     setFlashType("success");
+                    onToggle && onToggle(false, res.data.message); // ← 追加
                 }
             } else {
                 // ブックマーク登録
@@ -29,6 +34,7 @@ export default function BookmarkButton({ portfolioId, initialBookmarked }) {
                     setIsBookmarked(true);
                     setFlashMessage(res.data.message);
                     setFlashType("success");
+                    onToggle && onToggle(true, res.data.message); // ← 追加
                 }
             }
         } catch (err) {
@@ -55,7 +61,6 @@ export default function BookmarkButton({ portfolioId, initialBookmarked }) {
                 {isBookmarked ? "★ お気に入り" : "☆ お気に入り"}
             </button>
 
-            {/* フラッシュメッセージ */}
             <FlashMessage
                 message={flashMessage}
                 type={flashType}
