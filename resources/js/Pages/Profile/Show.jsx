@@ -1,7 +1,7 @@
 import React from "react";
 import { Head, usePage, Link } from "@inertiajs/react";
 import AppLayout from "@/Layouts/AppLayout"; // ← 追加
-import BookmarkButton from "@/Pages/Bookmarks/BookmarkButton";
+import BookmarkButton from "@/Components/BookmarkButton";
 
 export default function Show() {
     const { props } = usePage();

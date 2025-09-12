@@ -4,9 +4,10 @@ import NotificationDropdown from "@/Components/NotificationDropdown";
 
 export default function Header() {
     const { auth = {}, nav = [], url } = usePage().props;
-    const user = auth.user;
 
-    const [open, setOpen] = useState(false);
+    // オプショナルチェイニングで安全に user を取得
+    const user = auth?.user || null;
+
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
     const handleLogout = () => router.post(route("logout"));
@@ -54,10 +55,8 @@ export default function Header() {
                                     こんにちは、{user.name} さん
                                 </span>
 
-                                {/* 通知アイコンだけ */}
                                 <NotificationDropdown user={user} />
 
-                                {/* その他ボタン */}
                                 <Link
                                     href="/advices/create"
                                     className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm"
@@ -83,7 +82,6 @@ export default function Header() {
                                     お気に入り
                                 </Link>
 
-                                {/* ユーザードロップダウン */}
                                 <div className="relative">
                                     <button
                                         onClick={() =>
@@ -95,12 +93,11 @@ export default function Header() {
                                     </button>
                                     {dropdownOpen && (
                                         <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-md z-10">
-                                            {/* マイページリンクを追加 */}
                                             <Link
                                                 href={route(
                                                     "profile.show",
                                                     user.id
-                                                )} // ルートに user.id を渡す
+                                                )}
                                                 className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
                                             >
                                                 マイページ
