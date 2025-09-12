@@ -87,6 +87,8 @@ Route::get('/portfolio/{portfolio}/visit', [PortfolioAccessController::class, 't
 Route::get('/portfolio/{portfolio}/access', [PortfolioAccessController::class, 'showAccess'])
     ->name('portfolio.access');
 
+Route::get('/tags/user', [TagController::class, 'userTags']);
+
         
 
     // タグ

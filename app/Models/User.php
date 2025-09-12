@@ -27,6 +27,11 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
+   public function tags()
+{
+    return $this->belongsToMany(Tag::class, 'tag_user', 'user_id', 'tag_id');
+}
+
     /**
      * ユーザーが作成したポートフォリオ
      */
