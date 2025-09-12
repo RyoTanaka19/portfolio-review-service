@@ -1,6 +1,6 @@
 import React from "react";
 import { Head, usePage, Link } from "@inertiajs/react";
-import AppLayout from "@/Layouts/AppLayout"; // ← 追加
+import AppLayout from "@/Layouts/AppLayout";
 import BookmarkButton from "@/Components/BookmarkButton";
 
 export default function Show() {
@@ -11,8 +11,6 @@ export default function Show() {
 
     return (
         <AppLayout auth={{ user: { id: authUserId } }}>
-            {" "}
-            {/* AppLayoutでラップ */}
             <Head title={`${user.name} のプロフィール`} />
             <div className="p-6 max-w-7xl mx-auto">
                 {/* プロフィールカード */}
@@ -45,6 +43,20 @@ export default function Show() {
                                 {portfolios.length}
                             </span>
                         </p>
+
+                        {/* ユーザータグ表示 */}
+                        {user.tags?.length > 0 && (
+                            <div className="mt-3 flex flex-wrap gap-2">
+                                {user.tags.map((tag, idx) => (
+                                    <span
+                                        key={idx}
+                                        className="bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm"
+                                    >
+                                        {tag.name}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
 

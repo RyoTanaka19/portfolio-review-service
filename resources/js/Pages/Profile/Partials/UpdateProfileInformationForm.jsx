@@ -11,15 +11,17 @@ export default function UpdateProfileInformation({
     status,
     className = "",
 }) {
-    const user = usePage().props.auth.user;
+    const { auth, allTags = [] } = usePage().props;
+    const user = auth.user;
 
     const { data, setData, post, errors, processing, recentlySuccessful } =
         useForm({
-            _method: "patch", // PATCH を明示
+            _method: "patch",
             name: user.name,
             email: user.email,
             profile_image: null,
             delete_profile_image: false,
+            tags: user.tags?.map((tag) => tag.id) || [], // 既存タグID
         });
 
     const [preview, setPreview] = useState(user?.profile_image_url || null);
@@ -47,10 +49,21 @@ export default function UpdateProfileInformation({
         setPreview(null);
     };
 
+    const toggleTag = (tagId) => {
+        if (data.tags.includes(tagId)) {
+            setData(
+                "tags",
+                data.tags.filter((id) => id !== tagId)
+            );
+        } else {
+            setData("tags", [...data.tags, tagId]);
+        }
+    };
+
     const submit = (e) => {
         e.preventDefault();
         post(route("profile.update"), {
-            forceFormData: true, // useForm が FormData を使うようにする
+            forceFormData: true,
         });
     };
 
@@ -60,9 +73,8 @@ export default function UpdateProfileInformation({
                 <h2 className="text-lg font-medium text-gray-900">
                     プロフィール情報
                 </h2>
-
                 <p className="mt-1 text-sm text-gray-600">
-                    アカウントのプロフィール情報、メールアドレス、プロフィール画像を更新できます。
+                    アカウントのプロフィール情報、メールアドレス、プロフィール画像、タグを更新できます。
                 </p>
             </header>
 
@@ -74,7 +86,6 @@ export default function UpdateProfileInformation({
                 {/* 名前 */}
                 <div>
                     <InputLabel htmlFor="name" value="名前" />
-
                     <TextInput
                         id="name"
                         className="mt-1 block w-full"
@@ -84,14 +95,12 @@ export default function UpdateProfileInformation({
                         isFocused
                         autoComplete="name"
                     />
-
                     <InputError className="mt-2" message={errors.name} />
                 </div>
 
                 {/* メール */}
                 <div>
                     <InputLabel htmlFor="email" value="メールアドレス" />
-
                     <TextInput
                         id="email"
                         type="email"
@@ -101,7 +110,6 @@ export default function UpdateProfileInformation({
                         required
                         autoComplete="username"
                     />
-
                     <InputError className="mt-2" message={errors.email} />
                 </div>
 
@@ -111,7 +119,6 @@ export default function UpdateProfileInformation({
                         htmlFor="profile_image"
                         value="プロフィール画像"
                     />
-
                     {preview ? (
                         <div className="flex items-center space-x-4 mt-2">
                             <img
@@ -132,7 +139,6 @@ export default function UpdateProfileInformation({
                             画像がありません
                         </div>
                     )}
-
                     <input
                         type="file"
                         id="profile_image"
@@ -140,11 +146,32 @@ export default function UpdateProfileInformation({
                         onChange={onFileChange}
                         className="mt-2"
                     />
-
                     <InputError
                         className="mt-2"
                         message={errors.profile_image}
                     />
+                </div>
+
+                {/* タグ選択 */}
+                <div>
+                    <InputLabel htmlFor="tags" value="タグ" />
+                    <div className="mt-2 flex flex-wrap gap-2">
+                        {allTags.map((tag) => (
+                            <button
+                                key={tag.id}
+                                type="button"
+                                onClick={() => toggleTag(tag.id)}
+                                className={`px-3 py-1 rounded-full border ${
+                                    data.tags.includes(tag.id)
+                                        ? "bg-indigo-600 text-white border-indigo-600"
+                                        : "bg-white text-gray-700 border-gray-300"
+                                } text-sm`}
+                            >
+                                {tag.name}
+                            </button>
+                        ))}
+                    </div>
+                    <InputError className="mt-2" message={errors.tags} />
                 </div>
 
                 {/* メール確認再送 */}

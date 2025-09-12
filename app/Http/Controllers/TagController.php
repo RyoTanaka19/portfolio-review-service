@@ -27,4 +27,18 @@ class TagController extends Controller
             ], 500);
         }
     }
+
+    public function userTags()
+{
+    try {
+        $tags = Tag::where('type', 'user')->orderBy('name')->get(['id', 'name']);
+        return response()->json(['success' => true, 'tags' => $tags]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'ユーザータグの取得に失敗しました',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+}
 }

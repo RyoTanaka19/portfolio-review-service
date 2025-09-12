@@ -18,4 +18,9 @@ class Tag extends Model
     {
         return $this->belongsToMany(Portfolio::class);
     }
+
+public function users()
+{
+    return $this->belongsToMany(User::class, 'tag_user', 'tag_id', 'user_id');
+}
 }
