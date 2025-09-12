@@ -4,43 +4,48 @@ export default function FlashMessage({ message, type = "success", onClose }) {
     const [visible, setVisible] = useState(false);
 
     useEffect(() => {
-        if (message) {
-            // 最初は右に隠れている状態から始める
+        if (!message) return;
+
+        // 表示開始（スライドイン）
+        setVisible(true);
+
+        // 3秒後にスライドアウト
+        const timer = setTimeout(() => {
             setVisible(false);
+            // アニメーション終了後に onClose
+            setTimeout(onClose, 300); // 300ms は下の transition と同じ
+        }, 3000);
 
-            // 次の描画フレームで表示アニメーション開始
-            const showTimer = setTimeout(() => {
-                setVisible(true);
-            }, 50);
-
-            // 一定時間後に非表示にする
-            const hideTimer = setTimeout(() => {
-                setVisible(false);
-                setTimeout(onClose, 300); // アニメーション終了後に削除
-            }, 3000);
-
-            return () => {
-                clearTimeout(showTimer);
-                clearTimeout(hideTimer);
-            };
-        }
+        return () => clearTimeout(timer);
     }, [message]);
 
     if (!message) return null;
 
+    const bgColor =
+        type === "success"
+            ? "bg-green-500"
+            : type === "error"
+            ? "bg-red-500"
+            : "bg-gray-500";
+
     return (
         <div
-            className={`fixed top-6 right-6 z-50 transform transition-transform duration-300 ${
-                visible ? "translate-x-0" : "translate-x-full"
-            }`}
+            className={`
+                fixed top-4 right-0 z-50 px-4 py-2 rounded text-white ${bgColor} shadow
+                transform transition-transform duration-300
+                ${visible ? "translate-x-0 mr-4" : "translate-x-full"}
+            `}
         >
-            <div
-                className={`w-80 px-6 py-3 rounded-lg shadow-lg text-base font-semibold text-white ${
-                    type === "success" ? "bg-green-600" : "bg-red-600"
-                }`}
+            {message}
+            <button
+                className="ml-2 text-white font-bold"
+                onClick={() => {
+                    setVisible(false);
+                    setTimeout(onClose, 300);
+                }}
             >
-                {message}
-            </div>
+                ×
+            </button>
         </div>
     );
 }
