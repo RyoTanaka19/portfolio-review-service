@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Portfolio;
 use App\Models\PortfolioAccess;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -33,11 +32,22 @@ class PortfolioAccessController extends Controller
     {
         $portfolio->load('accesses');
 
-        // 日付ごとのユニークユーザー数
-        $data = $portfolio->accesses()
+        // --- 折れ線グラフ用（日別ユニークユーザー数）
+        $accessData = $portfolio->accesses()
             ->selectRaw('accessed_at, COUNT(DISTINCT user_id) as count')
             ->groupBy('accessed_at')
             ->orderBy('accessed_at')
+            ->get();
+
+        // --- タグ別アクセス傾向（散布図用）
+        // users と tags を join して、どのタグのユーザーがどれくらいアクセスしたかを取得
+        $tagAccessData = $portfolio->accesses()
+            ->join('users', 'portfolio_accesses.user_id', '=', 'users.id')
+            ->join('tag_user', 'users.id', '=', 'tag_user.user_id') // 中間テーブル
+            ->join('tags', 'tag_user.tag_id', '=', 'tags.id')
+            ->selectRaw('tags.name as tag_name, COUNT(DISTINCT portfolio_accesses.user_id) as user_count')
+            ->groupBy('tags.name')
+            ->orderByDesc('user_count')
             ->get();
 
         return Inertia::render('Portfolios/Access', [
@@ -45,8 +55,8 @@ class PortfolioAccessController extends Controller
                 'id' => $portfolio->id,
                 'title' => $portfolio->title,
             ],
-            'accessData' => $data,
+            'accessData'   => $accessData,    // 折れ線グラフ用
+            'tagAccessData'=> $tagAccessData, // 散布図用
         ]);
     }
 }
-
