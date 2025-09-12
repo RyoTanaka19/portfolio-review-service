@@ -129,12 +129,12 @@ export default function Index({
 
                                 {p.url && (
                                     <a
-                                        href={p.url}
+                                        href={`/portfolio/${p.id}/visit`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="text-blue-500 text-sm mb-2"
                                     >
-                                        サイトを見る→
+                                        サイトを見る →
                                     </a>
                                 )}
 

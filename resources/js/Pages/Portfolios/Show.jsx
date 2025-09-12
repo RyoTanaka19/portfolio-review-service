@@ -14,7 +14,12 @@ export default function Show({ portfolio, auth, errors, flash }) {
                     <div className="w-full max-w-3xl bg-white rounded-lg shadow-md p-8">
                         {/* タイトル */}
                         <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
-                            {portfolio.title}
+                            <InertiaLink
+                                href={`/portfolio/${portfolio.id}/access`} // アクセス数画面に遷移
+                                className="hover:underline text-blue-600"
+                            >
+                                {portfolio.title}
+                            </InertiaLink>
                         </h1>
 
                         {/* 画像 */}

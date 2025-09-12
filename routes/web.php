@@ -12,6 +12,7 @@ use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\AutocompleteController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PortfolioAccessController;
 use Inertia\Inertia;
 
 // ホーム
@@ -77,6 +78,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->whereNumber('portfolio')->name('portfolios.update');
     Route::delete('/portfolio/{portfolio}', [PortfolioController::class, 'destroy'])
         ->whereNumber('portfolio')->name('portfolio.destroy');
+
+    // サイトを見る用
+Route::get('/portfolio/{portfolio}/visit', [PortfolioAccessController::class, 'track'])
+    ->name('portfolio.visit');
+
+// アクセス数画面
+Route::get('/portfolio/{portfolio}/access', [PortfolioAccessController::class, 'showAccess'])
+    ->name('portfolio.access');
+
+        
 
     // タグ
     Route::get('/tags', [TagController::class, 'index'])->name('tags.index');
