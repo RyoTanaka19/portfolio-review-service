@@ -59,4 +59,8 @@ class Portfolio extends Model
     {
         return $this->belongsToMany(User::class, 'bookmarks');
     }
+    public function accesses()
+{
+    return $this->hasMany(PortfolioAccess::class);
+}
 }
