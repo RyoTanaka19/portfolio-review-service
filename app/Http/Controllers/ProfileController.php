@@ -20,26 +20,26 @@ class ProfileController extends Controller
     /**
      * Display the user's profile form.
      */
-    public function edit(Request $request): Response
-    {
-        $user = $request->user();
+public function edit(Request $request): Response
+{
+    $user = $request->user();
 
-        // 画像URLを付与
-        $user->profile_image_url = $user->profile_image
-            ? asset('storage/' . $user->profile_image)
-            : null;
+    // タグをロード
+    $user->load('tags');
 
-        // 全てのタグを取得
-        $allTags = Tag::where('type', 'user')->get();
+    $user->profile_image_url = $user->profile_image
+        ? asset('storage/' . $user->profile_image)
+        : null;
 
-        return Inertia::render('Profile/Edit', [
-            'user' => $user,
-            'allTags' => $allTags,
-            'mustVerifyEmail' => $user instanceof MustVerifyEmail,
-            'status' => session('status'),
-        ]);
-    }
+    $allTags = Tag::where('type', 'user')->get();
 
+    return Inertia::render('Profile/Edit', [
+        'user' => $user,
+        'allTags' => $allTags,
+        'mustVerifyEmail' => $user instanceof MustVerifyEmail,
+        'status' => session('status'),
+    ]);
+}
     /**
      * Show the profile of a specific user.
      */

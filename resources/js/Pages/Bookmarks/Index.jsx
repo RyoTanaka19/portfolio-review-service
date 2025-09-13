@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import { Link } from "@inertiajs/react";
 import AppLayout from "@/Layouts/AppLayout";
 import BookmarkButton from "@/Components/BookmarkButton";
+import FlashMessage from "@/Components/FlashMessage";
 
 export default function Index({ portfolios: initialPortfolios = [], auth }) {
     const [portfolioList, setPortfolioList] = useState(initialPortfolios);
     const [flashMessage, setFlashMessage] = useState(null);
-    const [showFlash, setShowFlash] = useState(false);
+    const [flashType, setFlashType] = useState("success");
 
     const handleBookmarkToggle = (portfolioId, isBookmarked, message) => {
         if (!isBookmarked) {
@@ -16,10 +17,9 @@ export default function Index({ portfolios: initialPortfolios = [], auth }) {
             );
         }
 
-        // フラッシュメッセージ
+        // フラッシュメッセージ（常に緑色で表示）
         setFlashMessage(message);
-        setShowFlash(true);
-        setTimeout(() => setShowFlash(false), 3000);
+        setFlashType("success");
     };
 
     return (
@@ -29,13 +29,11 @@ export default function Index({ portfolios: initialPortfolios = [], auth }) {
             </header>
 
             {/* フラッシュメッセージ */}
-            {showFlash && flashMessage && (
-                <div className="max-w-6xl mx-auto mt-4">
-                    <div className="bg-green-100 text-green-700 px-4 py-2 rounded shadow">
-                        {flashMessage}
-                    </div>
-                </div>
-            )}
+            <FlashMessage
+                message={flashMessage}
+                type={flashType}
+                onClose={() => setFlashMessage(null)}
+            />
 
             <main className="px-4 py-8 max-w-6xl mx-auto">
                 {portfolioList.length === 0 ? (
