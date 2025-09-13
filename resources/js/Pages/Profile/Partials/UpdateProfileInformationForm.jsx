@@ -11,8 +11,7 @@ export default function UpdateProfileInformation({
     status,
     className = "",
 }) {
-    const { auth, allTags = [] } = usePage().props;
-    const user = auth.user;
+    const { user, allTags = [] } = usePage().props;
 
     const { data, setData, post, errors, processing, recentlySuccessful } =
         useForm({
