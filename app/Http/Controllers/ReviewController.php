@@ -12,23 +12,46 @@ use Inertia\Inertia;
 
 class ReviewController extends Controller
 {
-    // レビュー投稿
+// レビュー投稿
 public function store(Request $request, Portfolio $portfolio)
 {
     try {
+        // 評価は null（未評価）を許容
         $validated = $request->validate([
-            'rating' => 'required|integer|min:1|max:5',
             'comment' => 'nullable|string|max:1000',
-            'technical' => 'required|integer|min:1|max:5',
-            'usability' => 'required|integer|min:1|max:5',
-            'design' => 'required|integer|min:1|max:5',
-            'user_focus' => 'required|integer|min:1|max:5',
+            'technical' => 'nullable|integer|between:1,5',
+            'usability' => 'nullable|integer|between:1,5',
+            'design' => 'nullable|integer|between:1,5',
+            'user_focus' => 'nullable|integer|between:1,5',
         ]);
+
+        // 全て未評価の場合はバリデーションエラー
+        if (
+            is_null($validated['technical']) &&
+            is_null($validated['usability']) &&
+            is_null($validated['design']) &&
+            is_null($validated['user_focus'])
+        ) {
+            return response()->json([
+                'success' => false,
+                'errors' => ['general' => 'いずれかの評価を入力してください'],
+            ], 422);
+        }
+
+        // rating は入力された値の平均
+        $ratings = array_filter([
+            $validated['technical'],
+            $validated['usability'],
+            $validated['design'],
+            $validated['user_focus']
+        ], fn($v) => !is_null($v));
+
+        $rating = count($ratings) ? round(array_sum($ratings) / count($ratings), 1) : null;
 
         $review = Review::create([
             'user_id' => $request->user()->id,
             'portfolio_id' => $portfolio->id,
-            'rating' => $validated['rating'],
+            'rating' => $rating,
             'comment' => $validated['comment'] ?? null,
             'technical' => $validated['technical'],
             'usability' => $validated['usability'],
@@ -46,7 +69,6 @@ public function store(Request $request, Portfolio $portfolio)
             }
         }
 
-        // コメントがなくても user 情報を返す
         return response()->json([
             'success' => true,
             'message' => 'レビューしました！',

@@ -24,13 +24,14 @@ ChartJS.register(
 export default function ReviewChart({ reviews }) {
     const reviewCount = reviews?.length || 0;
 
-    const avg = (key) =>
-        reviewCount
-            ? (
-                  reviews.reduce((sum, r) => sum + (r[key] || 0), 0) /
-                  reviewCount
-              ).toFixed(1)
+    const avg = (key) => {
+        const vals = reviews
+            .map((r) => r[key])
+            .filter((v) => v !== null && v !== undefined);
+        return vals.length
+            ? (vals.reduce((sum, v) => sum + v, 0) / vals.length).toFixed(1)
             : 0;
+    };
 
     const chartData = {
         labels: [

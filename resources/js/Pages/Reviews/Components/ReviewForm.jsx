@@ -3,51 +3,64 @@ import axios from "axios";
 
 export default function ReviewForm({ portfolio, onSuccess }) {
     const [comment, setComment] = useState("");
-    const [technical, setTechnical] = useState(5);
-    const [usability, setUsability] = useState(5);
-    const [design, setDesign] = useState(5);
-    const [userFocus, setUserFocus] = useState(5);
+    const [technical, setTechnical] = useState(null);
+    const [usability, setUsability] = useState(null);
+    const [design, setDesign] = useState(null);
+    const [userFocus, setUserFocus] = useState(null);
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
 
-    const rating = Math.round((technical + usability + design + userFocus) / 4);
+    const rating =
+        [technical, usability, design, userFocus]
+            .filter((v) => v !== null)
+            .reduce((sum, v) => sum + v, 0) /
+        ([technical, usability, design, userFocus].filter((v) => v !== null)
+            .length || 1);
 
     const submitReview = async (e) => {
         e.preventDefault();
         setLoading(true);
         setErrors({});
 
+        // 全て未評価の場合はフロントでバリデーション
+        if (
+            [technical, usability, design, userFocus].every((v) => v === null)
+        ) {
+            setErrors({ general: "いずれかの評価を入力してください" });
+            setLoading(false);
+            return;
+        }
+
         try {
             const response = await axios.post(
                 `/portfolio/${portfolio.id}/reviews`,
                 {
-                    rating,
                     comment,
                     technical,
                     usability,
                     design,
                     user_focus: userFocus,
                 },
-                {
-                    headers: { "X-Requested-With": "XMLHttpRequest" },
-                }
+                { headers: { "X-Requested-With": "XMLHttpRequest" } }
             );
 
             if (response.data.success) {
-                // 親コンポーネントにレビューを渡す
                 if (onSuccess) onSuccess(response.data.review);
 
                 // フォーム初期化
                 setComment("");
-                setTechnical(5);
-                setUsability(5);
-                setDesign(5);
-                setUserFocus(5);
+                setTechnical(null);
+                setUsability(null);
+                setDesign(null);
+                setUserFocus(null);
             }
         } catch (error) {
             if (error.response?.data) {
-                // バリデーションエラー表示
-                setErrors(error.response.data.errors || {});
+                setErrors(
+                    error.response.data.errors || {
+                        general: error.response.data.message,
+                    }
+                );
             } else {
                 setErrors({ general: "サーバーに接続できません" });
             }
@@ -62,7 +75,7 @@ export default function ReviewForm({ portfolio, onSuccess }) {
                 <label>総合評価 (自動計算)</label>
                 <input
                     type="text"
-                    value={rating}
+                    value={rating ? rating.toFixed(1) : ""}
                     readOnly
                     className="w-full border px-3 py-2 bg-gray-100 rounded"
                 />
@@ -102,14 +115,17 @@ export default function ReviewForm({ portfolio, onSuccess }) {
                             <div key={label}>
                                 <label>{label}</label>
                                 <select
-                                    value={stateValues[index]}
+                                    value={stateValues[index] ?? ""}
                                     onChange={(e) =>
                                         stateSetters[index](
-                                            Number(e.target.value)
+                                            e.target.value
+                                                ? Number(e.target.value)
+                                                : null
                                         )
                                     }
                                     className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                                 >
+                                    <option value="">未評価</option>
                                     {[1, 2, 3, 4, 5].map((num) => (
                                         <option key={num} value={num}>
                                             {num}
