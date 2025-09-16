@@ -15,59 +15,92 @@ class ReviewController extends Controller
     // レビュー投稿
 public function store(Request $request, Portfolio $portfolio)
 {
-    // バリデーション
-    $request->validate([
-        'rating' => 'required|integer|min:1|max:5',
-        'comment' => 'nullable|string|max:1000',
-        'technical' => 'required|integer|min:1|max:5',
-        'usability' => 'required|integer|min:1|max:5',
-        'design' => 'required|integer|min:1|max:5',
-        'user_focus' => 'required|integer|min:1|max:5',
-    ]);
+    try {
+        // バリデーション
+        $validated = $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'nullable|string|max:1000',
+            'technical' => 'required|integer|min:1|max:5',
+            'usability' => 'required|integer|min:1|max:5',
+            'design' => 'required|integer|min:1|max:5',
+            'user_focus' => 'required|integer|min:1|max:5',
+        ]);
 
-    // レビュー作成
-    $review = Review::create([
-        'user_id' => $request->user()->id,
-        'portfolio_id' => $portfolio->id,
-        'rating' => $request->rating,
-        'comment' => $request->comment,
-        'technical' => $request->technical,
-        'usability' => $request->usability,
-        'design' => $request->design,
-        'user_focus' => $request->user_focus,
-    ]);
+        // レビュー作成
+        $review = Review::create([
+            'user_id' => $request->user()->id,
+            'portfolio_id' => $portfolio->id,
+            'rating' => $validated['rating'],
+            'comment' => $validated['comment'] ?? null,
+            'technical' => $validated['technical'],
+            'usability' => $validated['usability'],
+            'design' => $validated['design'],
+            'user_focus' => $validated['user_focus'],
+        ]);
 
-    // 通知処理（コメントがある場合のみ）
-    if (!empty($review->comment)) {
-        $reviewer = $review->user;                 // 自分
-        $portfolioOwner = $portfolio->user;        // ポートフォリオ所有者
+        // 通知処理（コメントがある場合のみ）
+        if (!empty($review->comment)) {
+            $reviewer = $review->user;
+            $portfolioOwner = $portfolio->user;
 
-        // 1. ポートフォリオ所有者に通知
-        $portfolioOwner->notify(new ReviewCreated($review));
+            $portfolioOwner->notify(new ReviewCreated($review));
 
-        // 2. 自分にも通知（ポートフォリオが自分のものじゃない場合）
-        if ($reviewer->id !== $portfolioOwner->id) {
-            $reviewer->notify(new ReviewCreated($review));
+            if ($reviewer->id !== $portfolioOwner->id) {
+                $reviewer->notify(new ReviewCreated($review));
+            }
         }
 
-        // 3. 必要なら他ユーザーにも通知可能（フォロワーなど）
-        // Notification::send($otherUsers, new ReviewCreated($review));
-    }
+        return response()->json([
+            'success' => true,
+            'message' => 'レビューしました！',
+            'review' => $review
+        ]);
+    } catch (\Throwable $e) {
+        Log::error('Review作成失敗: ' . $e->getMessage());
 
-    return redirect()->back()->with('success', 'レビューしました！');
+        return response()->json([
+            'success' => false,
+            'message' => 'レビュー作成に失敗しました。',
+            'error' => $e->getMessage()
+        ], 500);
+    }
 }
 
-    // レビュー削除
-    public function destroy(Portfolio $portfolio, Review $review)
-    {
-        if ($review->user_id !== auth()->id()) {
-            abort(403, '権限がありません');
-        }
+// ReviewController.php
+public function destroy(Portfolio $portfolio, Review $review)
+{
+    // このレビューが指定のポートフォリオに属しているか確認
+    if ($review->portfolio_id !== $portfolio->id) {
+        abort(404, 'レビューが見つかりません');
+    }
 
+    // レビューの作成者がログインユーザーか確認
+    if ($review->user_id !== auth()->id()) {
+        return response()->json([
+            'success' => false,
+            'message' => '権限がありません'
+        ], 403);
+    }
+
+    try {
         $review->delete();
 
-        return redirect()->back()->with('success', 'レビューを削除しました！');
+        return response()->json([
+            'success' => true,
+            'message' => 'レビューを削除しました！',
+            'review_id' => $review->id
+        ]);
+    } catch (\Throwable $e) {
+        \Log::error('レビュー削除失敗: ' . $e->getMessage());
+
+        return response()->json([
+            'success' => false,
+            'message' => 'レビュー削除に失敗しました',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
+
 
     // レビュー確認
     public function checkReview(Review $review)

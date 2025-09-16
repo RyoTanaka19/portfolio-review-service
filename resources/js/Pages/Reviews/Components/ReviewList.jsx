@@ -1,0 +1,88 @@
+import React from "react";
+import axios from "axios";
+
+export default function ReviewList({
+    reviews,
+    auth,
+    portfolioId,
+    onToggleChecked,
+    onDeleted,
+}) {
+    // レビュー削除
+    const deleteReview = async (reviewId) => {
+        if (!confirm("本当に削除しますか？")) return;
+
+        try {
+            const response = await axios.delete(
+                `/portfolio/${portfolioId}/reviews/${reviewId}`,
+                { headers: { "X-Requested-With": "XMLHttpRequest" } }
+            );
+
+            if (response.data.success) {
+                onDeleted(reviewId);
+            } else {
+                alert(response.data.message);
+            }
+        } catch (error) {
+            console.error(error);
+            alert(
+                error.response?.data?.message || "レビュー削除に失敗しました"
+            );
+        }
+    };
+
+    // レビュー確認チェック
+    const toggleReviewChecked = async (review) => {
+        try {
+            await axios.post(
+                `/reviews/${review.id}/check`,
+                {},
+                { headers: { "X-Requested-With": "XMLHttpRequest" } }
+            );
+            onToggleChecked(review.id, !review.checked);
+        } catch (error) {
+            console.error(error);
+            alert("レビュー確認通知に失敗しました");
+        }
+    };
+
+    return (
+        <div className="space-y-4">
+            {reviews.map((review) => (
+                <div
+                    key={review.id}
+                    className="p-4 border rounded-lg bg-gray-50 flex flex-col gap-2"
+                >
+                    <div className="flex justify-between items-center mb-2">
+                        <div>
+                            <span className="text-gray-700 font-semibold mr-2">
+                                評価: {review.rating} / 5
+                            </span>
+                            <span className="text-gray-400 text-sm">
+                                投稿者: {review.user?.name || "不明"}
+                            </span>
+                        </div>
+
+                        {auth && review.user && auth.id === review.user.id && (
+                            <button
+                                onClick={() => onDeleted(review.id)}
+                                className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                            >
+                                削除
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <input
+                            type="checkbox"
+                            checked={review.checked}
+                            onChange={() => toggleReviewChecked(review)}
+                        />
+                        <p className="text-gray-600">{review.comment}</p>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+}

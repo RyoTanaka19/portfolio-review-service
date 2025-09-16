@@ -202,7 +202,6 @@ public function store(Request $request)
         ]);
     }
 
-    // 投稿更新
 // 投稿更新
 public function update(Request $request, Portfolio $portfolio)
 {
