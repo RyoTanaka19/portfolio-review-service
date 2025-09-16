@@ -1,15 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-export default function ReviewForm({ portfolio, onSuccess }) {
-    const [comment, setComment] = useState("");
-    const [technical, setTechnical] = useState(null);
-    const [usability, setUsability] = useState(null);
-    const [design, setDesign] = useState(null);
-    const [userFocus, setUserFocus] = useState(null);
+export default function ReviewForm({
+    portfolio,
+    onSuccess,
+    initialData = null, // 編集対象のレビュー
+    onCancel, // 追加: キャンセルボタン
+}) {
+    // 初期値設定
+    const [comment, setComment] = useState(initialData?.comment || "");
+    const [technical, setTechnical] = useState(initialData?.technical ?? null);
+    const [usability, setUsability] = useState(initialData?.usability ?? null);
+    const [design, setDesign] = useState(initialData?.design ?? null);
+    const [userFocus, setUserFocus] = useState(initialData?.user_focus ?? null);
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
 
+    // 初期データが切り替わった場合にフォームをリセット
+    useEffect(() => {
+        setComment(initialData?.comment || "");
+        setTechnical(initialData?.technical ?? null);
+        setUsability(initialData?.usability ?? null);
+        setDesign(initialData?.design ?? null);
+        setUserFocus(initialData?.user_focus ?? null);
+        setErrors({});
+    }, [initialData]);
+
+    // 総合評価を自動計算
     const rating =
         [technical, usability, design, userFocus]
             .filter((v) => v !== null)
@@ -22,7 +39,6 @@ export default function ReviewForm({ portfolio, onSuccess }) {
         setLoading(true);
         setErrors({});
 
-        // 全て未評価の場合はフロントでバリデーション
         if (
             [technical, usability, design, userFocus].every((v) => v === null)
         ) {
@@ -32,27 +48,51 @@ export default function ReviewForm({ portfolio, onSuccess }) {
         }
 
         try {
-            const response = await axios.post(
-                `/portfolio/${portfolio.id}/reviews`,
-                {
-                    comment,
-                    technical,
-                    usability,
-                    design,
-                    user_focus: userFocus,
-                },
-                { headers: { "X-Requested-With": "XMLHttpRequest" } }
-            );
+            let response;
+
+            if (initialData?.id) {
+                // 編集時
+                response = await axios.put(
+                    `/portfolio/${portfolio.id}/reviews/${initialData.id}`,
+                    {
+                        comment,
+                        technical,
+                        usability,
+                        design,
+                        user_focus: userFocus,
+                    },
+                    { headers: { "X-Requested-With": "XMLHttpRequest" } }
+                );
+            } else {
+                // 新規投稿
+                response = await axios.post(
+                    `/portfolio/${portfolio.id}/reviews`,
+                    {
+                        comment,
+                        technical,
+                        usability,
+                        design,
+                        user_focus: userFocus,
+                    },
+                    { headers: { "X-Requested-With": "XMLHttpRequest" } }
+                );
+            }
 
             if (response.data.success) {
-                if (onSuccess) onSuccess(response.data.review);
+                const updatedReview = response.data.review;
 
-                // フォーム初期化
-                setComment("");
-                setTechnical(null);
-                setUsability(null);
-                setDesign(null);
-                setUserFocus(null);
+                if (onSuccess) {
+                    onSuccess(updatedReview, !!initialData?.id);
+                }
+
+                // 新規投稿時のみフォームリセット
+                if (!initialData?.id) {
+                    setComment("");
+                    setTechnical(null);
+                    setUsability(null);
+                    setDesign(null);
+                    setUserFocus(null);
+                }
             }
         } catch (error) {
             if (error.response?.data) {
@@ -138,13 +178,29 @@ export default function ReviewForm({ portfolio, onSuccess }) {
                 )}
             </div>
 
-            <button
-                type="submit"
-                disabled={loading}
-                className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
-            >
-                {loading ? "送信中..." : "レビュー"}
-            </button>
+            <div className="flex gap-2">
+                <button
+                    type="submit"
+                    disabled={loading}
+                    className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+                >
+                    {loading
+                        ? "送信中..."
+                        : initialData?.id
+                        ? "更新"
+                        : "レビュー"}
+                </button>
+
+                {initialData?.id && onCancel && (
+                    <button
+                        type="button"
+                        onClick={onCancel}
+                        className="px-6 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                    >
+                        キャンセル
+                    </button>
+                )}
+            </div>
         </form>
     );
 }

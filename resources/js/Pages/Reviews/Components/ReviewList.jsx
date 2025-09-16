@@ -7,6 +7,7 @@ export default function ReviewList({
     portfolioId,
     onToggleChecked,
     onDeleted,
+    onEdit, // 追加: 編集ボタン用
 }) {
     // レビュー削除
     const deleteReview = async (reviewId) => {
@@ -39,8 +40,6 @@ export default function ReviewList({
                 {},
                 { headers: { "X-Requested-With": "XMLHttpRequest" } }
             );
-
-            // サーバー返り値の checked を反映
             onToggleChecked(review.id, response.data.checked);
         } catch (error) {
             console.error(error);
@@ -51,23 +50,19 @@ export default function ReviewList({
     return (
         <div className="space-y-4">
             {reviews
-                .slice() // 元の配列を破壊しないようコピー
+                .slice()
                 .sort((a, b) => {
-                    // コメントなしは常に最後
                     if (!a.comment && b.comment) return 1;
                     if (a.comment && !b.comment) return -1;
                     if (!a.comment && !b.comment) return 0;
-
-                    // コメントありの場合、チェックなしを上、チェックありを下
                     return a.checked === b.checked ? 0 : a.checked ? 1 : -1;
                 })
                 .map((review) => {
-                    // 背景色もチェックでわかりやすく
                     const containerClass = review.comment
                         ? review.checked
-                            ? "p-4 border rounded-lg bg-green-100 flex flex-col gap-2" // チェックあり
-                            : "p-4 border rounded-lg bg-yellow-50 flex flex-col gap-2" // チェックなし
-                        : "p-4 border rounded-lg bg-gray-50 flex flex-col gap-2"; // コメントなし
+                            ? "p-4 border rounded-lg bg-green-100 flex flex-col gap-2"
+                            : "p-4 border rounded-lg bg-yellow-50 flex flex-col gap-2"
+                        : "p-4 border rounded-lg bg-gray-50 flex flex-col gap-2";
 
                     return (
                         <div key={review.id} className={containerClass}>
@@ -84,12 +79,27 @@ export default function ReviewList({
                                 {auth &&
                                     review.user &&
                                     auth.id === review.user.id && (
-                                        <button
-                                            onClick={() => onDeleted(review.id)}
-                                            className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                                        >
-                                            削除
-                                        </button>
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={() =>
+                                                    deleteReview(review.id)
+                                                }
+                                                className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                                            >
+                                                削除
+                                            </button>
+
+                                            {onEdit && (
+                                                <button
+                                                    onClick={() =>
+                                                        onEdit(review)
+                                                    }
+                                                    className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                                >
+                                                    編集
+                                                </button>
+                                            )}
+                                        </div>
                                     )}
                             </div>
 
@@ -103,7 +113,6 @@ export default function ReviewList({
                                         }
                                     />
                                 )}
-
                                 <p className="text-gray-600">
                                     {review.comment
                                         ? review.comment
