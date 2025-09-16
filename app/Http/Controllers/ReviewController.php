@@ -85,16 +85,21 @@ public function store(Request $request, Portfolio $portfolio)
     }
 }
 
-
-// ReviewController.php
-public function destroy(Portfolio $portfolio, Review $review)
+public function destroy(Portfolio $portfolio, $reviewId)
 {
-    // このレビューが指定のポートフォリオに属しているか確認
-    if ($review->portfolio_id !== $portfolio->id) {
-        abort(404, 'レビューが見つかりません');
+    $review = Review::where('id', $reviewId)
+        ->where('portfolio_id', $portfolio->id)
+        ->first();
+
+    if (!$review) {
+        // すでに削除済みでも「削除済み」として成功を返す
+        return response()->json([
+            'success' => true,
+            'message' => 'レビューはすでに削除されています',
+            'review_id' => $reviewId
+        ]);
     }
 
-    // レビューの作成者がログインユーザーか確認
     if ($review->user_id !== auth()->id()) {
         return response()->json([
             'success' => false,
@@ -116,6 +121,92 @@ public function destroy(Portfolio $portfolio, Review $review)
         return response()->json([
             'success' => false,
             'message' => 'レビュー削除に失敗しました',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
+
+
+public function update(Request $request, Portfolio $portfolio, Review $review)
+{
+    if ($review->portfolio_id !== $portfolio->id) {
+        abort(404, 'レビューが見つかりません');
+    }
+
+    if ($review->user_id !== $request->user()->id) {
+        return response()->json([
+            'success' => false,
+            'message' => '権限がありません'
+        ], 403);
+    }
+
+    try {
+        $validated = $request->validate([
+            'comment' => 'nullable|string|max:1000',
+            'technical' => 'nullable|integer|between:1,5',
+            'usability' => 'nullable|integer|between:1,5',
+            'design' => 'nullable|integer|between:1,5',
+            'user_focus' => 'nullable|integer|between:1,5',
+        ]);
+
+        if (
+            is_null($validated['technical']) &&
+            is_null($validated['usability']) &&
+            is_null($validated['design']) &&
+            is_null($validated['user_focus'])
+        ) {
+            return response()->json([
+                'success' => false,
+                'errors' => ['general' => 'いずれかの評価を入力してください'],
+            ], 422);
+        }
+
+        $ratings = array_filter([
+            $validated['technical'],
+            $validated['usability'],
+            $validated['design'],
+            $validated['user_focus']
+        ], fn($v) => !is_null($v));
+
+        $rating = round(array_sum($ratings) / count($ratings), 1);
+
+        // 更新前コメントを保持
+        $oldComment = $review->comment;
+
+        $review->update([
+            'comment' => $validated['comment'] ?? null,
+            'technical' => $validated['technical'],
+            'usability' => $validated['usability'],
+            'design' => $validated['design'],
+            'user_focus' => $validated['user_focus'],
+            'rating' => $rating,
+        ]);
+
+        // コメントありなら通知
+        if (!empty($review->comment)) {
+            $portfolioOwner = $portfolio->user;
+
+            // 更新通知
+            $portfolioOwner->notify(new \App\Notifications\ReviewUpdated($review, $oldComment));
+
+            // 自分への通知（任意）
+            if ($review->user->id !== $portfolioOwner->id) {
+                $review->user->notify(new \App\Notifications\ReviewUpdated($review, $oldComment));
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'レビューを更新しました！',
+            'review' => $review->load('user')
+        ]);
+    } catch (\Throwable $e) {
+        \Log::error('レビュー更新失敗: ' . $e->getMessage());
+
+        return response()->json([
+            'success' => false,
+            'message' => 'レビュー更新に失敗しました',
             'error' => $e->getMessage()
         ], 500);
     }

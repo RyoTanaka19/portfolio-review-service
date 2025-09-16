@@ -98,11 +98,10 @@ Route::get('/tags/user', [TagController::class, 'userTags']);
     // レビュー
     Route::post('/portfolio/{portfolio}/reviews', [ReviewController::class, 'store'])
         ->whereNumber('portfolio')->name('reviews.store');
-   Route::delete('/portfolio/{portfolio}/reviews/{review}', [ReviewController::class, 'destroy'])
-    ->whereNumber('portfolio')
-    ->whereNumber('review')
-    ->name('reviews.destroy')
-        ->whereNumber('portfolio')->whereNumber('review')->name('reviews.destroy');
+   Route::delete('/portfolio/{portfolio}/reviews/{reviewId}', [ReviewController::class, 'destroy'])
+    ->name('reviews.destroy');
+
+         Route::put('/portfolio/{portfolio}/reviews/{review}', [ReviewController::class, 'update']);
     Route::post('/reviews/{review}/check', [ReviewController::class, 'checkReview'])->name('reviews.check');
 
     // AIアドバイス
