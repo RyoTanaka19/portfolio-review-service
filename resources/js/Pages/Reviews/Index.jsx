@@ -8,7 +8,10 @@ import FlashMessage from "@/Components/FlashMessage";
 
 export default function ReviewIndex({ portfolio, auth, errors, flash }) {
     const [reviews, setReviews] = useState(
-        (portfolio.reviews || []).map((r) => ({ ...r, checked: false }))
+        (portfolio.reviews || []).map((r) => ({
+            ...r,
+            checked: r.checked ?? false, // ← DB の値を優先
+        }))
     );
     const [flashMessage, setFlashMessage] = useState(flash?.success || "");
 

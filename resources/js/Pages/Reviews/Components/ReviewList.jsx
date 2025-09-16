@@ -34,12 +34,14 @@ export default function ReviewList({
     // レビュー確認チェック
     const toggleReviewChecked = async (review) => {
         try {
-            await axios.post(
+            const response = await axios.post(
                 `/reviews/${review.id}/check`,
                 {},
                 { headers: { "X-Requested-With": "XMLHttpRequest" } }
             );
-            onToggleChecked(review.id, !review.checked);
+
+            // サーバー返り値の checked を反映
+            onToggleChecked(review.id, response.data.checked);
         } catch (error) {
             console.error(error);
             alert("レビュー確認通知に失敗しました");
@@ -79,7 +81,13 @@ export default function ReviewList({
                             checked={review.checked}
                             onChange={() => toggleReviewChecked(review)}
                         />
-                        <p className="text-gray-600">{review.comment}</p>
+                        <p className="text-gray-600">
+                            {review.comment
+                                ? review.comment
+                                : `${
+                                      review.user?.name || "不明"
+                                  }さんがレビューしました`}
+                        </p>
                     </div>
                 </div>
             ))}

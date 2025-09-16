@@ -16,7 +16,6 @@ class ReviewController extends Controller
 public function store(Request $request, Portfolio $portfolio)
 {
     try {
-        // バリデーション
         $validated = $request->validate([
             'rating' => 'required|integer|min:1|max:5',
             'comment' => 'nullable|string|max:1000',
@@ -26,7 +25,6 @@ public function store(Request $request, Portfolio $portfolio)
             'user_focus' => 'required|integer|min:1|max:5',
         ]);
 
-        // レビュー作成
         $review = Review::create([
             'user_id' => $request->user()->id,
             'portfolio_id' => $portfolio->id,
@@ -38,25 +36,24 @@ public function store(Request $request, Portfolio $portfolio)
             'user_focus' => $validated['user_focus'],
         ]);
 
-        // 通知処理（コメントがある場合のみ）
+        // 通知（コメントがある場合のみ送信）
         if (!empty($review->comment)) {
-            $reviewer = $review->user;
             $portfolioOwner = $portfolio->user;
-
             $portfolioOwner->notify(new ReviewCreated($review));
 
-            if ($reviewer->id !== $portfolioOwner->id) {
-                $reviewer->notify(new ReviewCreated($review));
+            if ($review->user->id !== $portfolioOwner->id) {
+                $review->user->notify(new ReviewCreated($review));
             }
         }
 
+        // コメントがなくても user 情報を返す
         return response()->json([
             'success' => true,
             'message' => 'レビューしました！',
-            'review' => $review
+            'review' => $review->load('user')
         ]);
     } catch (\Throwable $e) {
-        Log::error('Review作成失敗: ' . $e->getMessage());
+        \Log::error('Review作成失敗: ' . $e->getMessage());
 
         return response()->json([
             'success' => false,
@@ -65,6 +62,7 @@ public function store(Request $request, Portfolio $portfolio)
         ], 500);
     }
 }
+
 
 // ReviewController.php
 public function destroy(Portfolio $portfolio, Review $review)
@@ -102,14 +100,27 @@ public function destroy(Portfolio $portfolio, Review $review)
 }
 
 
-    // レビュー確認
-    public function checkReview(Review $review)
-    {
-        $user = auth()->user();
-        $review->user->notify(new ReviewChecked($user, $review));
+public function checkReview(Review $review)
+{
+    $user = auth()->user();
 
-        return response()->json(['success' => true]);
+    // 保存前のチェック状態
+    $wasChecked = $review->checked;
+
+    // チェック状態を反転させて保存
+    $review->checked = !$wasChecked;
+    $review->save();
+
+    // チェックが「入った場合」のみ通知
+    if (!$wasChecked && $review->checked) {
+        $review->user->notify(new ReviewChecked($user, $review));
     }
+
+    return response()->json([
+        'success' => true,
+        'checked' => $review->checked, // 現在のチェック状態を返す
+    ]);
+}
 
     // -----------------------------
     // ランキング関連メソッド
