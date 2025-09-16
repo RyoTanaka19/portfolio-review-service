@@ -161,6 +161,7 @@ public function store(Request $request)
                         'usability' => $r->usability,
                         'design' => $r->design,
                         'user_focus' => $r->user_focus,
+                        'checked' => $r->checked,
                         'user' => [
                             'id' => $r->user->id,
                             'name' => $r->user->name ?? '未設定',
