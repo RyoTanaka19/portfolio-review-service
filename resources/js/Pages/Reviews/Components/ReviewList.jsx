@@ -50,47 +50,71 @@ export default function ReviewList({
 
     return (
         <div className="space-y-4">
-            {reviews.map((review) => (
-                <div
-                    key={review.id}
-                    className="p-4 border rounded-lg bg-gray-50 flex flex-col gap-2"
-                >
-                    <div className="flex justify-between items-center mb-2">
-                        <div>
-                            <span className="text-gray-700 font-semibold mr-2">
-                                評価: {review.rating} / 5
-                            </span>
-                            <span className="text-gray-400 text-sm">
-                                投稿者: {review.user?.name || "不明"}
-                            </span>
+            {reviews
+                .slice() // 元の配列を破壊しないようコピー
+                .sort((a, b) => {
+                    // コメントなしは常に最後
+                    if (!a.comment && b.comment) return 1;
+                    if (a.comment && !b.comment) return -1;
+                    if (!a.comment && !b.comment) return 0;
+
+                    // コメントありの場合、チェックなしを上、チェックありを下
+                    return a.checked === b.checked ? 0 : a.checked ? 1 : -1;
+                })
+                .map((review) => {
+                    // 背景色もチェックでわかりやすく
+                    const containerClass = review.comment
+                        ? review.checked
+                            ? "p-4 border rounded-lg bg-green-100 flex flex-col gap-2" // チェックあり
+                            : "p-4 border rounded-lg bg-yellow-50 flex flex-col gap-2" // チェックなし
+                        : "p-4 border rounded-lg bg-gray-50 flex flex-col gap-2"; // コメントなし
+
+                    return (
+                        <div key={review.id} className={containerClass}>
+                            <div className="flex justify-between items-center mb-2">
+                                <div>
+                                    <span className="text-gray-700 font-semibold mr-2">
+                                        評価: {review.rating} / 5
+                                    </span>
+                                    <span className="text-gray-400 text-sm">
+                                        投稿者: {review.user?.name || "不明"}
+                                    </span>
+                                </div>
+
+                                {auth &&
+                                    review.user &&
+                                    auth.id === review.user.id && (
+                                        <button
+                                            onClick={() => onDeleted(review.id)}
+                                            className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                                        >
+                                            削除
+                                        </button>
+                                    )}
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                {review.comment && (
+                                    <input
+                                        type="checkbox"
+                                        checked={review.checked}
+                                        onChange={() =>
+                                            toggleReviewChecked(review)
+                                        }
+                                    />
+                                )}
+
+                                <p className="text-gray-600">
+                                    {review.comment
+                                        ? review.comment
+                                        : `${
+                                              review.user?.name || "不明"
+                                          }さんがレビューしました`}
+                                </p>
+                            </div>
                         </div>
-
-                        {auth && review.user && auth.id === review.user.id && (
-                            <button
-                                onClick={() => onDeleted(review.id)}
-                                className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                            >
-                                削除
-                            </button>
-                        )}
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            checked={review.checked}
-                            onChange={() => toggleReviewChecked(review)}
-                        />
-                        <p className="text-gray-600">
-                            {review.comment
-                                ? review.comment
-                                : `${
-                                      review.user?.name || "不明"
-                                  }さんがレビューしました`}
-                        </p>
-                    </div>
-                </div>
-            ))}
+                    );
+                })}
         </div>
     );
 }
