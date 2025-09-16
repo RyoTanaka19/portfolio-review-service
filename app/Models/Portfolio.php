@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Access;
 
 class Portfolio extends Model
 {
@@ -59,8 +60,8 @@ class Portfolio extends Model
     {
         return $this->belongsToMany(User::class, 'bookmarks');
     }
-    public function accesses()
+ public function accesses()
 {
-    return $this->hasMany(PortfolioAccess::class);
+    return $this->hasMany(Access::class); // ← PortfolioAccess から Access に変更
 }
 }
