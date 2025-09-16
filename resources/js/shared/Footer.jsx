@@ -1,12 +1,12 @@
 import { usePage, Link } from "@inertiajs/react";
 
-export default function Footer() {
+export default function Footer({ className = "" }) {
     const { footer = {} } = usePage().props;
     const year = new Date().getFullYear();
 
     return (
-        <div className="border-t bg-white">
-            <div className="mx-auto max-w-6xl px-4 py-8">
+        <div className={`border-t bg-white ${className}`}>
+            <div className="mx-auto max-w-6xl px-4 py-4">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     {/* 左側: コピーライト */}
                     <div className="text-sm text-gray-500">
