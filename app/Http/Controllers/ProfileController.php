@@ -113,25 +113,31 @@ public function show(User $user): Response
     /**
      * Delete the user's account.
      */
-    public function destroy(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'password' => ['required', 'current_password'],
-        ]);
+public function destroy(Request $request): RedirectResponse
+{
+    // パスワード確認
+    $request->validate([
+        'password' => ['required', 'current_password'],
+    ]);
 
-        $user = $request->user();
+    $user = $request->user();
 
-        Auth::logout();
+    // ログアウト
+    Auth::logout();
 
-        if ($user->profile_image) {
-            Storage::disk('public')->delete($user->profile_image);
-        }
-
-        $user->delete();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return Redirect::to('/');
+    // プロフィール画像削除
+    if ($user->profile_image) {
+        Storage::disk('public')->delete($user->profile_image);
     }
+
+    // ユーザー削除
+    $user->delete();
+
+    // セッション無効化
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+    // フラッシュメッセージをセットして Home にリダイレクト
+    return Redirect::route('home')->with('flash', 'アカウントが削除されました');
+}
 }
