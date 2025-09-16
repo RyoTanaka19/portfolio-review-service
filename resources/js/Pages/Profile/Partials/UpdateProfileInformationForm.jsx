@@ -20,10 +20,11 @@ export default function UpdateProfileInformation({
             email: user.email,
             profile_image: null,
             delete_profile_image: false,
-            tags: user.tags?.map((tag) => tag.id) || [], // 既存タグID
+            tags: user.tags?.map((tag) => tag.id) || [],
         });
 
     const [preview, setPreview] = useState(user?.profile_image_url || null);
+    const [localErrors, setLocalErrors] = useState({}); // フロント側バリデーション用
 
     useEffect(() => {
         return () => {
@@ -42,12 +43,6 @@ export default function UpdateProfileInformation({
         }
     };
 
-    const removeImage = () => {
-        setData("profile_image", null);
-        setData("delete_profile_image", true);
-        setPreview(null);
-    };
-
     const toggleTag = (tagId) => {
         if (data.tags.includes(tagId)) {
             setData(
@@ -61,6 +56,16 @@ export default function UpdateProfileInformation({
 
     const submit = (e) => {
         e.preventDefault();
+
+        // フロント側バリデーション
+        const errors = {};
+        if (!data.name.trim()) errors.name = "名前を入力してください";
+        if (!data.email.trim())
+            errors.email = "メールアドレスを入力してください";
+        setLocalErrors(errors);
+
+        if (Object.keys(errors).length > 0) return; // エラーがあれば送信しない
+
         post(route("profile.update"), {
             forceFormData: true,
         });
@@ -90,11 +95,12 @@ export default function UpdateProfileInformation({
                         className="mt-1 block w-full"
                         value={data.name}
                         onChange={(e) => setData("name", e.target.value)}
-                        required
-                        isFocused
                         autoComplete="name"
                     />
-                    <InputError className="mt-2" message={errors.name} />
+                    <InputError
+                        className="mt-2"
+                        message={localErrors.name || errors.name}
+                    />
                 </div>
 
                 {/* メール */}
@@ -106,10 +112,12 @@ export default function UpdateProfileInformation({
                         className="mt-1 block w-full"
                         value={data.email}
                         onChange={(e) => setData("email", e.target.value)}
-                        required
                         autoComplete="username"
                     />
-                    <InputError className="mt-2" message={errors.email} />
+                    <InputError
+                        className="mt-2"
+                        message={localErrors.email || errors.email}
+                    />
                 </div>
 
                 {/* プロフィール画像 */}
@@ -119,19 +127,12 @@ export default function UpdateProfileInformation({
                         value="プロフィール画像"
                     />
                     {preview ? (
-                        <div className="flex items-center space-x-4 mt-2">
+                        <div className="mt-2">
                             <img
                                 src={preview}
                                 alt="preview"
                                 className="w-24 h-24 rounded-full object-cover"
                             />
-                            <button
-                                type="button"
-                                onClick={removeImage}
-                                className="text-sm text-red-600"
-                            >
-                                画像を削除
-                            </button>
                         </div>
                     ) : (
                         <div className="mt-2 text-sm text-gray-500">
