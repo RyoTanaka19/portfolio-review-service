@@ -5,6 +5,7 @@ import PrimaryButton from "@/Components/PrimaryButton";
 import TextInput from "@/Components/TextInput";
 import { Transition } from "@headlessui/react";
 import { Link, useForm, usePage } from "@inertiajs/react";
+import FlashMessage from "@/Components/FlashMessage";
 
 export default function UpdateProfileInformation({
     mustVerifyEmail,
@@ -25,6 +26,7 @@ export default function UpdateProfileInformation({
 
     const [preview, setPreview] = useState(user?.profile_image_url || null);
     const [localErrors, setLocalErrors] = useState({}); // フロント側バリデーション用
+    const [flashMessage, setFlashMessage] = useState(""); // フラッシュメッセージ用
 
     useEffect(() => {
         return () => {
@@ -68,11 +70,23 @@ export default function UpdateProfileInformation({
 
         post(route("profile.update"), {
             forceFormData: true,
+            onSuccess: () => {
+                setFlashMessage("プロフィール情報を保存しました");
+            },
         });
     };
 
     return (
         <section className={className}>
+            {/* フラッシュメッセージ */}
+            {flashMessage && (
+                <FlashMessage
+                    message={flashMessage}
+                    type="success"
+                    onClose={() => setFlashMessage("")}
+                />
+            )}
+
             <header>
                 <h2 className="text-lg font-medium text-gray-900">
                     プロフィール情報

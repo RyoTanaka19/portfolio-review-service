@@ -1,11 +1,12 @@
-// resources/js/Pages/Home.jsx
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, usePage } from "@inertiajs/react";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import FlashMessage from "@/Components/FlashMessage"; // FlashMessage コンポーネントをインポート
 
 const Home = () => {
-    const { auth } = usePage().props; // Laravel の auth.user を取得
+    const { auth, flash = {} } = usePage().props; // Laravel の auth.user と flash を取得
+    const [flashMessage, setFlashMessage] = useState(flash.flash || ""); // flash.flash はサーバー側で設定したメッセージ
 
     useEffect(() => {
         AOS.init({
@@ -34,7 +35,16 @@ const Home = () => {
     ];
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 relative">
+            {/* フラッシュメッセージ */}
+            {flashMessage && (
+                <FlashMessage
+                    message={flashMessage}
+                    type="success"
+                    onClose={() => setFlashMessage("")}
+                />
+            )}
+
             <div className="text-center mb-10">
                 <h1 className="text-5xl font-bold text-blue-600">
                     ポートフォリオレビューサービス
@@ -43,7 +53,6 @@ const Home = () => {
 
             <div className="space-x-4 mb-8">
                 {auth.user ? (
-                    // ログイン中
                     <>
                         <Link
                             href={route("logout")}
@@ -60,7 +69,6 @@ const Home = () => {
                         </Link>
                     </>
                 ) : (
-                    // ログアウト中
                     <>
                         <Link
                             href={route("login")}
@@ -77,7 +85,6 @@ const Home = () => {
                     </>
                 )}
 
-                {/* ログイン関係なく常に表示 */}
                 <Link
                     href={route("dashboard")}
                     className="btn py-2 px-4 bg-purple-500 text-white rounded-md"

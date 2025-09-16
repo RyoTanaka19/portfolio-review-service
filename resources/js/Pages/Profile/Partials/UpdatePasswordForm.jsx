@@ -5,6 +5,7 @@ import TextInput from "@/Components/TextInput";
 import { Transition } from "@headlessui/react";
 import { useForm } from "@inertiajs/react";
 import { useRef, useState } from "react";
+import FlashMessage from "@/Components/FlashMessage";
 
 export default function UpdatePasswordForm({ className = "" }) {
     const passwordInput = useRef();
@@ -25,12 +26,12 @@ export default function UpdatePasswordForm({ className = "" }) {
     });
 
     const [localErrors, setLocalErrors] = useState({}); // フロント側バリデーション用
+    const [flashMessage, setFlashMessage] = useState(""); // フラッシュメッセージ用
 
     // サーバー側バリデーションメッセージを日本語に変換
     const translateError = (field, message) => {
         if (!message) return "";
 
-        // 現在のパスワードエラーを日本語化
         if (field === "current_password") {
             if (
                 message.includes("The password is incorrect") ||
@@ -69,7 +70,10 @@ export default function UpdatePasswordForm({ className = "" }) {
         // サーバー送信
         put(route("password.update"), {
             preserveScroll: true,
-            onSuccess: () => reset(),
+            onSuccess: () => {
+                reset();
+                setFlashMessage("パスワードを更新しました");
+            },
             onError: (errors) => {
                 if (errors.current_password) {
                     reset("current_password");
@@ -85,6 +89,15 @@ export default function UpdatePasswordForm({ className = "" }) {
 
     return (
         <section className={className}>
+            {/* フラッシュメッセージ */}
+            {flashMessage && (
+                <FlashMessage
+                    message={flashMessage}
+                    type="success"
+                    onClose={() => setFlashMessage("")}
+                />
+            )}
+
             <header>
                 <h2 className="text-lg font-medium text-gray-900">
                     パスワードの更新

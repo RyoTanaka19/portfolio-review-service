@@ -31,8 +31,15 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
+
+            // 認証情報
             'auth' => [
                 'user' => $request->user(),
+            ],
+
+            // フラッシュメッセージを全ページに共有
+            'flash' => [
+                'flash' => fn () => $request->session()->get('flash'),
             ],
         ];
     }
