@@ -1,12 +1,10 @@
+// resources/js/Pages/Portfolios/Show.jsx
 import React from "react";
 import { InertiaLink } from "@inertiajs/inertia-react";
 import ReviewIndex from "../Reviews/Index";
 import AppLayout from "@/Layouts/AppLayout";
-import ReviewChart from "@/Components/ReviewChart"; // ← 新しく追加
 
 export default function Show({ portfolio, auth, errors, flash }) {
-    const reviewCount = portfolio.reviews?.length || 0;
-
     return (
         <AppLayout auth={auth}>
             <div className="flex flex-col flex-1 bg-gray-100">
@@ -15,7 +13,7 @@ export default function Show({ portfolio, auth, errors, flash }) {
                         {/* タイトル */}
                         <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
                             <InertiaLink
-                                href={`/portfolio/${portfolio.id}/access`} // アクセス数画面に遷移
+                                href={`/portfolio/${portfolio.id}/access`}
                                 className="hover:underline text-blue-600"
                             >
                                 {portfolio.title}
@@ -94,11 +92,6 @@ export default function Show({ portfolio, auth, errors, flash }) {
                                     ))}
                                 </div>
                             </div>
-                        )}
-
-                        {/* Chart.js */}
-                        {reviewCount > 0 && (
-                            <ReviewChart reviews={portfolio.reviews} />
                         )}
 
                         {/* レビュー */}
