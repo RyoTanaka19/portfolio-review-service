@@ -27,6 +27,27 @@ export default function DeleteUserForm({ className = "" }) {
         setConfirmingUserDeletion(true);
     };
 
+    const closeModal = () => {
+        setConfirmingUserDeletion(false);
+        clearErrors();
+        reset();
+    };
+
+    // サーバー側エラーメッセージを日本語に変換
+    const translateError = (field, message) => {
+        if (!message) return "";
+        if (field === "password") {
+            if (
+                message.includes("The password is incorrect") ||
+                message.includes("正しくありません")
+            ) {
+                return "正しいパスワードでありません";
+            }
+            return "パスワードは必須です。";
+        }
+        return message;
+    };
+
     const deleteUser = (e) => {
         e.preventDefault();
 
@@ -36,13 +57,6 @@ export default function DeleteUserForm({ className = "" }) {
             onError: () => passwordInput.current.focus(),
             onFinish: () => reset(),
         });
-    };
-
-    const closeModal = () => {
-        setConfirmingUserDeletion(false);
-
-        clearErrors();
-        reset();
     };
 
     return (
@@ -93,7 +107,10 @@ export default function DeleteUserForm({ className = "" }) {
                         />
 
                         <InputError
-                            message={errors.password}
+                            message={translateError(
+                                "password",
+                                errors.password
+                            )}
                             className="mt-2"
                         />
                     </div>
