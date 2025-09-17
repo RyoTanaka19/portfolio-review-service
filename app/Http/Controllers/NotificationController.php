@@ -53,28 +53,4 @@ class NotificationController extends Controller
             ], 500);
         }
     }
-
-    // レビュー確認済みにする
-    public function markAsChecked(Request $request, $id)
-    {
-        try {
-            $notification = DatabaseNotification::findOrFail($id);
-
-            // 自分の通知か確認
-            if ($notification->notifiable_id !== $request->user()->id) {
-                return response()->json(['error' => '権限がありません'], 403);
-            }
-
-            $notification->update(['review_checked' => true]);
-
-            return response()->json(['status' => 'ok']);
-        } catch (ModelNotFoundException $e) {
-            return response()->json(['error' => '通知が見つかりません'], 404);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'レビュー確認済みにする際にエラーが発生しました',
-                'message' => $e->getMessage()
-            ], 500);
-        }
-    }
 }
