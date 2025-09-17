@@ -16,7 +16,6 @@ export default function TagsInput({ value = [], onChange }) {
     const tagsIndexUrl =
         typeof route === "function" ? route("tags.index") : "/tags";
 
-    // タグ取得を async/await + try/catch に変更
     const fetchTags = async () => {
         try {
             const response = await axios.get(tagsIndexUrl);
@@ -69,7 +68,11 @@ export default function TagsInput({ value = [], onChange }) {
 
     // タグ削除
     const removeTag = (tag) => {
-        setSelected(selected.filter((s) => s.id !== tag.id));
+        setSelected(
+            selected.filter((s) =>
+                tag.id ? s.id !== tag.id : s.name !== tag.name
+            )
+        );
     };
 
     return (
@@ -78,7 +81,7 @@ export default function TagsInput({ value = [], onChange }) {
             <div className="flex flex-wrap gap-2 mb-2">
                 {selected.map((tag) => (
                     <span
-                        key={tag.id}
+                        key={tag.id || tag.name}
                         className="inline-flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm"
                     >
                         {tag.name}
