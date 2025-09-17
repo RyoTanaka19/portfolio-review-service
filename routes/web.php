@@ -51,7 +51,6 @@ Route::get('reviews/rankings/user-focus', [ReviewController::class, 'rankingUser
 Route::middleware('auth')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
-    Route::patch('/notifications/{id}/check', [NotificationController::class, 'markAsChecked']);
 });
 
 // 認証済みユーザー用ルート
