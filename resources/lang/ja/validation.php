@@ -9,22 +9,17 @@ return [
     'confirmed' => ':attribute が確認用と一致しません。',
     'unique' => ':attribute は既に登録されています。',
 
-    // 属性ごとにフォームタイプ別に定義
+    // フィールド名 → 表示名（平坦な配列）
     'attributes' => [
-        // ユーザー登録フォーム用
-        'user' => [
-            'name' => '名前',
-            'email' => 'メールアドレス',
-            'password' => 'パスワード',
-            'password_confirmation' => 'パスワード（確認用）',
-        ],
+        // ユーザー登録フォーム
+        'name' => '名前',
+        'email' => 'メールアドレス',
+        'password' => 'パスワード',
+        'password_confirmation' => 'パスワード（確認用）',
 
-        // サービス作成フォーム用
-        'service' => [
-            'name' => 'サービス名',
-            'description' => 'サービス概要',
-            'target_users' => 'ターゲットユーザー',
-            'issues' => '悩み・相談内容',
-        ],
+        // サービス作成フォーム
+        'description' => 'サービス概要',
+        'target_users' => 'ターゲットユーザー',
+        'issues' => '悩み・相談内容',
     ],
 ];
