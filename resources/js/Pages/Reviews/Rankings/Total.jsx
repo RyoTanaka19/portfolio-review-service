@@ -1,8 +1,8 @@
 import React from "react";
 import AppLayout from "@/Layouts/AppLayout";
-import RankingList from "@/Components/RankingList";
+import RankingList from "@/Components/Reviews/RankingList";
 
-export default function TotalRanking({ portfolios }) {
+export default function Total({ portfolios }) {
     return (
         <AppLayout>
             <RankingList
