@@ -7,89 +7,62 @@ use App\Models\Tag;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
+use App\Helpers\PortfolioHelper;  // 追加: ヘルパークラスをインポート
 
 use App\Http\Requests\PortfolioRequest;
 
 class PortfolioController extends Controller
 {
     // 投稿一覧表示（検索対応）
-public function index()
-{
-    $userId = auth()->id();
+    public function index()
+    {
+        $userId = auth()->id();
 
-    $portfolios = Portfolio::with(['tags', 'reviews.user', 'user', 'bookmarks'])
-        ->get()
-        ->map(fn($p) => $this->mapPortfolio($p, $userId));
+        $portfolios = Portfolio::with(['tags', 'reviews.user', 'user', 'bookmarks'])
+            ->get()
+            ->map(fn($p) => PortfolioHelper::mapPortfolio($p, $userId));  // ヘルパーを使用
 
-    $allTags = Tag::pluck('name');
+        $allTags = Tag::pluck('name');
 
-    return Inertia::render('Portfolios/Index', [
-        'portfolios' => $portfolios,
-        'filters' => [],
-        'auth' => $userId ? ['user' => ['id' => $userId, 'name' => auth()->user()->name]] : null,
-        'allTags' => $allTags,
-        'flash' => [
-            'success' => session('success'),
-            'error' => session('error'),
-        ],
-    ]);
-}
-public function search(Request $request)
-{
-    $userId = auth()->id();
-
-    $query = Portfolio::with(['tags', 'reviews.user', 'user', 'bookmarks']);
-
-    // 🔹 ユーザー名で検索
-    if ($request->filled('user_name')) {
-        $userName = $request->input('user_name');
-        $query->whereHas('user', fn($q) => $q->where('name', 'like', "%{$userName}%"));
+        return Inertia::render('Portfolios/Index', [
+            'portfolios' => $portfolios,
+            'filters' => [],
+            'auth' => $userId ? ['user' => ['id' => $userId, 'name' => auth()->user()->name]] : null,
+            'allTags' => $allTags,
+            'flash' => session('flash') ?? [],  // 修正: フラッシュメッセージを整理
+            'errors' => session('errors') ? session('errors')->getBag('default')->toArray() : [],  // 修正: エラーメッセージを整理
+        ]);
     }
 
-    // 🔹 タグで検索
-    if ($request->filled('tag')) {
-        $tagName = $request->input('tag');
-        $query->whereHas('tags', fn($q) => $q->where('name', 'like', "%{$tagName}%"));
+    public function search(Request $request)
+    {
+        $userId = auth()->id();
+
+        $query = Portfolio::with(['tags', 'reviews.user', 'user', 'bookmarks']);
+
+        // 🔹 ユーザー名で検索
+        if ($request->filled('user_name')) {
+            $userName = $request->input('user_name');
+            $query->whereHas('user', fn($q) => $q->where('name', 'like', "%{$userName}%"));
+        }
+
+        // 🔹 タグで検索
+        if ($request->filled('tag')) {
+            $tagName = $request->input('tag');
+            $query->whereHas('tags', fn($q) => $q->where('name', 'like', "%{$tagName}%"));
+        }
+
+        $portfolios = $query->get()->map(fn($p) => PortfolioHelper::mapPortfolio($p, $userId));  // ヘルパーを使用
+
+        $allTags = Tag::pluck('name');
+
+        return Inertia::render('Portfolios/Index', [
+            'portfolios' => $portfolios,
+            'filters' => $request->only(['user_name', 'tag']),
+            'auth' => $userId ? ['user' => ['id' => $userId, 'name' => auth()->user()->name]] : null,
+            'allTags' => $allTags,
+        ]);
     }
-
-    $portfolios = $query->get()->map(fn($p) => $this->mapPortfolio($p, $userId));
-
-    $allTags = Tag::pluck('name');
-
-    return Inertia::render('Portfolios/Index', [
-        'portfolios' => $portfolios,
-        'filters' => $request->only(['user_name', 'tag']),
-        'auth' => $userId ? ['user' => ['id' => $userId, 'name' => auth()->user()->name]] : null,
-        'allTags' => $allTags,
-    ]);
-}
-private function mapPortfolio($p, $userId)
-{
-    $isBookmarked = $userId ? $p->bookmarks->contains('user_id', $userId) : false;
-
-    return [
-        'id' => $p->id,
-        'title' => $p->title,
-        'description' => $p->description,
-        'url' => $p->url,
-        'github_url' => $p->github_url,
-        'user_id' => $p->user_id,
-        'user_name' => $p->user->name ?? '未設定',
-        'image_url' => $p->image_path ? Storage::url($p->image_path) : null,
-        'tags' => $p->tags->map(fn($t) => $t->name)->toArray(),
-        'reviews' => $p->reviews->map(fn($r) => [
-            'id' => $r->id,
-            'comment' => $r->comment,
-            'rating' => $r->rating,
-            'user' => [
-                'id' => $r->user->id,
-                'name' => $r->user->name ?? '未設定',
-            ],
-            'created_at' => $r->created_at->format('Y-m-d H:i'),
-        ]),
-        'is_bookmarked' => $isBookmarked,
-    ];
-}
 
     // 新規投稿フォーム
     public function create()
@@ -98,7 +71,6 @@ private function mapPortfolio($p, $userId)
     }
 
     // 投稿保存
-// 新規投稿保存
     public function store(PortfolioRequest $request)
     {
         $validated = $request->validated();
@@ -125,10 +97,8 @@ private function mapPortfolio($p, $userId)
             $portfolio->tags()->sync($tagIds);
         }
 
-        return redirect()->route('dashboard')->with('success', 'ポートフォリオを作成しました');
+        return redirect()->route('dashboard')->with('flash', ['success' => 'ポートフォリオを作成しました']);  // 修正: フラッシュメッセージを整理
     }
-
-
 
     // 投稿詳細
     public function show(Portfolio $portfolio)
@@ -146,23 +116,16 @@ private function mapPortfolio($p, $userId)
                 'user_name' => $portfolio->user->name ?? '未設定',
                 'image_url' => $portfolio->image_path ? Storage::url($portfolio->image_path) : null,
                 'tags' => $portfolio->tags->map(fn($t) => $t->name)->toArray(),
-                'reviews' => $portfolio->reviews->map(function ($r) {
-                    return [
-                        'id' => $r->id,
-                        'comment' => $r->comment,
-                        'rating' => $r->rating,
-                        'technical' => $r->technical,
-                        'usability' => $r->usability,
-                        'design' => $r->design,
-                        'user_focus' => $r->user_focus,
-                        'checked' => $r->checked,
-                        'user' => [
-                            'id' => $r->user->id,
-                            'name' => $r->user->name ?? '未設定',
-                        ],
-                        'created_at' => $r->created_at->format('Y-m-d H:i'),
-                    ];
-                }),
+                'reviews' => $portfolio->reviews->map(fn($r) => [
+                    'id' => $r->id,
+                    'comment' => $r->comment,
+                    'rating' => $r->rating,
+                    'user' => [
+                        'id' => $r->user->id,
+                        'name' => $r->user->name ?? '未設定',
+                    ],
+                    'created_at' => $r->created_at->format('Y-m-d H:i'),
+                ]),
             ],
             'auth' => [
                 'user' => auth()->user() ? [
@@ -170,7 +133,7 @@ private function mapPortfolio($p, $userId)
                     'name' => auth()->user()->name,
                 ] : null,
             ],
-            'flash' => session()->all(),
+            'flash' => session('flash') ?? [],
             'errors' => session('errors') ? session('errors')->getBag('default')->toArray() : [],
         ]);
     }
@@ -197,7 +160,7 @@ private function mapPortfolio($p, $userId)
         ]);
     }
 
-  // 投稿更新
+    // 投稿更新
     public function update(PortfolioRequest $request, Portfolio $portfolio)
     {
         $validated = $request->validated();
@@ -237,40 +200,39 @@ private function mapPortfolio($p, $userId)
         }
         $portfolio->tags()->sync($tagIds);
 
-        return redirect()->route('dashboard')->with('success', 'ポートフォリオを更新しました');
+        return redirect()->route('dashboard')->with('flash', ['success' => 'ポートフォリオを更新しました']);
     }
-
 
     // 投稿削除
-public function destroy(Portfolio $portfolio)
-{
-    // 所有者チェック
-    if ($portfolio->user_id !== auth()->id()) {
-        return response()->json([
-            'success' => false,
-            'error' => '権限がありません'
-        ], 403);
-    }
-
-    try {
-        // 画像削除
-        if ($portfolio->image_path) {
-            Storage::disk('public')->delete($portfolio->image_path);
+    public function destroy(Portfolio $portfolio)
+    {
+        // 所有者チェック
+        if ($portfolio->user_id !== auth()->id()) {
+            return response()->json([
+                'success' => false,
+                'error' => '権限がありません'
+            ], 403);
         }
 
-        // ポートフォリオ削除
-        $portfolio->delete();
+        try {
+            // 画像削除
+            if ($portfolio->image_path) {
+                Storage::disk('public')->delete($portfolio->image_path);
+            }
 
-        // 明示的に JSON を返す（型宣言なしでも Axios が data を取得可能）
-        return response()->json([
-            'success' => true,
-            'message' => 'ポートフォリオを削除しました',
-        ], 200);
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'error' => '削除中にエラーが発生しました: ' . $e->getMessage(),
-        ], 500);
+            // ポートフォリオ削除
+            $portfolio->delete();
+
+            // 明示的に JSON を返す（型宣言なしでも Axios が data を取得可能）
+            return response()->json([
+                'success' => true,
+                'message' => 'ポートフォリオを削除しました',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => '削除中にエラーが発生しました: ' . $e->getMessage(),
+            ], 500);
+        }
     }
-}
 }
