@@ -1,14 +1,18 @@
-// resources/js/Components/PortfolioSearch.jsx
 import React, { useState, useEffect } from "react";
 import { Inertia } from "@inertiajs/inertia";
 import axios from "axios";
 
-export default function PortfolioSearch({ allTags = [], filters = {} }) {
+export default function PortfolioSearch({
+    allTags = [],
+    filters = {},
+    initialPortfolios = [],
+}) {
     const [userNameFilter, setUserNameFilter] = useState(
         filters.user_name || ""
     );
     const [tagFilter, setTagFilter] = useState(filters.tag || "");
     const [suggestions, setSuggestions] = useState([]);
+    const [portfolioList, setPortfolioList] = useState(initialPortfolios); // 検索結果のポートフォリオを管理
 
     // ユーザー候補取得
     const fetchUserSuggestions = async (query) => {
@@ -35,10 +39,16 @@ export default function PortfolioSearch({ allTags = [], filters = {} }) {
 
     // 検索処理
     const handleSearch = () => {
+        // 検索条件を送信し、ポートフォリオリストを更新
         Inertia.get(
             route("portfolios.search"),
             { user_name: userNameFilter, tag: tagFilter },
-            { preserveState: true }
+            {
+                preserveState: true,
+                onSuccess: (page) => {
+                    setPortfolioList(page.props.portfolios); // 新しい検索結果をセット
+                },
+            }
         );
         setSuggestions([]);
     };
@@ -104,6 +114,18 @@ export default function PortfolioSearch({ allTags = [], filters = {} }) {
                     >
                         検索
                     </button>
+                </div>
+            </div>
+
+            {/* 検索結果 */}
+            <div className="mt-4">
+                <h2 className="text-xl font-bold">検索結果</h2>
+                <div className="mt-2">
+                    {portfolioList.length > 0 ? (
+                        <p>{portfolioList.length} 件の検索結果があります</p>
+                    ) : (
+                        <p>検索結果0件</p>
+                    )}
                 </div>
             </div>
         </div>
