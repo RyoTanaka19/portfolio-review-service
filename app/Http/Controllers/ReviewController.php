@@ -254,27 +254,27 @@ class ReviewController extends Controller
 
     public function ranking()
     {
-        return $this->getRanking('rating', 'Reviews/Rankings/TotalRanking');
+        return $this->getRanking('rating', 'Reviews/Rankings/Total');
     }
 
     public function rankingTechnical()
     {
-        return $this->getRanking('technical', 'Reviews/Rankings/TechnicalRanking');
+        return $this->getRanking('technical', 'Reviews/Rankings/Technical');
     }
 
     public function rankingUsability()
     {
-        return $this->getRanking('usability', 'Reviews/Rankings/UsabilityRanking');
+        return $this->getRanking('usability', 'Reviews/Rankings/Usability');
     }
 
     public function rankingDesign()
     {
-        return $this->getRanking('design', 'Reviews/Rankings/DesignRanking');
+        return $this->getRanking('design', 'Reviews/Rankings/Design');
     }
 
     public function rankingUserFocus()
     {
-        return $this->getRanking('user_focus', 'Reviews/Rankings/UserFocusRanking');
+        return $this->getRanking('user_focus', 'Reviews/Rankings/UserFocus');
     }
 
     // 共通フォーマット化
