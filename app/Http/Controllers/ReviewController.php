@@ -8,9 +8,8 @@ use Illuminate\Http\Request;
 use App\Notifications\ReviewCreated;
 use App\Notifications\ReviewUpdated;
 use App\Notifications\ReviewChecked;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
+use App\Helpers\ReviewHelper;
 
 class ReviewController extends Controller
 {
@@ -69,7 +68,7 @@ class ReviewController extends Controller
             }
 
             // ランキングキャッシュを削除
-            $this->clearRankingCache();
+            ReviewHelper::clearRankingCache();
 
             return response()->json([
                 'success' => true,
@@ -112,7 +111,7 @@ class ReviewController extends Controller
             $review->delete();
 
             // ランキングキャッシュを削除
-            $this->clearRankingCache();
+            ReviewHelper::clearRankingCache();
 
             return response()->json([
                 'success' => true,
@@ -194,7 +193,7 @@ class ReviewController extends Controller
             }
 
             // ランキングキャッシュを削除
-            $this->clearRankingCache();
+            ReviewHelper::clearRankingCache();
 
             return response()->json([
                 'success' => true,
@@ -233,25 +232,6 @@ class ReviewController extends Controller
     // -----------------------------
     // ランキング関連メソッド（キャッシュ対応済）
     // -----------------------------
-    private function getRanking(string $avgColumn, string $view)
-    {
-        $cacheKey = "ranking_{$avgColumn}";
-
-        $portfolios = Cache::remember($cacheKey, 60 * 5, function() use ($avgColumn) {
-            return Portfolio::with(['user', 'tags', 'reviews'])
-                ->withAvg('reviews', $avgColumn)
-                ->has('reviews')
-                ->orderByDesc("reviews_avg_{$avgColumn}")
-                ->take(10)
-                ->get()
-                ->map(fn($p) => $this->formatPortfolio($p, "reviews_avg_{$avgColumn}"));
-        });
-
-        return Inertia::render($view, [
-            'portfolios' => $portfolios,
-        ]);
-    }
-
     public function ranking()
     {
         return $this->getRanking('rating', 'Reviews/Rankings/Total');
@@ -277,29 +257,12 @@ class ReviewController extends Controller
         return $this->getRanking('user_focus', 'Reviews/Rankings/UserFocus');
     }
 
-    // 共通フォーマット化
-    private function formatPortfolio($p, $avgColumn = 'reviews_avg_rating')
+    private function getRanking(string $avgColumn, string $view)
     {
-        return [
-            'id' => $p->id,
-            'title' => $p->title,
-            'description' => $p->description,
-            'url' => $p->url,
-            'github_url' => $p->github_url,
-            'user_name' => $p->user->name ?? '未設定',
-            'image_url' => $p->image_path ? Storage::url($p->image_path) : null,
-            'tags' => $p->tags->map(fn($t) => $t->name)->toArray(),
-            'avg_rating' => round($p->$avgColumn, 2),
-            'review_count' => $p->reviews->count(),
-        ];
-    }
+        $portfolios = ReviewHelper::getRanking($avgColumn);
 
-    // ランキングキャッシュを削除
-    private function clearRankingCache()
-    {
-        $columns = ['rating', 'technical', 'usability', 'design', 'user_focus'];
-        foreach ($columns as $col) {
-            Cache::forget("ranking_{$col}");
-        }
+        return Inertia::render($view, [
+            'portfolios' => $portfolios,
+        ]);
     }
 }
