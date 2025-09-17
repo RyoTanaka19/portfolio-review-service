@@ -55,7 +55,13 @@ export default function Index({
                 <h1 className="text-2xl font-bold mb-4 text-center">
                     投稿一覧
                 </h1>
-                <PortfolioSearch allTags={allTags} filters={filters} />
+                {/* 初期のポートフォリオリストを渡す */}
+                <PortfolioSearch
+                    allTags={allTags}
+                    filters={filters}
+                    initialPortfolios={portfolioList} // initialPortfoliosを渡す
+                    setPortfolioList={setPortfolioList} // 検索後のリストを更新するためにsetPortfolioListも渡す
+                />
             </div>
 
             {/* ポートフォリオ一覧 */}
