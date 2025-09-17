@@ -7,7 +7,7 @@ use App\Models\Tag;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Http\JsonResponse;
+
 use App\Http\Requests\PortfolioRequest;
 
 class PortfolioController extends Controller
@@ -242,34 +242,35 @@ private function mapPortfolio($p, $userId)
 
 
     // 投稿削除
-    public function destroy(Portfolio $portfolio): JsonResponse
-    {
-        // 所有者チェック
-        if ($portfolio->user_id !== auth()->id()) {
-            return response()->json([
-                'success' => false,
-                'error' => '権限がありません'
-            ], 403);
-        }
-
-        try {
-            // 画像削除
-            if ($portfolio->image_path) {
-                Storage::disk('public')->delete($portfolio->image_path);
-            }
-
-            // ポートフォリオ削除
-            $portfolio->delete();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'ポートフォリオを削除しました',
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => '削除中にエラーが発生しました: ' . $e->getMessage(),
-            ], 500);
-        }
+public function destroy(Portfolio $portfolio)
+{
+    // 所有者チェック
+    if ($portfolio->user_id !== auth()->id()) {
+        return response()->json([
+            'success' => false,
+            'error' => '権限がありません'
+        ], 403);
     }
+
+    try {
+        // 画像削除
+        if ($portfolio->image_path) {
+            Storage::disk('public')->delete($portfolio->image_path);
+        }
+
+        // ポートフォリオ削除
+        $portfolio->delete();
+
+        // 明示的に JSON を返す（型宣言なしでも Axios が data を取得可能）
+        return response()->json([
+            'success' => true,
+            'message' => 'ポートフォリオを削除しました',
+        ], 200);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => '削除中にエラーが発生しました: ' . $e->getMessage(),
+        ], 500);
+    }
+}
 }
