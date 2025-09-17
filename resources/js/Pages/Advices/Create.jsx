@@ -3,7 +3,7 @@ import { InertiaLink } from "@inertiajs/inertia-react";
 import AppLayout from "@/Layouts/AppLayout";
 import FlashMessage from "@/Components/FlashMessage";
 
-export default function Advice() {
+export default function Create() {
     const [form, setForm] = useState({
         name: "",
         description: "",

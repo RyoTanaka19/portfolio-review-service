@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Inertia } from "@inertiajs/inertia";
 import TagsInput from "@/Components/Tags/TagsInput";
 
-export default function PortfolioForm({
+export default function Form({
     initialData = {}, // title, description, url, github_url, tags, image_url
     onSubmitRoute, // 送信先 route 文字列
     method = "post", // HTTPメソッド ("post" or "put")

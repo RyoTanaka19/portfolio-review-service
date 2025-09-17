@@ -89,7 +89,7 @@ public function destroy(Portfolio $portfolio)
                 ];
             });
 
-        return Inertia::render('Bookmarks/Index', [
+        return Inertia::render('Bookmark/Index', [
             'portfolios' => $bookmarks, // React 側の props に合わせる
         ]);
     }
