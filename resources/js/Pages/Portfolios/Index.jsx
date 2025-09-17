@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "@inertiajs/react";
 import AppLayout from "@/Layouts/AppLayout";
 import axios from "axios";
-import BookmarkButton from "@/Components/BookmarkButton";
+import BookmarkButton from "@/Components/Bookmark/Button";
 import PortfolioSearch from "@/Components/PortfolioSearch";
 import FlashMessage from "@/Components/FlashMessage";
 

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-export default function BookmarkButton({
+export default function Button({
     portfolioId,
     initialBookmarked,
     onToggle, // 親に通知するコールバック

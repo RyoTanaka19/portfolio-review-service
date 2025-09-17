@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Head, usePage, Link } from "@inertiajs/react";
 import AppLayout from "@/Layouts/AppLayout";
-import BookmarkButton from "@/Components/BookmarkButton";
+import BookmarkButton from "@/Components/Bookmark/Button";
 import FlashMessage from "@/Components/FlashMessage";
 
 export default function Show() {
