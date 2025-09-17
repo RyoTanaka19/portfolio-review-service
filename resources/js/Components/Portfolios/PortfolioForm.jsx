@@ -1,7 +1,7 @@
 // resources/js/Components/Portfolios/PortfolioForm.jsx
 import React, { useState, useEffect } from "react";
 import { Inertia } from "@inertiajs/inertia";
-import TagsInput from "@/Components/Tags/TagsInput";
+import TagsInput from "@/Components/Tag/TagsInput";
 
 export default function PortfolioForm({
     initialData = {}, // title, description, url, github_url, tags, image_url

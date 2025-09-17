@@ -3,7 +3,7 @@ import { Link } from "@inertiajs/react";
 import AppLayout from "@/Layouts/AppLayout";
 import axios from "axios";
 import BookmarkButton from "@/Components/Bookmark/BookmarkButton";
-import PortfolioSearch from "@/Components/PortfolioSearch";
+import PortfolioSearch from "@/Components/Portfolios/PortfolioSearch";
 import FlashMessage from "@/Components/FlashMessage";
 
 export default function Index({
