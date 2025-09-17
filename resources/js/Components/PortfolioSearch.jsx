@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+// PortfolioSearch.js
+import React, { useState } from "react";
 import { Inertia } from "@inertiajs/inertia";
-import axios from "axios";
+import UserAutocomplete from "./AutoComplete/User";
 
 export default function PortfolioSearch({
     allTags = [],
@@ -11,31 +12,7 @@ export default function PortfolioSearch({
         filters.user_name || ""
     );
     const [tagFilter, setTagFilter] = useState(filters.tag || "");
-    const [suggestions, setSuggestions] = useState([]);
     const [portfolioList, setPortfolioList] = useState(initialPortfolios); // 検索結果のポートフォリオを管理
-
-    // ユーザー候補取得
-    const fetchUserSuggestions = async (query) => {
-        if (!query) {
-            setSuggestions([]);
-            return;
-        }
-        try {
-            const res = await axios.get("/autocomplete/users", {
-                params: { query },
-            });
-            setSuggestions(res.data);
-        } catch (err) {
-            console.error("ユーザー候補取得エラー:", err);
-            setSuggestions([]);
-        }
-    };
-
-    const handleUserInput = (e) => {
-        const value = e.target.value;
-        setUserNameFilter(value);
-        fetchUserSuggestions(value);
-    };
 
     // 検索処理
     const handleSearch = () => {
@@ -50,7 +27,6 @@ export default function PortfolioSearch({
                 },
             }
         );
-        setSuggestions([]);
     };
 
     return (
@@ -75,35 +51,11 @@ export default function PortfolioSearch({
                     </select>
                 </div>
 
-                {/* ユーザー名検索 */}
-                <div className="flex flex-col relative">
-                    <label className="text-sm font-medium mb-1">
-                        ユーザー名で検索
-                    </label>
-                    <input
-                        type="text"
-                        placeholder="例: Tanaka"
-                        value={userNameFilter}
-                        onChange={handleUserInput}
-                        className="border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                    {suggestions.length > 0 && (
-                        <ul className="absolute top-full mt-2 z-10 bg-white border w-full max-h-48 overflow-y-auto shadow rounded">
-                            {suggestions.map((user) => (
-                                <li
-                                    key={user.id}
-                                    className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
-                                    onClick={() => {
-                                        setUserNameFilter(user.name);
-                                        setSuggestions([]);
-                                    }}
-                                >
-                                    {user.name}
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </div>
+                {/* ユーザー名検索 - オートコンプリート */}
+                <UserAutocomplete
+                    userNameFilter={userNameFilter}
+                    setUserNameFilter={setUserNameFilter}
+                />
 
                 {/* 検索ボタン */}
                 <div className="flex items-center mt-2 md:mt-0">
