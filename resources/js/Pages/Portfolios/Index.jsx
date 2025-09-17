@@ -144,7 +144,7 @@ export default function Index({
                                         initialBookmarked={
                                             p.is_bookmarked || false
                                         }
-                                        setFlashMessage={(msg) =>
+                                        onToggle={(_, msg) =>
                                             setFlashMessage({
                                                 message: msg,
                                                 type: "success",
