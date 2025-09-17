@@ -1,10 +1,12 @@
+import React from "react";
 import Checkbox from "@/Components/Checkbox";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import PrimaryButton from "@/Components/PrimaryButton";
 import TextInput from "@/Components/TextInput";
 import GuestLayout from "@/Layouts/GuestLayout";
-import { Head, Link, useForm } from "@inertiajs/react";
+import { Head, Link, useForm, usePage } from "@inertiajs/react";
+import FlashMessage from "@/Components/FlashMessage"; // 追加
 
 export default function Login({ status, canResetPassword }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -12,6 +14,12 @@ export default function Login({ status, canResetPassword }) {
         password: "",
         remember: false,
     });
+
+    // サーバー側の flash を取得
+    const { flash = {} } = usePage().props;
+    const [flashMessage, setFlashMessage] = React.useState(
+        flash.flash || status || ""
+    );
 
     const submit = (e) => {
         e.preventDefault();
@@ -22,17 +30,20 @@ export default function Login({ status, canResetPassword }) {
 
     return (
         <GuestLayout>
-            <Head title="Log in" />
+            <Head title="ログイン" />
 
-            {status && (
-                <div className="mb-4 text-sm font-medium text-green-600">
-                    {status}
-                </div>
+            {/* フラッシュメッセージ表示 */}
+            {flashMessage && (
+                <FlashMessage
+                    message={flashMessage}
+                    type="success"
+                    onClose={() => setFlashMessage("")}
+                />
             )}
 
             <form onSubmit={submit}>
                 <div>
-                    <InputLabel htmlFor="email" value="Email" />
+                    <InputLabel htmlFor="email" value="メールアドレス" />
                     <TextInput
                         id="email"
                         type="email"
@@ -47,7 +58,7 @@ export default function Login({ status, canResetPassword }) {
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
+                    <InputLabel htmlFor="password" value="パスワード" />
                     <TextInput
                         id="password"
                         type="password"
@@ -70,7 +81,7 @@ export default function Login({ status, canResetPassword }) {
                             }
                         />
                         <span className="ms-2 text-sm text-gray-600">
-                            Remember me
+                            ログイン状態を保持する
                         </span>
                     </label>
                 </div>
@@ -81,23 +92,21 @@ export default function Login({ status, canResetPassword }) {
                             href={route("password.request")}
                             className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                         >
-                            Forgot your password?
+                            パスワードをお忘れですか？
                         </Link>
                     )}
 
                     <PrimaryButton className="ms-4" disabled={processing}>
-                        Log in
+                        ログイン
                     </PrimaryButton>
                 </div>
             </form>
 
-            {/* Googleログインボタン */}
             <div className="mt-6 flex justify-center">
                 <a
-                    href="/auth/google" // route関数を使わずURL直書きでもOK
+                    href="/auth/google"
                     className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 flex items-center"
                 >
-                    {/* Googleアイコン */}
                     <svg
                         className="w-5 h-5 mr-2"
                         viewBox="0 0 24 24"
