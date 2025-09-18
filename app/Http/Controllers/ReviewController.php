@@ -234,27 +234,27 @@ class ReviewController extends Controller
     // -----------------------------
     public function ranking()
     {
-        return $this->getRanking('rating', 'Reviews/Rankings/Total');
+        return $this->getRanking('rating', 'Review/Rankings/Total');
     }
 
     public function rankingTechnical()
     {
-        return $this->getRanking('technical', 'Reviews/Rankings/Technical');
+        return $this->getRanking('technical', 'Review/Rankings/Technical');
     }
 
     public function rankingUsability()
     {
-        return $this->getRanking('usability', 'Reviews/Rankings/Usability');
+        return $this->getRanking('usability', 'Review/Rankings/Usability');
     }
 
     public function rankingDesign()
     {
-        return $this->getRanking('design', 'Reviews/Rankings/Design');
+        return $this->getRanking('design', 'Review/Rankings/Design');
     }
 
     public function rankingUserFocus()
     {
-        return $this->getRanking('user_focus', 'Reviews/Rankings/UserFocus');
+        return $this->getRanking('user_focus', 'Review/Rankings/UserFocus');
     }
 
     private function getRanking(string $avgColumn, string $view)

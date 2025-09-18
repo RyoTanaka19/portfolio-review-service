@@ -1,7 +1,7 @@
 // resources/js/Pages/Portfolios/Show.jsx
 import React from "react";
 import { InertiaLink } from "@inertiajs/inertia-react";
-import ReviewIndex from "../Reviews/Index";
+import ReviewIndex from "@/Components/Reviews/Index";
 import AppLayout from "@/Layouts/AppLayout";
 
 export default function Show({ portfolio, auth, errors, flash }) {
