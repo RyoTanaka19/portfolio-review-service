@@ -117,15 +117,19 @@ class PortfolioController extends Controller
                 'image_url' => $portfolio->image_path ? Storage::url($portfolio->image_path) : null,
                 'tags' => $portfolio->tags->map(fn($t) => $t->name)->toArray(),
                 'reviews' => $portfolio->reviews->map(fn($r) => [
-                    'id' => $r->id,
-                    'comment' => $r->comment,
-                    'rating' => $r->rating,
-                    'user' => [
-                        'id' => $r->user->id,
-                        'name' => $r->user->name ?? '未設定',
-                    ],
-                    'created_at' => $r->created_at->format('Y-m-d H:i'),
-                ]),
+    'id' => $r->id,
+    'comment' => $r->comment,
+    'rating' => $r->rating,
+    'technical' => $r->technical,
+    'usability' => $r->usability,
+    'design' => $r->design,
+    'user_focus' => $r->user_focus,
+    'user' => [
+        'id' => $r->user->id,
+        'name' => $r->user->name ?? '未設定',
+    ],
+    'created_at' => $r->created_at->format('Y-m-d H:i'),
+]),
             ],
             'auth' => [
                 'user' => auth()->user() ? [
