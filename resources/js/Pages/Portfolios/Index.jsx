@@ -1,21 +1,23 @@
 import React, { useState } from "react";
 import { Link } from "@inertiajs/react";
+import { Inertia } from "@inertiajs/inertia";
 import AppLayout from "@/Layouts/AppLayout";
 import axios from "axios";
 import BookmarkButton from "@/Components/Bookmark/BookmarkButton";
 import PortfolioSearch from "@/Components/Portfolios/PortfolioSearch";
 import FlashMessage from "@/Components/FlashMessage";
+import Pagination from "@/Components/Pagination/Pagination"; // 追加
 
-export default function Index({
-    portfolios,
-    auth,
-    filters = {},
-    allTags = [],
-    flash = {},
-}) {
-    const [portfolioList, setPortfolioList] = useState(portfolios);
+export default function Index({ portfolios, auth, allTags = [], flash = {} }) {
+    const [portfolioList, setPortfolioList] = useState(portfolios.data || []);
+    const [pagination, setPagination] = useState({
+        current_page: portfolios.current_page || 1,
+        last_page: portfolios.last_page || 1,
+        next_page_url: portfolios.next_page_url || null,
+        prev_page_url: portfolios.prev_page_url || null,
+        filters: {}, // 検索条件を保持
+    });
 
-    // flash props を初期 state にセット
     const [flashMessage, setFlashMessage] = useState({
         message: flash.success || flash.error || null,
         type: flash.success ? "success" : flash.error ? "error" : null,
@@ -23,7 +25,6 @@ export default function Index({
 
     const handleDelete = async (id) => {
         if (!confirm("本当に削除しますか？")) return;
-
         try {
             const res = await axios.delete(`/portfolio/${id}`);
             if (res.data.success) {
@@ -41,32 +42,48 @@ export default function Index({
         }
     };
 
+    // --- ページ切替（検索条件を維持） ---
+    const fetchPage = (page) => {
+        if (!page) return;
+        Inertia.get(`/portfolios?page=${page}`, pagination.filters || {}, {
+            preserveState: true,
+            onSuccess: (pageData) => {
+                const props = pageData.props.portfolios;
+                setPortfolioList(props.data || []);
+                setPagination({
+                    current_page: props.current_page,
+                    last_page: props.last_page,
+                    next_page_url: props.next_page_url,
+                    prev_page_url: props.prev_page_url,
+                    filters: pagination.filters,
+                });
+            },
+        });
+    };
+
     return (
         <AppLayout>
-            {/* フラッシュメッセージ */}
             <FlashMessage
                 message={flashMessage.message}
                 type={flashMessage.type}
                 onClose={() => setFlashMessage({ message: null, type: null })}
             />
 
-            {/* 検索フォーム */}
             <div className="px-4 py-6 bg-white shadow mb-6">
                 <h1 className="text-2xl font-bold mb-4 text-center">
                     投稿一覧
                 </h1>
-                {/* 初期のポートフォリオリストを渡す */}
                 <PortfolioSearch
                     allTags={allTags}
-                    filters={filters}
-                    initialPortfolios={portfolioList} // initialPortfoliosを渡す
-                    setPortfolioList={setPortfolioList} // 検索後のリストを更新するためにsetPortfolioListも渡す
+                    filters={pagination.filters}
+                    portfolioList={portfolioList}
+                    setPortfolioList={setPortfolioList}
+                    setPagination={setPagination}
                 />
             </div>
 
-            {/* ポートフォリオ一覧 */}
             <main className="px-4 md:px-8 py-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {portfolioList.map((p) => {
+                {portfolioList?.map((p) => {
                     const averageRating = p.reviews?.length
                         ? (
                               p.reviews.reduce((sum, r) => sum + r.rating, 0) /
@@ -89,7 +106,6 @@ export default function Index({
                                             ? p.title.slice(0, 30) + "…"
                                             : p.title}
                                     </Link>
-
                                     <Link
                                         href={`/profile/${p.user_id}`}
                                         className="text-sm text-gray-500 hover:underline"
@@ -181,6 +197,9 @@ export default function Index({
                     );
                 })}
             </main>
+
+            {/* Pagination コンポーネントを呼び出し */}
+            <Pagination pagination={pagination} onPageChange={fetchPage} />
         </AppLayout>
     );
 }

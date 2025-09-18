@@ -10,59 +10,58 @@ use Illuminate\Support\Facades\Storage;
 use App\Helpers\PortfolioHelper;  // 追加: ヘルパークラスをインポート
 
 use App\Http\Requests\PortfolioRequest;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class PortfolioController extends Controller
 {
     // 投稿一覧表示（検索対応）
-    public function index()
-    {
-        $userId = auth()->id();
+public function index()
+{
+    $userId = auth()->id();
 
-        $portfolios = Portfolio::with(['tags', 'reviews.user', 'user', 'bookmarks'])
-            ->get()
-            ->map(fn($p) => PortfolioHelper::mapPortfolio($p, $userId));  // ヘルパーを使用
+    // 1ページに1件ずつ取得
+    $portfolios = Portfolio::with(['tags', 'reviews.user', 'user', 'bookmarks'])
+        ->paginate(10) // ← 1件ずつ表示
+        ->through(fn($p) => PortfolioHelper::mapPortfolio($p, $userId)); // mapPortfolioを適用
 
-        $allTags = Tag::pluck('name');
+    $allTags = Tag::pluck('name');
 
-        return Inertia::render('Portfolios/Index', [
-            'portfolios' => $portfolios,
-            'filters' => [],
-            'auth' => $userId ? ['user' => ['id' => $userId, 'name' => auth()->user()->name]] : null,
-            'allTags' => $allTags,
-            'flash' => session('flash') ?? [],  // 修正: フラッシュメッセージを整理
-            'errors' => session('errors') ? session('errors')->getBag('default')->toArray() : [],  // 修正: エラーメッセージを整理
-        ]);
+    return Inertia::render('Portfolios/Index', [
+        'portfolios' => $portfolios,
+        'filters' => [],
+        'auth' => $userId ? ['user' => ['id' => $userId, 'name' => auth()->user()->name]] : null,
+        'allTags' => $allTags,
+        'flash' => session('flash') ?? [],
+        'errors' => session('errors') ? session('errors')->getBag('default')->toArray() : [],
+    ]);
+}
+
+public function search(Request $request)
+{
+    $userId = auth()->id();
+
+    $query = Portfolio::with(['tags', 'reviews.user', 'user', 'bookmarks']);
+
+    if ($request->filled('user_name')) {
+        $query->whereHas('user', fn($q) => $q->where('name', 'like', "%{$request->user_name}%"));
     }
 
-    public function search(Request $request)
-    {
-        $userId = auth()->id();
-
-        $query = Portfolio::with(['tags', 'reviews.user', 'user', 'bookmarks']);
-
-        // 🔹 ユーザー名で検索
-        if ($request->filled('user_name')) {
-            $userName = $request->input('user_name');
-            $query->whereHas('user', fn($q) => $q->where('name', 'like', "%{$userName}%"));
-        }
-
-        // 🔹 タグで検索
-        if ($request->filled('tag')) {
-            $tagName = $request->input('tag');
-            $query->whereHas('tags', fn($q) => $q->where('name', 'like', "%{$tagName}%"));
-        }
-
-        $portfolios = $query->get()->map(fn($p) => PortfolioHelper::mapPortfolio($p, $userId));  // ヘルパーを使用
-
-        $allTags = Tag::pluck('name');
-
-        return Inertia::render('Portfolios/Index', [
-            'portfolios' => $portfolios,
-            'filters' => $request->only(['user_name', 'tag']),
-            'auth' => $userId ? ['user' => ['id' => $userId, 'name' => auth()->user()->name]] : null,
-            'allTags' => $allTags,
-        ]);
+    if ($request->filled('tag')) {
+        $query->whereHas('tags', fn($q) => $q->where('name', 'like', "%{$request->tag}%"));
     }
+
+    // ページネーションを使う（1ページに1件例）
+    $portfolios = $query->paginate(10)->through(fn($p) => PortfolioHelper::mapPortfolio($p, $userId));
+
+    $allTags = Tag::pluck('name');
+
+    return Inertia::render('Portfolios/Index', [
+        'portfolios' => $portfolios,
+        'filters' => $request->only(['user_name', 'tag']),
+        'auth' => $userId ? ['user' => ['id' => $userId, 'name' => auth()->user()->name]] : null,
+        'allTags' => $allTags,
+    ]);
+}
 
     // 新規投稿フォーム
     public function create()
