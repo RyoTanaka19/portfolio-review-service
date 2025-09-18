@@ -28,7 +28,7 @@ class AccessController extends Controller
     }
 
     // アクセス数画面表示
-    public function showAccess(Portfolio $portfolio)
+    public function Index(Portfolio $portfolio)
     {
         $portfolio->load('accesses');
 
@@ -49,7 +49,7 @@ class AccessController extends Controller
             ->orderByDesc('user_count')
             ->get();
 
-return Inertia::render('Access/Access', [
+return Inertia::render('Access/Index', [
     'portfolio' => [
         'id' => $portfolio->id,
         'title' => $portfolio->title,

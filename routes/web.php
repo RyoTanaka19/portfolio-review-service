@@ -83,12 +83,12 @@ Route::get('/portfolio/{portfolio}/visit', [AccessController::class, 'track'])
     ->name('portfolio.visit');
 
 // アクセス数画面
-Route::get('/portfolio/{portfolio}/access', [AccessController::class, 'showAccess'])
-    ->name('portfolio.access');
+Route::get('/portfolio/{portfolio}/accesses', [AccessController::class, 'index'])
+    ->name('portfolio.index');
 
 Route::get('/tags/user', [TagController::class, 'userTags']);
 
-        
+
 
     // タグ
     Route::get('/tags', [TagController::class, 'index'])->name('tags.index');

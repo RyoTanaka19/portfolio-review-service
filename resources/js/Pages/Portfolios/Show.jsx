@@ -1,7 +1,7 @@
 // resources/js/Pages/Portfolios/Show.jsx
 import React from "react";
 import { InertiaLink } from "@inertiajs/inertia-react";
-import ReviewIndex from "@/Components/Reviews/Index";
+import ReviewIndex from "@/Components/Reviews/PortfolioReviews";
 import AppLayout from "@/Layouts/AppLayout";
 
 export default function Show({ portfolio, auth, errors, flash }) {
@@ -13,7 +13,7 @@ export default function Show({ portfolio, auth, errors, flash }) {
                         {/* タイトル */}
                         <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
                             <InertiaLink
-                                href={`/portfolio/${portfolio.id}/access`}
+                                href={`/portfolio/${portfolio.id}/accesses`}
                                 className="hover:underline text-blue-600"
                             >
                                 {portfolio.title}
