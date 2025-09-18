@@ -1,8 +1,8 @@
 // Reviews/Components/Index.jsx
 import React, { useState } from "react";
 import axios from "axios";
-import ReviewForm from "./Components/ReviewForm";
-import ReviewList from "./Components/ReviewList";
+import ReviewForm from "@/Components/Reviews/ReviewForm";
+import ReviewList from "@/Components/Reviews/ReviewList";
 import ReviewChart from "@/Components/ReviewChart";
 import FlashMessage from "@/Components/FlashMessage";
 
@@ -98,6 +98,7 @@ export default function ReviewIndex({ portfolio, auth, errors, flash }) {
                 onToggleChecked={handleToggleChecked}
                 onDeleted={handleDelete}
                 onEdit={handleEdit} // 編集ボタン連携
+                editingReviewId={editingReview?.id}
             />
 
             {auth?.user && (
