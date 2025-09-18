@@ -1,4 +1,3 @@
-// PortfolioSearch.js
 import React, { useState } from "react";
 import { Inertia } from "@inertiajs/inertia";
 import UserAutocomplete from "@/Components/AutoComplete/UserAutoComplete";
@@ -6,24 +5,31 @@ import UserAutocomplete from "@/Components/AutoComplete/UserAutoComplete";
 export default function PortfolioSearch({
     allTags = [],
     filters = {},
-    initialPortfolios = [],
+    portfolioList,
+    setPortfolioList,
+    setPagination,
 }) {
     const [userNameFilter, setUserNameFilter] = useState(
         filters.user_name || ""
     );
     const [tagFilter, setTagFilter] = useState(filters.tag || "");
-    const [portfolioList, setPortfolioList] = useState(initialPortfolios); // 検索結果のポートフォリオを管理
 
-    // 検索処理
     const handleSearch = () => {
-        // 検索条件を送信し、ポートフォリオリストを更新
         Inertia.get(
             route("portfolios.search"),
             { user_name: userNameFilter, tag: tagFilter },
             {
                 preserveState: true,
                 onSuccess: (page) => {
-                    setPortfolioList(page.props.portfolios); // 新しい検索結果をセット
+                    const props = page.props.portfolios;
+                    setPortfolioList(props.data || []);
+                    setPagination({
+                        current_page: props.current_page,
+                        last_page: props.last_page,
+                        next_page_url: props.next_page_url,
+                        prev_page_url: props.prev_page_url,
+                        filters: { user_name: userNameFilter, tag: tagFilter },
+                    });
                 },
             }
         );
@@ -51,7 +57,7 @@ export default function PortfolioSearch({
                     </select>
                 </div>
 
-                {/* ユーザー名検索 - オートコンプリート */}
+                {/* ユーザー名検索 */}
                 <UserAutocomplete
                     userNameFilter={userNameFilter}
                     setUserNameFilter={setUserNameFilter}
