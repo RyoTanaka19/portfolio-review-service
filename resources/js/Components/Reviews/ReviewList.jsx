@@ -7,7 +7,8 @@ export default function ReviewList({
     portfolioId,
     onToggleChecked,
     onDeleted,
-    onEdit, // 追加: 編集ボタン用
+    onEdit, // 編集ボタン用
+    editingReviewId, // 追加: 現在編集中のレビューID
 }) {
     // レビュー削除
     const deleteReview = async (reviewId) => {
@@ -78,7 +79,8 @@ export default function ReviewList({
 
                                 {auth &&
                                     review.user &&
-                                    auth.id === review.user.id && (
+                                    auth.id === review.user.id &&
+                                    review.id !== editingReviewId && ( // ← 追加: 編集中は非表示
                                         <div className="flex gap-2">
                                             <button
                                                 onClick={() =>
