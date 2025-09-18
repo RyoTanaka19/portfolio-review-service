@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import ReviewForm from "@/Components/Reviews/ReviewForm";
 import ReviewList from "@/Components/Reviews/ReviewList";
-import ReviewChart from "@/Components/ReviewChart";
+import ReviewChart from "@/Components/Reviews//ReviewChart";
 import FlashMessage from "@/Components/FlashMessage";
 
 export default function ReviewIndex({ portfolio, auth, errors, flash }) {
