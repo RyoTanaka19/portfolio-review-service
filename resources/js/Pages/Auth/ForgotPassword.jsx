@@ -1,7 +1,7 @@
 import InputError from "@/Components/InputError";
 import PrimaryButton from "@/Components/PrimaryButton";
 import TextInput from "@/Components/TextInput";
-import GuestLayout from "@/Layouts/GuestLayout";
+import AppLayout from "@/Layouts/AppLayout"; // GuestLayout → AppLayout
 import FlashMessage from "@/Components/FlashMessage";
 import { Head, useForm, usePage, Link } from "@inertiajs/react";
 import { useEffect, useState } from "react";
@@ -11,15 +11,13 @@ export default function ForgotPassword() {
         email: "",
     });
 
-    // Inertia の props.status を取得
-    const { status } = usePage().props;
-    const [flashMessage, setFlashMessage] = useState(status || null);
+    const { status, flash = {} } = usePage().props;
+    const [flashMessage, setFlashMessage] = useState(
+        flash.flash || status || ""
+    );
 
-    // props.status が更新されたら flashMessage も更新
     useEffect(() => {
-        if (status) {
-            setFlashMessage(status);
-        }
+        if (status) setFlashMessage(status);
     }, [status]);
 
     const submit = (e) => {
@@ -28,49 +26,70 @@ export default function ForgotPassword() {
     };
 
     return (
-        <GuestLayout>
+        <AppLayout>
             <Head title="パスワードをお忘れですか?" />
 
-            {flashMessage && (
-                <FlashMessage
-                    message={flashMessage}
-                    type="success"
-                    onClose={() => setFlashMessage(null)}
-                />
-            )}
+            <div className="flex min-h-screen items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+                <div className="w-full max-w-md space-y-8">
+                    {/* フラッシュメッセージ */}
+                    {flashMessage && (
+                        <FlashMessage
+                            message={flashMessage}
+                            type="success"
+                            onClose={() => setFlashMessage("")}
+                        />
+                    )}
 
-            <div className="mb-4 text-sm text-gray-600">
-                パスワードを忘れてしまいましたか？問題ありません。
-                メールアドレスを入力していただければ、パスワードリセットリンクをお送りします。
-                そのリンクから新しいパスワードを設定できます。
-            </div>
+                    <div className="bg-white shadow-md rounded-lg px-8 py-10">
+                        <h2 className="text-2xl font-bold text-center text-gray-900 mb-6">
+                            パスワードをお忘れですか?
+                        </h2>
 
-            <form onSubmit={submit}>
-                <TextInput
-                    id="email"
-                    type="email"
-                    name="email"
-                    value={data.email}
-                    className="mt-1 block w-full"
-                    isFocused={true}
-                    onChange={(e) => setData("email", e.target.value)}
-                />
+                        <p className="mb-6 text-sm text-gray-600 text-center">
+                            パスワードを忘れてしまいましたか？問題ありません。
+                            メールアドレスを入力していただければ、パスワードリセットリンクをお送りします。
+                            そのリンクから新しいパスワードを設定できます。
+                        </p>
 
-                <InputError message={errors.email} className="mt-2" />
+                        <form onSubmit={submit} className="space-y-4">
+                            <div>
+                                <TextInput
+                                    id="email"
+                                    type="email"
+                                    name="email"
+                                    value={data.email}
+                                    className="mt-1 block w-full"
+                                    isFocused
+                                    autoComplete="username"
+                                    placeholder="メールアドレス"
+                                    onChange={(e) =>
+                                        setData("email", e.target.value)
+                                    }
+                                />
+                                <InputError
+                                    message={errors.email}
+                                    className="mt-1"
+                                />
+                            </div>
 
-                <div className="mt-4 flex items-center justify-between">
-                    <Link
-                        href={route("home")}
-                        className="text-sm text-gray-500 underline hover:text-gray-700"
-                    >
-                        ホーム画面に戻る
-                    </Link>
-
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        パスワードリセットリンクを送信
-                    </PrimaryButton>
+                            <div className="flex items-center justify-between">
+                                <Link
+                                    href={route("home")}
+                                    className="text-sm text-gray-500 underline hover:text-gray-700"
+                                >
+                                    ホーム画面に戻る
+                                </Link>
+                                <PrimaryButton
+                                    disabled={processing}
+                                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                                >
+                                    パスワードリセットリンクを送信
+                                </PrimaryButton>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-            </form>
-        </GuestLayout>
+            </div>
+        </AppLayout>
     );
 }
