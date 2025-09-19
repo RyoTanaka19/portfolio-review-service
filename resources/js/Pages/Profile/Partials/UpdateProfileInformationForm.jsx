@@ -56,26 +56,78 @@ export default function UpdateProfileInformation({
         }
     };
 
-    const submit = (e) => {
+    const submit = async (e) => {
         e.preventDefault();
 
         // フロント側バリデーション
-        const errors = {};
-        if (!data.name.trim()) errors.name = "名前を入力してください";
+        const validationErrors = {};
+        if (!data.name.trim()) validationErrors.name = "名前を入力してください";
         if (!data.email.trim())
-            errors.email = "メールアドレスを入力してください";
-        setLocalErrors(errors);
+            validationErrors.email = "メールアドレスを入力してください";
+        setLocalErrors(validationErrors);
 
-        if (Object.keys(errors).length > 0) return; // エラーがあれば送信しない
+        if (Object.keys(validationErrors).length > 0) return; // エラーがあれば送信中止
 
-        post(route("profile.update"), {
-            forceFormData: true,
-            onSuccess: () => {
-                setFlashMessage("プロフィール情報を保存しました");
-            },
-        });
+        try {
+            const formData = new FormData();
+            formData.append("_method", "patch");
+            formData.append("name", data.name);
+            formData.append("email", data.email);
+
+            if (data.profile_image) {
+                formData.append("profile_image", data.profile_image);
+            }
+
+            formData.append(
+                "delete_profile_image",
+                data.delete_profile_image ? 1 : 0
+            );
+
+            // tags を tags[] として送信
+            data.tags.forEach((id) => formData.append("tags[]", id));
+
+            // Axios 送信（Content-Type は自動設定）
+            const response = await axios.post(
+                route("profile.update"),
+                formData
+            );
+
+            if (response.data.success) {
+                const updatedUser = response.data.user;
+
+                // Header に即時反映させる
+                window.dispatchEvent(
+                    new CustomEvent("user-updated", { detail: updatedUser })
+                );
+
+                // フォームに最新情報を反映
+                setData({
+                    _method: "patch",
+                    name: updatedUser.name,
+                    email: updatedUser.email,
+                    profile_image: null,
+                    delete_profile_image: false,
+                    tags: updatedUser.tags.map((tag) => tag.id),
+                });
+
+                setPreview(updatedUser.profile_image_url || null);
+                setFlashMessage(response.data.message);
+            } else {
+                setFlashMessage(response.data.message || "更新に失敗しました");
+            }
+        } catch (error) {
+            console.error(error);
+
+            // Laravel のバリデーションエラーを取得
+            if (error.response && error.response.status === 422) {
+                const serverErrors = error.response.data.errors || {};
+                setLocalErrors(serverErrors);
+                setFlashMessage("入力内容にエラーがあります");
+            } else {
+                setFlashMessage("サーバーエラーが発生しました");
+            }
+        }
     };
-
     return (
         <section className={className}>
             {/* フラッシュメッセージ */}

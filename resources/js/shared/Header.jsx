@@ -1,13 +1,12 @@
 import { Link, usePage, router } from "@inertiajs/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import NotificationDropdown from "../Components/Notification/NotificationDropdown";
 
 export default function Header() {
     const { auth = {}, nav = [], url } = usePage().props;
 
-    // オプショナルチェイニングで安全に user を取得
-    const user = auth?.user || null;
-
+    // auth.user をローカル状態で管理
+    const [currentUser, setCurrentUser] = useState(auth?.user || null);
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
     const handleLogout = () => router.post(route("logout"));
@@ -20,6 +19,14 @@ export default function Header() {
             return href === url;
         }
     };
+
+    // プロフィール更新時に CustomEvent でユーザー情報を受け取って更新
+    useEffect(() => {
+        const handler = (e) => setCurrentUser(e.detail);
+        window.addEventListener("user-updated", handler);
+
+        return () => window.removeEventListener("user-updated", handler);
+    }, []);
 
     return (
         <header className="sticky top-0 z-40 border-b bg-white/80 backdrop-blur">
@@ -49,13 +56,13 @@ export default function Header() {
                             </Link>
                         ))}
 
-                        {user ? (
+                        {currentUser ? (
                             <div className="flex items-center gap-4">
                                 <span className="text-sm text-gray-500">
-                                    こんにちは、{user.name} さん
+                                    こんにちは、{currentUser.name} さん
                                 </span>
 
-                                <NotificationDropdown user={user} />
+                                <NotificationDropdown user={currentUser} />
 
                                 <Link
                                     href="/advices/create"
@@ -89,14 +96,14 @@ export default function Header() {
                                         }
                                         className="font-medium text-gray-700 hover:text-gray-900"
                                     >
-                                        {user.name}
+                                        {currentUser.name}
                                     </button>
                                     {dropdownOpen && (
                                         <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-md z-10">
                                             <Link
                                                 href={route(
                                                     "profile.show",
-                                                    user.id
+                                                    currentUser.id
                                                 )}
                                                 className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
                                             >

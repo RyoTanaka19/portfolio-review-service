@@ -74,10 +74,11 @@ public function show(User $user): Response
     /**
      * Update the user's profile information.
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
-    {
-        $user = $request->user();
+public function update(ProfileUpdateRequest $request)
+{
+    $user = $request->user();
 
+    try {
         // validated データを取得し、画像関連・タグを除外して fill
         $data = $request->validated();
         unset($data['profile_image'], $data['delete_profile_image'], $data['tags']);
@@ -107,8 +108,27 @@ public function show(User $user): Response
         $tagIds = $request->input('tags', []);
         $user->tags()->sync($tagIds);
 
-        return Redirect::route('profile.edit');
+        // 最新情報をロード
+        $user->load('tags');
+        $user->profile_image_url = $user->profile_image
+            ? asset('storage/' . $user->profile_image)
+            : null;
+
+        // JSON で返す
+        return response()->json([
+            'success' => true,
+            'user' => $user,
+            'message' => 'プロフィール情報を更新しました',
+        ]);
+    } catch (\Throwable $e) {
+        // エラー時
+        return response()->json([
+            'success' => false,
+            'message' => 'プロフィールの更新中にエラーが発生しました',
+            'error' => $e->getMessage(),
+        ], 500);
     }
+}
 
     /**
      * Delete the user's account.
