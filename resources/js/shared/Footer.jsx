@@ -1,4 +1,5 @@
 import { usePage, Link } from "@inertiajs/react";
+import { Github } from "lucide-react";
 
 export default function Footer({ className = "" }) {
     const { footer = {} } = usePage().props;
@@ -16,7 +17,7 @@ export default function Footer({ className = "" }) {
                     </div>
 
                     {/* 右側: リンク */}
-                    <div className="flex space-x-4 text-sm">
+                    <div className="flex items-center space-x-4 text-sm">
                         <Link href="/terms" className="hover:underline">
                             利用規約
                         </Link>
@@ -26,6 +27,20 @@ export default function Footer({ className = "" }) {
                         <Link href="/contact" className="hover:underline">
                             お問い合わせ
                         </Link>
+
+                        {/* GitHubリンク（アイコン＋文字） */}
+                        <a
+                            href="https://github.com/RyoTanaka19"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-gray-700 hover:text-black transition"
+                            aria-label="GitHub"
+                        >
+                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-black text-white hover:bg-gray-800 transition">
+                                <Github size={18} />
+                            </div>
+                            <span>GitHub</span>
+                        </a>
                     </div>
                 </div>
             </div>
