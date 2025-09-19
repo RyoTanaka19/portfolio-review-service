@@ -36,7 +36,7 @@ public function store(LoginRequest $request): RedirectResponse
     // ログイン成功時にフラッシュメッセージを設定
  return redirect()
     ->route('dashboard')
-    ->with('success', 'ログインしました'); 
+    ->with('flash', ['success' => 'ログインしました']); 
 }
 
     /**

@@ -35,7 +35,7 @@ public function handleGoogleCallback()
 
         // フラッシュメッセージ付きでリダイレクト
         return redirect()->intended('/portfolios')
-                         ->with('success', 'Googleでログインしました');
+                         ->with('flash', ['success' => 'Googleログインしました']);
 
     } catch (\Exception $e) {
         \Log::error('Google OAuth Error: ' . $e->getMessage());
