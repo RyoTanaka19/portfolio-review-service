@@ -2,7 +2,7 @@ import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import PrimaryButton from "@/Components/PrimaryButton";
 import TextInput from "@/Components/TextInput";
-import GuestLayout from "@/Layouts/GuestLayout";
+import AppLayout from "@/Layouts/AppLayout"; // GuestLayout → AppLayout
 import { Head, useForm } from "@inertiajs/react";
 
 export default function ResetPassword({ token, email }) {
@@ -22,73 +22,101 @@ export default function ResetPassword({ token, email }) {
     };
 
     return (
-        <GuestLayout>
+        <AppLayout>
             <Head title="パスワード再設定" />
 
-            <form onSubmit={submit}>
-                <div>
-                    <InputLabel htmlFor="email" value="メールアドレス" />
+            <div className="flex min-h-screen items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+                <div className="w-full max-w-md space-y-8">
+                    <div className="bg-white shadow-md rounded-lg px-8 py-10">
+                        <h2 className="text-2xl font-bold text-center text-gray-900 mb-6">
+                            パスワード再設定
+                        </h2>
 
-                    <TextInput
-                        id="email"
-                        type="email"
-                        name="email"
-                        value={data.email}
-                        className="mt-1 block w-full"
-                        autoComplete="username"
-                        onChange={(e) => setData("email", e.target.value)}
-                    />
+                        <form onSubmit={submit} className="space-y-4">
+                            {/* メールアドレス（表示のみ） */}
+                            <div>
+                                <InputLabel
+                                    htmlFor="email"
+                                    value="メールアドレス"
+                                />
+                                <TextInput
+                                    id="email"
+                                    type="email"
+                                    name="email"
+                                    value={data.email}
+                                    className="mt-1 block w-full bg-gray-100 cursor-not-allowed"
+                                    autoComplete="username"
+                                    readOnly
+                                />
+                                <InputError
+                                    message={errors.email}
+                                    className="mt-2"
+                                />
+                            </div>
 
-                    <InputError message={errors.email} className="mt-2" />
+                            {/* 新しいパスワード */}
+                            <div>
+                                <InputLabel
+                                    htmlFor="password"
+                                    value="パスワード"
+                                />
+                                <TextInput
+                                    id="password"
+                                    type="password"
+                                    name="password"
+                                    value={data.password}
+                                    className="mt-1 block w-full"
+                                    autoComplete="new-password"
+                                    isFocused={true}
+                                    onChange={(e) =>
+                                        setData("password", e.target.value)
+                                    }
+                                />
+                                <InputError
+                                    message={errors.password}
+                                    className="mt-2"
+                                />
+                            </div>
+
+                            {/* パスワード確認 */}
+                            <div>
+                                <InputLabel
+                                    htmlFor="password_confirmation"
+                                    value="パスワード（確認用）"
+                                />
+                                <TextInput
+                                    type="password"
+                                    id="password_confirmation"
+                                    name="password_confirmation"
+                                    value={data.password_confirmation}
+                                    className="mt-1 block w-full"
+                                    autoComplete="new-password"
+                                    onChange={(e) =>
+                                        setData(
+                                            "password_confirmation",
+                                            e.target.value
+                                        )
+                                    }
+                                />
+                                <InputError
+                                    message={errors.password_confirmation}
+                                    className="mt-2"
+                                />
+                            </div>
+
+                            {/* ボタン */}
+                            <div className="flex items-center justify-between">
+                                <PrimaryButton
+                                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                                    disabled={processing}
+                                >
+                                    パスワードを再設定
+                                </PrimaryButton>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-
-                <div className="mt-4">
-                    <InputLabel htmlFor="password" value="パスワード" />
-
-                    <TextInput
-                        id="password"
-                        type="password"
-                        name="password"
-                        value={data.password}
-                        className="mt-1 block w-full"
-                        autoComplete="new-password"
-                        isFocused={true}
-                        onChange={(e) => setData("password", e.target.value)}
-                    />
-
-                    <InputError message={errors.password} className="mt-2" />
-                </div>
-
-                <div className="mt-4">
-                    <InputLabel
-                        htmlFor="password_confirmation"
-                        value="パスワード（確認用）"
-                    />
-
-                    <TextInput
-                        type="password"
-                        id="password_confirmation"
-                        name="password_confirmation"
-                        value={data.password_confirmation}
-                        className="mt-1 block w-full"
-                        autoComplete="new-password"
-                        onChange={(e) =>
-                            setData("password_confirmation", e.target.value)
-                        }
-                    />
-
-                    <InputError
-                        message={errors.password_confirmation}
-                        className="mt-2"
-                    />
-                </div>
-
-                <div className="mt-4 flex items-center justify-end">
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        パスワードを再設定
-                    </PrimaryButton>
-                </div>
-            </form>
-        </GuestLayout>
+            </div>
+        </AppLayout>
     );
 }
