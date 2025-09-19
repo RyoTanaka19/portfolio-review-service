@@ -5,7 +5,6 @@ import NotificationDropdown from "../Components/Notification/NotificationDropdow
 export default function Header() {
     const { auth = {}, nav = [], url } = usePage().props;
 
-    // auth.user をローカル状態で管理
     const [currentUser, setCurrentUser] = useState(auth?.user || null);
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -20,23 +19,23 @@ export default function Header() {
         }
     };
 
-    // プロフィール更新時に CustomEvent でユーザー情報を受け取って更新
     useEffect(() => {
         const handler = (e) => setCurrentUser(e.detail);
         window.addEventListener("user-updated", handler);
-
         return () => window.removeEventListener("user-updated", handler);
     }, []);
 
     return (
         <header className="sticky top-0 z-40 border-b bg-white/80 backdrop-blur">
             <div className="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between">
+                {/* 左側：サイトロゴ */}
                 <div className="flex-1">
                     <Link href="/" className="font-bold text-lg">
                         PortfolioReview
                     </Link>
                 </div>
 
+                {/* 右側：ナビゲーション */}
                 <div className="flex items-center gap-6">
                     <nav className="hidden md:flex items-center gap-6">
                         {nav.map((item) => (
@@ -64,6 +63,24 @@ export default function Header() {
 
                                 <NotificationDropdown user={currentUser} />
 
+                                {/* 投稿と投稿一覧を通知アイコンの右隣に配置 */}
+                                <div className="flex items-center gap-2">
+                                    {currentUser && (
+                                        <Link
+                                            href="/portfolios/create"
+                                            className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+                                        >
+                                            投稿
+                                        </Link>
+                                    )}
+                                    <Link
+                                        href="/portfolios"
+                                        className="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 text-sm"
+                                    >
+                                        投稿一覧
+                                    </Link>
+                                </div>
+
                                 <Link
                                     href="/advices/create"
                                     className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm"
@@ -77,18 +94,13 @@ export default function Header() {
                                     ランキング
                                 </Link>
                                 <Link
-                                    href="/portfolios/create"
-                                    className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
-                                >
-                                    投稿
-                                </Link>
-                                <Link
                                     href={route("bookmarks.index")}
                                     className="px-3 py-1 bg-pink-500 text-white rounded hover:bg-pink-600 text-sm"
                                 >
                                     お気に入り
                                 </Link>
 
+                                {/* ユーザードロップダウン */}
                                 <div className="relative">
                                     <button
                                         onClick={() =>
@@ -126,7 +138,14 @@ export default function Header() {
                                 </div>
                             </div>
                         ) : (
+                            /* 未ログイン時：投稿一覧だけ表示 */
                             <div className="flex items-center gap-4">
+                                <Link
+                                    href="/portfolios"
+                                    className="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 text-sm"
+                                >
+                                    投稿一覧
+                                </Link>
                                 <Link
                                     href={route("login")}
                                     className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
