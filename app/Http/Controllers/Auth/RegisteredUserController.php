@@ -41,6 +41,6 @@ public function store(RegisterRequest $request): RedirectResponse
     Auth::login($user);
 
     return redirect(route('dashboard', absolute: false))
-    ->with('success', 'ユーザー登録が完了しました');
+    ->with('flash', ['success' => 'ユーザー登録が完了しました']);
 }
 }
