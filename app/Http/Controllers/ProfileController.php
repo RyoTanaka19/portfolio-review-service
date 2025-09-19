@@ -33,7 +33,7 @@ public function edit(Request $request): Response
 
     $allTags = Tag::where('type', 'user')->get();
 
-    return Inertia::render('Profile/Edit', [
+    return Inertia::render('Profiles/Edit', [
         'user' => $user,
         'allTags' => $allTags,
         'mustVerifyEmail' => $user instanceof MustVerifyEmail,
@@ -64,7 +64,7 @@ public function show(User $user): Response
         ? asset('storage/' . $user->profile_image)
         : null;
 
-    return Inertia::render('Profile/Show', [
+    return Inertia::render('Profiles/Show', [
         'user' => $user,
         'authUserId' => $authUserId,
         'portfolios' => $portfolios,
