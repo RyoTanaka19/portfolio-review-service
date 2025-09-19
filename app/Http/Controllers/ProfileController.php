@@ -115,29 +115,51 @@ public function show(User $user): Response
      */
 public function destroy(Request $request): RedirectResponse
 {
-    // パスワード確認
+    // 1. パスワード確認
     $request->validate([
         'password' => ['required', 'current_password'],
     ]);
 
     $user = $request->user();
 
-    // ログアウト
+    // 2. ログアウト
     Auth::logout();
 
-    // プロフィール画像削除
+    // 3. ユーザーが作成したポートフォリオの画像削除
+    foreach ($user->portfolios as $portfolio) {
+        if ($portfolio->image_path) {
+            Storage::disk('public')->delete($portfolio->image_path);
+        }
+    }
+
+    // 4. ユーザーが作成したレビューの画像削除（もし画像がある場合）
+    foreach ($user->reviews as $review) {
+        if (isset($review->image_path) && $review->image_path) {
+            Storage::disk('public')->delete($review->image_path);
+        }
+    }
+
+    // 5. ユーザーが作成したブックマークの画像削除（もし画像がある場合）
+    foreach ($user->bookmarks as $bookmark) {
+        if (isset($bookmark->image_path) && $bookmark->image_path) {
+            Storage::disk('public')->delete($bookmark->image_path);
+        }
+    }
+
+    // 6. プロフィール画像削除
     if ($user->profile_image) {
         Storage::disk('public')->delete($user->profile_image);
     }
 
-    // ユーザー削除
+    // 7. ユーザー削除
+    // cascade設定により、portfolios/reviews/bookmarks の DB レコードも自動削除
     $user->delete();
 
-    // セッション無効化
+    // 8. セッション無効化
     $request->session()->invalidate();
     $request->session()->regenerateToken();
 
-    // フラッシュメッセージをセットして Home にリダイレクト
-    return Redirect::route('home')->with('flash', 'アカウントが削除されました');
+    // 9. フラッシュメッセージとリダイレクト
+    return Redirect::route('home')->with('flash', 'アカウントと関連データがすべて削除されました');
 }
 }
