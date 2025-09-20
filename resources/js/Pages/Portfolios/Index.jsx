@@ -1,27 +1,37 @@
 import React, { useState } from "react";
 import { Link } from "@inertiajs/react";
 import { Inertia } from "@inertiajs/inertia";
-import AppLayout from "@/Layouts/AppLayout";
+import AppLayout, { useFlash } from "@/Layouts/AppLayout";
 import axios from "axios";
 import BookmarkButton from "@/Components/Bookmark/BookmarkButton";
 import PortfolioSearch from "@/Components/Portfolios/PortfolioSearch";
-import FlashMessage from "@/Components/FlashMessage";
-import Pagination from "@/Components/Pagination/Pagination"; // 追加
+import Pagination from "@/Components/Pagination/Pagination";
 
 export default function Index({ portfolios, auth, allTags = [], flash = {} }) {
+    return (
+        <AppLayout flash={flash}>
+            <IndexContent
+                portfolios={portfolios}
+                auth={auth}
+                allTags={allTags}
+            />
+        </AppLayout>
+    );
+}
+
+// AppLayout の子コンポーネントとして分離
+function IndexContent({ portfolios, auth, allTags }) {
     const [portfolioList, setPortfolioList] = useState(portfolios.data || []);
     const [pagination, setPagination] = useState({
         current_page: portfolios.current_page || 1,
         last_page: portfolios.last_page || 1,
         next_page_url: portfolios.next_page_url || null,
         prev_page_url: portfolios.prev_page_url || null,
-        filters: {}, // 検索条件を保持
+        filters: {},
     });
 
-    const [flashMessage, setFlashMessage] = useState({
-        message: flash.success || flash.error || null,
-        type: flash.success ? "success" : flash.error ? "error" : null,
-    });
+    // ここなら安全に useFlash が使える
+    const { setFlash } = useFlash();
 
     const handleDelete = async (id) => {
         if (!confirm("本当に削除しますか？")) return;
@@ -29,20 +39,16 @@ export default function Index({ portfolios, auth, allTags = [], flash = {} }) {
             const res = await axios.delete(`/portfolio/${id}`);
             if (res.data.success) {
                 setPortfolioList((prev) => prev.filter((p) => p.id !== id));
-                setFlashMessage({ message: res.data.message, type: "success" });
+                setFlash(res.data.message || "削除しました", "success");
             } else {
-                setFlashMessage({
-                    message: res.data.error || "削除に失敗しました",
-                    type: "error",
-                });
+                setFlash(res.data.error || "削除に失敗しました", "error");
             }
         } catch (err) {
             console.error(err);
-            setFlashMessage({ message: "削除に失敗しました", type: "error" });
+            setFlash("削除に失敗しました", "error");
         }
     };
 
-    // --- ページ切替（検索条件を維持） ---
     const fetchPage = (page) => {
         if (!page) return;
         Inertia.get(`/portfolios?page=${page}`, pagination.filters || {}, {
@@ -62,13 +68,7 @@ export default function Index({ portfolios, auth, allTags = [], flash = {} }) {
     };
 
     return (
-        <AppLayout>
-            <FlashMessage
-                message={flashMessage.message}
-                type={flashMessage.type}
-                onClose={() => setFlashMessage({ message: null, type: null })}
-            />
-
+        <>
             <div className="px-4 py-6 bg-white shadow mb-6">
                 <h1 className="text-2xl font-bold mb-4 text-center">
                     投稿一覧
@@ -83,7 +83,7 @@ export default function Index({ portfolios, auth, allTags = [], flash = {} }) {
             </div>
 
             <main className="px-4 md:px-8 py-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {portfolioList?.map((p) => {
+                {portfolioList.map((p) => {
                     const averageRating = p.reviews?.length
                         ? (
                               p.reviews.reduce((sum, r) => sum + r.rating, 0) /
@@ -167,10 +167,10 @@ export default function Index({ portfolios, auth, allTags = [], flash = {} }) {
                                             p.is_bookmarked || false
                                         }
                                         onToggle={(_, msg) =>
-                                            setFlashMessage({
-                                                message: msg,
-                                                type: "success",
-                                            })
+                                            setFlash(
+                                                msg || "操作成功",
+                                                "success"
+                                            )
                                         }
                                     />
                                 )}
@@ -198,8 +198,7 @@ export default function Index({ portfolios, auth, allTags = [], flash = {} }) {
                 })}
             </main>
 
-            {/* Pagination コンポーネントを呼び出し */}
             <Pagination pagination={pagination} onPageChange={fetchPage} />
-        </AppLayout>
+        </>
     );
 }
