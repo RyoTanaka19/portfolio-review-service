@@ -34,22 +34,21 @@ WORKDIR /var/www/html
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # ----------------------------
-# 依存関係の事前インストール
-# composer.json / composer.lock のみコピー
+# PHP 依存関係インストール（composer.json / composer.lock のみコピー）
 # ----------------------------
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --optimize-autoloader --no-scripts
 
 # ----------------------------
-# アプリケーションコードコピー
-# ----------------------------
-COPY . .
-
-# ----------------------------
-# Node / npm 依存関係インストール
+# Node 依存関係インストール（package.json / package-lock.json のみコピー）
 # ----------------------------
 COPY package.json package-lock.json ./
 RUN npm install
+
+# ----------------------------
+# アプリケーションコードコピー
+# ----------------------------
+COPY . .
 
 # ----------------------------
 # React + Vite ビルド
