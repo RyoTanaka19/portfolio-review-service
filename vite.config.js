@@ -1,16 +1,19 @@
 import { defineConfig } from "vite";
 import laravel from "laravel-vite-plugin";
 import react from "@vitejs/plugin-react";
+import path from "path";
 
 export default defineConfig({
     plugins: [
         laravel({
-            input: [
-                "resources/js/app.jsx", // メインのアプリケーションエントリーポイント
-                "resources/js/Pages/Home.jsx", // 他のページコンポーネントを追加する場合
-            ],
+            input: ["resources/js/app.jsx", "resources/js/Pages/Home.jsx"],
             refresh: true,
         }),
         react(),
     ],
+    resolve: {
+        alias: {
+            "@": path.resolve(__dirname, "resources/js"), // @ で resources/js 配下を参照可能
+        },
+    },
 });
