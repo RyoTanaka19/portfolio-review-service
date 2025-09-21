@@ -15,9 +15,8 @@ services:
             - app-network
         depends_on:
             - db
-        # appサービスはポート9000でPHP-FPMが動作するため、そのまま使用
         ports:
-            - "9000:9000" # PHP-FPM用のポート設定はそのまま
+            - "9000:9000" # PHP-FPM用のポート設定
 
     web:
         image: "nginx:alpine"
@@ -25,9 +24,8 @@ services:
         volumes:
             - "./:/var/www/html"
             - "./nginx.conf:/etc/nginx/conf.d/default.conf"
-        # Renderのポート設定に合わせて、nginxで環境変数PORTを使用
         ports:
-            - "${PORT:-80}:80" # Renderで環境変数PORTが設定されていればそのポートを使い、設定されていなければポート80を使う
+            - "8080:8080" # 外部の8080ポートを内部の8080ポートにマッピング
         networks:
             - app-network
         depends_on:
@@ -40,9 +38,8 @@ services:
             POSTGRES_USER: laravel
             POSTGRES_PASSWORD: secret
             POSTGRES_DB: portfolio
-        # PostgreSQLのポート設定はローカル環境に合わせて5433を公開
         ports:
-            - "5433:5432"
+            - "5433:5432" # ローカル環境での5433ポート設定
         networks:
             - app-network
         volumes:
