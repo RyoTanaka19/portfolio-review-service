@@ -10,10 +10,28 @@ return new class extends Migration
     {
         Schema::create('reviews', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // レビュー投稿者
-            $table->foreignId('portfolio_id')->constrained()->onDelete('cascade'); // 対象ポートフォリオ
-            $table->tinyInteger('rating'); // 1~5評価
-            $table->text('comment')->nullable(); // コメント
+
+            // レビュー投稿者
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+
+            // 対象ポートフォリオ
+            $table->foreignId('portfolio_id')->constrained()->onDelete('cascade');
+
+            // 総合評価（小数対応、nullable）
+            $table->decimal('rating', 3, 1)->nullable();
+
+            // 詳細評価（nullable、1~5の評価など）
+            $table->smallInteger('technical')->nullable();  // 技術力
+            $table->smallInteger('usability')->nullable();  // 使いやすさ
+            $table->smallInteger('design')->nullable();     // デザイン性
+            $table->smallInteger('user_focus')->nullable(); // ユーザー目線
+
+            // コメント
+            $table->text('comment')->nullable();
+
+            // checkedフラグ（デフォルト false）
+            $table->boolean('checked')->default(false)->after('comment');
+
             $table->timestamps();
         });
     }

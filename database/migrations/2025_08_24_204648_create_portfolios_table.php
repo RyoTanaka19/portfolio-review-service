@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
         Schema::create('portfolios', function (Blueprint $table) {
@@ -14,10 +17,15 @@ return new class extends Migration
             $table->string('title');        // 作品タイトル
             $table->text('description');    // 作品説明
             $table->string('url')->nullable(); // 任意URL
+            $table->string('image_path')->nullable(); // 画像パス
+            $table->string('github_url')->nullable(); // GitHub URL
             $table->timestamps();
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::dropIfExists('portfolios');
