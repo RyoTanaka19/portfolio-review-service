@@ -5,9 +5,12 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
-        Schema::create('portfolio_accesses', function (Blueprint $table) {
+        Schema::create('accesses', function (Blueprint $table) {
             $table->id();
             $table->foreignId('portfolio_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete(); // 未ログインユーザー対応
@@ -18,8 +21,11 @@ return new class extends Migration {
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::dropIfExists('portfolio_accesses');
+        Schema::dropIfExists('accesses');
     }
 };
