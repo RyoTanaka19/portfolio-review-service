@@ -1,5 +1,5 @@
-import Header from "../Shared/Header";
-import Footer from "../Shared/Footer";
+import Header from "../Shared/Header.jsx";
+import Footer from "../Shared/Footer.jsx";
 
 export default function AppLayout({ children }) {
     return (

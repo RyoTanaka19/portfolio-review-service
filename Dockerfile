@@ -1,40 +1,43 @@
-# PHP 8.2 FPMベースイメージ
-FROM php:8.2-fpm
+# ベースイメージ
+FROM node:20-alpine AS node-build
 
-# システム依存パッケージのインストール
-RUN apt-get update && apt-get install -y \
-    libpq-dev \
-    git \
-    unzip \
-    curl \
-    zip \
-    libzip-dev \
-    nodejs \
-    npm \
-    && docker-php-ext-install pdo pdo_pgsql pgsql zip \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Composerのインストール
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
-# 作業ディレクトリ設定
+# 作業ディレクトリ
 WORKDIR /var/www/html
 
-# ホスト側のコードをコピー
+# package.json と package-lock.json を先にコピーして依存関係をインストール（キャッシュ活用）
+COPY package*.json ./
+
+# npm の依存関係インストール
+RUN npm ci
+
+# ソースコードをコピー
+COPY resources/js ./resources/js
+COPY resources/css ./resources/css
+COPY vite.config.js ./
+COPY tailwind.config.js ./
+
+# Vite ビルド
+RUN npm run build
+
+# ここから PHP / Laravel 用のベースイメージに切り替え
+FROM php:8.2-fpm-alpine
+
+WORKDIR /var/www/html
+
+# Node ビルド成果物をコピー
+COPY --from=node-build /var/www/html/dist ./public/build
+
+# Laravel ソース全体をコピー
 COPY . .
 
-# Laravelの依存関係をインストール
-RUN composer install --no-dev --optimize-autoloader
+# Composer インストール
+RUN apk add --no-cache bash git unzip \
+    && php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
+    && php composer-setup.php --install-dir=/usr/local/bin --filename=composer \
+    && rm composer-setup.php
 
-# Node.js依存関係をインストールしてビルド
-RUN npm install && npm run build
+# 必要に応じて権限設定
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# 権限設定（必要に応じて）
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html/storage /var/www/html/bootstrap/cache
-
-# ポート設定（Renderではデフォルトで80にリダイレクトされる場合あり）
-EXPOSE 9000
-
-# PHP-FPM起動
+# PHP-FPM 起動
 CMD ["php-fpm"]
