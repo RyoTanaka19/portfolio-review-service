@@ -63,5 +63,6 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 # ----------------------------
 # ポートと起動コマンド
 # ----------------------------
-EXPOSE 9000
+EXPOSE 80   # nginxのポート80を公開
+EXPOSE 9000 # PHP-FPMのポート9000を公開（必要に応じて）
 CMD ["php-fpm"]
