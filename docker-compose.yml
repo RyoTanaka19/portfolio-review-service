@@ -17,7 +17,7 @@ services:
             - db
         # appサービスはポート9000でPHP-FPMが動作するため、そのまま使用
         ports:
-            - "9000:9000"
+            - "9000:9000" # PHP-FPM用のポート設定はそのまま
 
     web:
         image: "nginx:alpine"
@@ -25,9 +25,9 @@ services:
         volumes:
             - "./:/var/www/html"
             - "./nginx.conf:/etc/nginx/conf.d/default.conf"
-        # Renderのポート設定に合わせて、nginxで80番ポートを公開
+        # Renderのポート設定に合わせて、nginxで環境変数PORTを使用
         ports:
-            - "80:80"
+            - "${PORT:-80}:80" # Renderで環境変数PORTが設定されていればそのポートを使い、設定されていなければポート80を使う
         networks:
             - app-network
         depends_on:
