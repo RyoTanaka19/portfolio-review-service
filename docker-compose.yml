@@ -10,26 +10,28 @@ services:
             - "views_cache:/var/www/html/storage/framework/views"
             - "bootstrap_cache:/var/www/html/bootstrap/cache"
         env_file:
-            - .env
+            - .env # .envファイルの環境変数を使用
         networks:
             - app-network
         depends_on:
             - db
         ports:
-            - "9000:9000" # PHP-FPM用のポート設定
+            - "9000:9000" # PHP-FPM用のポート設定（内部ポート9000を外部の9000にマッピング）
 
     web:
         image: "nginx:alpine"
         container_name: portfolio_web
         volumes:
-            - "./:/var/www/html"
-            - "./nginx.conf:/etc/nginx/conf.d/default.conf"
+            - "./:/var/www/html" # アプリケーションコードをNginxにマウント
+            - "./nginx.conf:/etc/nginx/conf.d/default.conf" # Nginx設定ファイルをマウント
         ports:
-            - "8080:8080" # 外部の8080ポートを内部の8080ポートにマッピング
+            - "80:80" # 外部ポート80を内部ポート80にマッピング
         networks:
             - app-network
         depends_on:
-            - app
+            - app # appサービスに依存
+        environment:
+            - SERVER_NAME=${SERVER_NAME:-portfolio-review-service.onrender.com} # デフォルトのサーバ名を指定
 
     db:
         image: "postgres:15"
@@ -43,13 +45,13 @@ services:
         networks:
             - app-network
         volumes:
-            - "db_data:/var/lib/postgresql/data"
+            - "db_data:/var/lib/postgresql/data" # 永続的なデータボリューム
 
 networks:
     app-network:
-        driver: bridge
+        driver: bridge # コンテナ間の通信用ネットワーク
 
 volumes:
-    db_data: {}
-    views_cache: {}
-    bootstrap_cache: {}
+    db_data: {} # データベースのデータを永続化
+    views_cache: {} # ビューキャッシュ
+    bootstrap_cache: {} # ブートストラップキャッシュ
