@@ -82,7 +82,7 @@ return [
             ]) : [],
         ],
 
- 'pgsql' => [
+'pgsql' => [
     'driver' => 'pgsql',
     'url' => env('DATABASE_URL'), // ここで DATABASE_URL を使用
     'host' => env('DB_HOST', '127.0.0.1'),
@@ -94,9 +94,8 @@ return [
     'prefix' => '',
     'prefix_indexes' => true,
     'search_path' => 'public',
-    'sslmode' => 'prefer',
-],'prefer',
-        ],
+    'sslmode' => 'prefer', // ここまでが正しい設定
+], // ここでカンマは不要
 
         'sqlsrv' => [
             'driver' => 'sqlsrv',
