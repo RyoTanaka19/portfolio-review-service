@@ -1,14 +1,11 @@
+version: "3"
 services:
     app:
         build: .
         container_name: portfolio_app
         working_dir: /var/www/html
         volumes:
-            - "./:/var/www/html"
-            - "views_cache:/var/www/html/storage/framework/views"
-            - "bootstrap_cache:/var/www/html/bootstrap/cache"
-        env_file:
-            - .env
+            - ./:/var/www/html
         networks:
             - app-network
         depends_on:
@@ -17,11 +14,11 @@ services:
             - "9000:9000"
 
     web:
-        image: "nginx:alpine"
+        build: .
         container_name: portfolio_web
         volumes:
-            - "./:/var/www/html"
-            - "./nginx.conf:/etc/nginx/conf.d/default.conf"
+            - ./:/var/www/html
+            - ./nginx.conf:/etc/nginx/nginx.conf
         ports:
             - "8080:80"
         networks:
@@ -30,7 +27,7 @@ services:
             - app
 
     db:
-        image: "postgres:15"
+        image: postgres:15
         container_name: portfolio_db
         environment:
             POSTGRES_USER: laravel
@@ -41,7 +38,7 @@ services:
         networks:
             - app-network
         volumes:
-            - "db_data:/var/lib/postgresql/data"
+            - db_data:/var/lib/postgresql/data
 
 networks:
     app-network:
@@ -49,5 +46,3 @@ networks:
 
 volumes:
     db_data: {}
-    views_cache: {}
-    bootstrap_cache: {}
