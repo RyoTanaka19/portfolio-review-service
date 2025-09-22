@@ -1,3 +1,5 @@
+version: "3"
+
 services:
     app:
         build: .
@@ -14,7 +16,7 @@ services:
         depends_on:
             - db
         ports:
-            - "9000:9000"
+            - "$PORT:$PORT" # Renderが指定するポートにバインド
 
     web:
         image: "nginx:alpine"
@@ -23,7 +25,7 @@ services:
             - "./:/var/www/html"
             - "./nginx.conf:/etc/nginx/conf.d/default.conf"
         ports:
-            - "80:80" # 変更：8080ではなく80を使う
+            - "$PORT:$PORT" # Renderが指定するポートにバインド
         networks:
             - app-network
         depends_on:
@@ -37,7 +39,7 @@ services:
             POSTGRES_PASSWORD: secret
             POSTGRES_DB: portfolio
         ports:
-            - "5433:5432"
+            - "5433:5432" # Renderではポート5432を使うことが多い
         networks:
             - app-network
         volumes:

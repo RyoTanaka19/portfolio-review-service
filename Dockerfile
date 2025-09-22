@@ -19,3 +19,5 @@ RUN apt-get update && apt-get install -y \
 
 # コンテナ内でのサービス起動ポートを設定
 EXPOSE 80
+
+
