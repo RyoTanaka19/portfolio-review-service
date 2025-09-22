@@ -17,7 +17,7 @@ class UserTagsSeeder extends Seeder
         foreach ($tags as $tag) {
             Tag::firstOrCreate([
                 'name' => $tag,
-                'type' => 'user', // 必要に応じて type カラムを使う
+                'type' => 'user',
             ]);
         }
     }
