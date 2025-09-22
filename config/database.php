@@ -16,7 +16,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'sqlite'),
+    'default' => env('DB_CONNECTION', 'pgsql'),
 
     /*
     |--------------------------------------------------------------------------
@@ -62,6 +62,21 @@ return [
             ]) : [],
         ],
 
+        'pgsql' => [
+            'driver' => 'pgsql',
+            'url' => env('DB_URL'),  // DB_URLを使用
+            'host' => parse_url(env('DB_URL'))['host'],  // DB_URLからホストを抽出
+            'port' => parse_url(env('DB_URL'))['port'],  // DB_URLからポートを抽出
+            'database' => ltrim(parse_url(env('DB_URL'))['path'], '/'),  // DB_URLからデータベース名を抽出
+            'username' => parse_url(env('DB_URL'))['user'],  // DB_URLからユーザー名を抽出
+            'password' => parse_url(env('DB_URL'))['pass'],  // DB_URLからパスワードを抽出
+            'charset' => env('DB_CHARSET', 'utf8'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => 'public',
+            'sslmode' => 'require',  // HerokuではSSL接続が推奨されます
+        ],
+
         'mariadb' => [
             'driver' => 'mariadb',
             'url' => env('DB_URL'),
@@ -80,21 +95,6 @@ return [
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
-        ],
-
-        'pgsql' => [
-            'driver' => 'pgsql',
-            'url' => env('DB_URL'),
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '5432'),
-            'database' => env('DB_DATABASE', 'laravel'),
-            'username' => env('DB_USERNAME', 'root'),
-            'password' => env('DB_PASSWORD', ''),
-            'charset' => env('DB_CHARSET', 'utf8'),
-            'prefix' => '',
-            'prefix_indexes' => true,
-            'search_path' => 'public',
-            'sslmode' => 'prefer',
         ],
 
         'sqlsrv' => [
