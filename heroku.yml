@@ -6,7 +6,7 @@ build:
 
 release:
   command:
-    - "php artisan migrate"
+    - "php artisan migrate" # リリース時にマイグレーションを実行
 
 run:
-  web: "php artisan serve --host=0.0.0.0 --port=5000"
+  web: "php artisan serve --host=0.0.0.0 --port=$PORT" # $PORT 環境変数を使う
