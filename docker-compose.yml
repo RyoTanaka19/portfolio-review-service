@@ -1,10 +1,12 @@
+version: "3"
+
 services:
     app:
         build: .
         container_name: portfolio_app
         working_dir: /var/www/html
         volumes:
-            - ./:/var/www/html
+            - .:/var/www/html
         networks:
             - app-network
         depends_on:
@@ -16,7 +18,7 @@ services:
         image: nginx:alpine
         container_name: portfolio_web
         volumes:
-            - ./:/var/www/html
+            - .:/var/www/html
             - ./nginx.conf:/etc/nginx/conf.d/default.conf
         ports:
             - "8080:80"
@@ -37,11 +39,11 @@ services:
         networks:
             - app-network
         volumes:
-            - db_data:/var/lib/postgresql/data # データ永続化のためのボリュームマウント
+            - db_data:/var/lib/postgresql/data
 
 networks:
     app-network:
         driver: bridge
 
 volumes:
-    db_data: {} # db_dataボリュームをここで定義する
+    db_data: {}
