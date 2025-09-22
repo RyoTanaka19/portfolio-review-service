@@ -1,12 +1,10 @@
 build:
   docker:
     web: Dockerfile
-  config:
-    PORT: 5000
 
 release:
   command:
-    - "php artisan migrate" # リリース時にマイグレーションを実行
+    - "php artisan migrate" # マイグレーションを実行
 
 run:
-  web: "php artisan serve --host=0.0.0.0 --port=$PORT" # $PORT 環境変数を使う
+  web: "php artisan serve --host=0.0.0.0 --port=$PORT" # Herokuのポート環境変数を使用
