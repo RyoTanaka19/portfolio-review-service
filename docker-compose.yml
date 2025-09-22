@@ -23,7 +23,7 @@ services:
             - "./:/var/www/html"
             - "./nginx.conf:/etc/nginx/conf.d/default.conf"
         ports:
-            - "8080:80"
+            - "80:80" # 変更：8080ではなく80を使う
         networks:
             - app-network
         depends_on:
