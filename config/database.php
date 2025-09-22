@@ -64,17 +64,17 @@ return [
 
         'pgsql' => [
             'driver' => 'pgsql',
-            'url' => env('DB_URL'),  // DB_URLを使用
-            'host' => parse_url(env('DB_URL'))['host'],  // DB_URLからホストを抽出
-            'port' => parse_url(env('DB_URL'))['port'],  // DB_URLからポートを抽出
-            'database' => ltrim(parse_url(env('DB_URL'))['path'], '/'),  // DB_URLからデータベース名を抽出
-            'username' => parse_url(env('DB_URL'))['user'],  // DB_URLからユーザー名を抽出
-            'password' => parse_url(env('DB_URL'))['pass'],  // DB_URLからパスワードを抽出
+            'url' => env('DB_URL'),
+            'host' => parse_url(env('DB_URL'))['host'],
+            'port' => parse_url(env('DB_URL'))['port'],
+            'database' => ltrim(parse_url(env('DB_URL'))['path'], '/'),
+            'username' => parse_url(env('DB_URL'))['user'],
+            'password' => parse_url(env('DB_URL'))['pass'],
             'charset' => env('DB_CHARSET', 'utf8'),
             'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => 'public',
-            'sslmode' => 'require',  // HerokuではSSL接続が推奨されます
+            'sslmode' => 'require',
         ],
 
         'mariadb' => [

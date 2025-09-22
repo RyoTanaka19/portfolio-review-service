@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\Facades\Vite;
-use Illuminate\Support\Facades\URL;  // ここを追加
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -24,8 +24,8 @@ class AppServiceProvider extends ServiceProvider
         Vite::prefetch(concurrency: 3);
 
         if (config('app.env') !== 'local') {
-            URL::forceScheme('https');  // HTTPSを強制
-            $this->app['request']->server->set('HTTPS', 'on');  // サーバーでHTTPSを有効に設定
+            URL::forceScheme('https');
+            $this->app['request']->server->set('HTTPS', 'on');
         }
     }
 }

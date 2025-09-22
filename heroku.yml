@@ -4,7 +4,7 @@ build:
 
 release:
   command:
-    - "php artisan migrate" # マイグレーションを実行
+    - "php artisan migrate"
 
 run:
-  web: "php artisan serve --host=0.0.0.0 --port=$PORT" # Herokuのポート環境変数を使用
+  web: "php artisan serve --host=0.0.0.0 --port=$PORT"
