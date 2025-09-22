@@ -1,4 +1,4 @@
-DockerFileFROM php:8.2-fpm
+FROM php:8.2-fpm
 
 # PostgreSQL PDO ドライバと依存パッケージをインストール
 RUN apt-get update && apt-get install -y \
