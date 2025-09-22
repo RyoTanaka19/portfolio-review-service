@@ -7,9 +7,23 @@
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
+        <!-- OGP Tags -->
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="{{ $page['title'] ?? 'ポートフォリオ' }}">
+        <meta property="og:description" content="{{ $page['description'] ?? 'こちらのポートフォリオをご覧ください。' }}">
+        <meta property="og:url" content="{{ url()->current() }}">
+        <meta property="og:image" content="{{ asset('images/ogp.png') }}"> <!-- デフォルトOGP画像 -->
+        
+        <!-- Twitter Card Tags -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="{{ $page['title'] ?? 'ポートフォリオ' }}">
+        <meta name="twitter:description" content="{{ $page['description'] ?? 'こちらのポートフォリオをご覧ください。' }}">
+        <meta name="twitter:image" content="{{ asset('images/ogp.png') }}">
+
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        
         <!-- ファビコン -->
         <link rel="icon" type="image/png" href="{{ asset('image/favicon.png') }}">
 
