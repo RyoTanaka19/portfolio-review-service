@@ -98,6 +98,7 @@ public function search(Request $request)
 
         return redirect()->route('dashboard')->with('flash', ['success' => 'ポートフォリオを作成しました']);  // 修正: フラッシュメッセージを整理
     }
+
 public function show(Portfolio $portfolio)
 {
     $portfolio->load(['reviews.user', 'tags', 'user']);
@@ -105,35 +106,38 @@ public function show(Portfolio $portfolio)
     // 動的にOGPメタタグを設定する
     $ogImageUrl = $portfolio->image_path ? Storage::url($portfolio->image_path) : asset('images/ogp.png');
     
- return Inertia::render('Portfolios/Show', [
-    'portfolio' => [
-        'id' => $portfolio->id,
-        'title' => $portfolio->title,
-        'description' => $portfolio->description,
-        'url' => route('portfolio.show', $portfolio), // 修正
-        'user_id' => $portfolio->user_id,
-        'user_name' => $portfolio->user->name ?? '未設定',
-        'image_url' => $ogImageUrl,
-        'tags' => $portfolio->tags->map(fn($t) => $t->name)->toArray(),
-        'reviews' => $portfolio->reviews->map(fn($r) => [
-            'id' => $r->id,
-            'comment' => $r->comment,
-            'rating' => $r->rating,
-            'technical' => $r->technical,
-            'usability' => $r->usability,
-            'design' => $r->design,
-            'user_focus' => $r->user_focus,
-            'checked' => $r->checked, 
-            'user' => [
-                'id' => $r->user->id,
-                'name' => $r->user->name ?? '未設定',
-            ],
-            'created_at' => $r->created_at->format('Y-m-d H:i'),
-        ]),
-    ],
-]);
+    // authデータをビューに渡す
+    return Inertia::render('Portfolios/Show', [
+        'portfolio' => [
+            'id' => $portfolio->id,
+            'title' => $portfolio->title,
+            'description' => $portfolio->description,
+            'url' => route('portfolio.show', $portfolio),
+            'user_id' => $portfolio->user_id,
+            'user_name' => $portfolio->user->name ?? '未設定',
+            'image_url' => $ogImageUrl,
+            'tags' => $portfolio->tags->map(fn($t) => $t->name)->toArray(),
+            'reviews' => $portfolio->reviews->map(fn($r) => [
+                'id' => $r->id,
+                'comment' => $r->comment,
+                'rating' => $r->rating,
+                'technical' => $r->technical,
+                'usability' => $r->usability,
+                'design' => $r->design,
+                'user_focus' => $r->user_focus,
+                'checked' => $r->checked, 
+                'user' => [
+                    'id' => $r->user->id,
+                    'name' => $r->user->name ?? '未設定',
+                ],
+                'created_at' => $r->created_at->format('Y-m-d H:i'),
+            ]),
+        ],
+        'auth' => auth()->user(),  // auth データを渡す
+    ]);
 }
-    // 投稿編集フォーム
+
+  // 投稿編集フォーム
     public function edit(Portfolio $portfolio)
     {
         if ($portfolio->user_id !== auth()->id()) {

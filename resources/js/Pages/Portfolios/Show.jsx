@@ -7,7 +7,7 @@ import AppLayout from "@/Layouts/AppLayout";
 import { FaTwitter } from "react-icons/fa";
 
 export default function Show({ portfolio, auth, errors, flash }) {
-    // Twitterシェア用のリンクを作成 (ハッシュタグを削除)
+    // Twitterシェア用のリンクを作成
     const twitterShareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(
         window.location.href
     )}&text=${encodeURIComponent("ポートフォリオを見てみよう！")}`;
@@ -102,7 +102,7 @@ export default function Show({ portfolio, auth, errors, flash }) {
                         )}
 
                         {/* レビュー */}
-                        {auth.user ? (
+                        {auth ? (
                             <ReviewIndex
                                 portfolio={portfolio}
                                 auth={auth}
@@ -121,7 +121,7 @@ export default function Show({ portfolio, auth, errors, flash }) {
                         )}
 
                         {/* Twitterシェアボタン (未ログイン時は表示しない) */}
-                        {auth.user && (
+                        {auth && (
                             <div className="mb-6 text-center">
                                 <h2 className="text-xl font-semibold mb-2 text-gray-700">
                                     このポートフォリオをシェア
