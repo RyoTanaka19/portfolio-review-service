@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
 use App\Helpers\PortfolioHelper;  // 追加: ヘルパークラスをインポート
+use Illuminate\Support\Str; 
 
 use App\Http\Requests\PortfolioRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -99,48 +100,45 @@ public function search(Request $request)
         return redirect()->route('dashboard')->with('flash', ['success' => 'ポートフォリオを作成しました']);  // 修正: フラッシュメッセージを整理
     }
 
-    // 投稿詳細
-    public function show(Portfolio $portfolio)
-    {
-        $portfolio->load(['reviews.user', 'tags', 'user']);
+public function show(Portfolio $portfolio)
+{
+    $portfolio->load(['reviews.user', 'tags', 'user']);
 
-        return Inertia::render('Portfolios/Show', [
-            'portfolio' => [
-                'id' => $portfolio->id,
-                'title' => $portfolio->title,
-                'description' => $portfolio->description,
-                'url' => $portfolio->url,
-                'github_url' => $portfolio->github_url,
-                'user_id' => $portfolio->user_id,
-                'user_name' => $portfolio->user->name ?? '未設定',
-                'image_url' => $portfolio->image_path ? Storage::url($portfolio->image_path) : null,
-                'tags' => $portfolio->tags->map(fn($t) => $t->name)->toArray(),
-                'reviews' => $portfolio->reviews->map(fn($r) => [
-    'id' => $r->id,
-    'comment' => $r->comment,
-    'rating' => $r->rating,
-    'technical' => $r->technical,
-    'usability' => $r->usability,
-    'design' => $r->design,
-    'user_focus' => $r->user_focus,
-    'checked' => $r->checked, 
-    'user' => [
-        'id' => $r->user->id,
-        'name' => $r->user->name ?? '未設定',
-    ],
-    'created_at' => $r->created_at->format('Y-m-d H:i'),
-]),
-            ],
-            'auth' => [
-                'user' => auth()->user() ? [
-                    'id' => auth()->user()->id,
-                    'name' => auth()->user()->name,
-                ] : null,
-            ],
-            'flash' => session('flash') ?? [],
-            'errors' => session('errors') ? session('errors')->getBag('default')->toArray() : [],
-        ]);
-    }
+    // OGP用のタイトルと説明を設定
+    $ogTitle = $portfolio->title;
+    $ogDescription = Str::limit($portfolio->description, 100); 
+    $ogImageUrl = $portfolio->image_path 
+        ? Storage::url($portfolio->image_path) 
+        : asset('image/ogp.png'); // ← デフォルト画像のパスを指定
+
+    return Inertia::render('Portfolios/Show', [
+        'portfolio' => [
+            'id' => $portfolio->id,
+            'title' => $portfolio->title,
+            'description' => $portfolio->description,
+            'url' => route('portfolio.show', $portfolio), // 修正
+            'user_id' => $portfolio->user_id,
+            'user_name' => $portfolio->user->name ?? '未設定',
+            'image_url' => $ogImageUrl,
+            'tags' => $portfolio->tags->map(fn($t) => $t->name)->toArray(),
+            'reviews' => $portfolio->reviews->map(fn($r) => [
+                'id' => $r->id,
+                'comment' => $r->comment,
+                'rating' => $r->rating,
+                'technical' => $r->technical,
+                'usability' => $r->usability,
+                'design' => $r->design,
+                'user_focus' => $r->user_focus,
+                'checked' => $r->checked,
+                'user' => [
+                    'id' => $r->user->id,
+                    'name' => $r->user->name ?? '未設定',
+                ],
+                'created_at' => $r->created_at->format('Y-m-d H:i'),
+            ]),
+        ],
+    ]);
+}
 
     // 投稿編集フォーム
     public function edit(Portfolio $portfolio)
