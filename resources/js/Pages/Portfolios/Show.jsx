@@ -120,23 +120,21 @@ export default function Show({ portfolio, auth, errors, flash }) {
                             </div>
                         )}
 
-                        {/* Twitterシェアボタン (未ログイン時は表示しない) */}
-                        {auth && (
-                            <div className="mb-6 text-center">
-                                <h2 className="text-xl font-semibold mb-2 text-gray-700">
-                                    このポートフォリオをシェア
-                                </h2>
-                                <a
-                                    href={twitterShareUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center justify-center px-6 py-3 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition duration-300"
-                                >
-                                    <FaTwitter className="mr-2 text-xl" />
-                                    Twitterでシェア
-                                </a>
-                            </div>
-                        )}
+                        {/* Twitterシェアボタン（ログイン関係なく表示） */}
+                        <div className="mb-6 text-center">
+                            <h2 className="text-xl font-semibold mb-2 text-gray-700">
+                                このポートフォリオをシェア
+                            </h2>
+                            <a
+                                href={twitterShareUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center justify-center px-6 py-3 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition duration-300"
+                            >
+                                <FaTwitter className="mr-2 text-xl" />
+                                Twitterでシェア
+                            </a>
+                        </div>
 
                         {/* 一覧に戻る */}
                         <div className="text-center mt-8">
