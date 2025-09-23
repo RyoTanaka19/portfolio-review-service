@@ -1,10 +1,16 @@
-// resources/js/Pages/Portfolios/Show.jsx
 import React from "react";
 import { InertiaLink } from "@inertiajs/inertia-react";
 import ReviewIndex from "@/Components/Reviews/PortfolioReviews";
 import AppLayout from "@/Layouts/AppLayout";
 
 export default function Show({ portfolio, auth, errors, flash }) {
+    // Twitterシェア用のリンクを作成
+    const twitterShareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(
+        window.location.href
+    )}&text=${encodeURIComponent(
+        "ポートフォリオをチェックしてみてください！"
+    )}&hashtags=ポートフォリオ,WebDevelopment`;
+
     return (
         <AppLayout auth={auth}>
             <div className="flex flex-col flex-1 bg-gray-100">
@@ -94,14 +100,30 @@ export default function Show({ portfolio, auth, errors, flash }) {
                             </div>
                         )}
 
-                        {/* レビュー */}
+                        {/* ログインしている場合のレビュー表示 */}
                         {auth.user ? (
-                            <ReviewIndex
-                                portfolio={portfolio}
-                                auth={auth}
-                                errors={errors}
-                                flash={flash}
-                            />
+                            <>
+                                <ReviewIndex
+                                    portfolio={portfolio}
+                                    auth={auth}
+                                    errors={errors}
+                                    flash={flash}
+                                />
+                                {/* Twitterシェアボタン */}
+                                <div className="mb-6 text-center">
+                                    <h2 className="text-xl font-semibold mb-2 text-gray-700">
+                                        このポートフォリオをシェア
+                                    </h2>
+                                    <a
+                                        href={twitterShareUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-block px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                    >
+                                        Twitterでシェア
+                                    </a>
+                                </div>
+                            </>
                         ) : (
                             <div className="text-center text-gray-600 mt-8">
                                 <InertiaLink
