@@ -23,13 +23,11 @@ class ProfileController extends Controller
     public function edit(Request $request): Response
     {
         $user = $request->user();
-
-        // タグをロード
         $user->load('tags');
 
-        // プロフィール画像の public URL を生成
+        // プロフィール画像 URL を public 用に設定
         $user->profile_image_url = $user->profile_image
-            ? Storage::disk('s3')->url($user->profile_image)
+            ? $this->getPublicUrl($user->profile_image)
             : null;
 
         $allTags = Tag::where('type', 'user')->get();
@@ -48,24 +46,22 @@ class ProfileController extends Controller
     public function show(User $user): Response
     {
         $authUserId = auth()->id();
-
-        // ユーザーのタグをロード
         $user->load('tags');
 
         // ポートフォリオ一覧を取得
         $portfolios = $user->portfolios()->with('reviews', 'tags')->get();
 
-        // ポートフォリオ画像の public URL を付与
+        // ポートフォリオ画像 URL を public 用に付与
         $portfolios = $portfolios->map(function ($p) {
             $p->image_url = $p->image_path
-                ? Storage::disk('s3')->url($p->image_path)
+                ? $this->getPublicUrl($p->image_path)
                 : null;
             return $p;
         });
 
-        // プロフィール画像の public URL を付与
+        // プロフィール画像 URL
         $user->profile_image_url = $user->profile_image
-            ? Storage::disk('s3')->url($user->profile_image)
+            ? $this->getPublicUrl($user->profile_image)
             : null;
 
         return Inertia::render('Profiles/Show', [
@@ -91,7 +87,7 @@ class ProfileController extends Controller
                 $user->email_verified_at = null;
             }
 
-            // プロフィール画像アップロード（public アクセス）
+            // プロフィール画像アップロード (public)
             if ($request->hasFile('profile_image')) {
                 if ($user->profile_image) {
                     Storage::disk('s3')->delete($user->profile_image);
@@ -100,7 +96,7 @@ class ProfileController extends Controller
                 $path = Storage::disk('s3')->putFile(
                     'profile_images',
                     $request->file('profile_image'),
-                    'public' // ← public アクセス
+                    'public'
                 );
 
                 $user->profile_image = $path;
@@ -114,12 +110,12 @@ class ProfileController extends Controller
             $user->save();
 
             // タグ更新
-            $tagIds = $request->input('tags', []);
-            $user->tags()->sync($tagIds);
+            $user->tags()->sync($request->input('tags', []));
 
+            // 最新情報をロード
             $user->load('tags');
             $user->profile_image_url = $user->profile_image
-                ? Storage::disk('s3')->url($user->profile_image)
+                ? $this->getPublicUrl($user->profile_image)
                 : null;
 
             return response()->json([
@@ -146,25 +142,19 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
-
         Auth::logout();
 
-        foreach ($user->portfolios as $portfolio) {
-            if ($portfolio->image_path) {
-                Storage::disk('s3')->delete($portfolio->image_path);
-            }
+        // ポートフォリオ / レビュー / ブックマーク / プロフィール画像削除
+        foreach ($user->portfolios as $p) {
+            if ($p->image_path) Storage::disk('s3')->delete($p->image_path);
         }
 
-        foreach ($user->reviews as $review) {
-            if (isset($review->image_path) && $review->image_path) {
-                Storage::disk('s3')->delete($review->image_path);
-            }
+        foreach ($user->reviews as $r) {
+            if (isset($r->image_path) && $r->image_path) Storage::disk('s3')->delete($r->image_path);
         }
 
-        foreach ($user->bookmarks as $bookmark) {
-            if (isset($bookmark->image_path) && $bookmark->image_path) {
-                Storage::disk('s3')->delete($bookmark->image_path);
-            }
+        foreach ($user->bookmarks as $b) {
+            if (isset($b->image_path) && $b->image_path) Storage::disk('s3')->delete($b->image_path);
         }
 
         if ($user->profile_image) {
@@ -177,5 +167,14 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return Redirect::route('home')->with('flash', 'アカウントと関連データがすべて削除されました');
+    }
+
+    /**
+     * R2/S3 用 public URL を生成
+     */
+    private function getPublicUrl(string $path): string
+    {
+        // Laravel Cloud R2 は AWS_URL で始まる公開 URL が作れる
+        return Storage::disk('s3')->url($path);
     }
 }
