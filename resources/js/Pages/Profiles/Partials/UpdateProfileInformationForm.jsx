@@ -24,9 +24,14 @@ export default function UpdateProfileInformation({
             tags: user.tags?.map((tag) => tag.id) || [],
         });
 
-    const [preview, setPreview] = useState(user?.profile_image_url || null);
-    const [localErrors, setLocalErrors] = useState({}); // フロント側バリデーション用
-    const [flashMessage, setFlashMessage] = useState(""); // フラッシュメッセージ用
+    // public/image/profile_images を反映した preview
+    const [preview, setPreview] = useState(
+        user?.profile_image
+            ? `/image/profile_images/${user.profile_image}`
+            : null
+    );
+    const [localErrors, setLocalErrors] = useState({});
+    const [flashMessage, setFlashMessage] = useState("");
 
     useEffect(() => {
         return () => {
@@ -59,14 +64,13 @@ export default function UpdateProfileInformation({
     const submit = async (e) => {
         e.preventDefault();
 
-        // フロント側バリデーション
         const validationErrors = {};
         if (!data.name.trim()) validationErrors.name = "名前を入力してください";
         if (!data.email.trim())
             validationErrors.email = "メールアドレスを入力してください";
         setLocalErrors(validationErrors);
 
-        if (Object.keys(validationErrors).length > 0) return; // エラーがあれば送信中止
+        if (Object.keys(validationErrors).length > 0) return;
 
         try {
             const formData = new FormData();
@@ -83,10 +87,8 @@ export default function UpdateProfileInformation({
                 data.delete_profile_image ? 1 : 0
             );
 
-            // tags を tags[] として送信
             data.tags.forEach((id) => formData.append("tags[]", id));
 
-            // Axios 送信（Content-Type は自動設定）
             const response = await axios.post(
                 route("profile.update"),
                 formData
@@ -95,12 +97,10 @@ export default function UpdateProfileInformation({
             if (response.data.success) {
                 const updatedUser = response.data.user;
 
-                // Header に即時反映させる
                 window.dispatchEvent(
                     new CustomEvent("user-updated", { detail: updatedUser })
                 );
 
-                // フォームに最新情報を反映
                 setData({
                     _method: "patch",
                     name: updatedUser.name,
@@ -110,15 +110,18 @@ export default function UpdateProfileInformation({
                     tags: updatedUser.tags.map((tag) => tag.id),
                 });
 
-                setPreview(updatedUser.profile_image_url || null);
+                // public/image/profile_images に保存された画像URLを反映
+                setPreview(
+                    updatedUser.profile_image
+                        ? `/image/profile_images/${updatedUser.profile_image}`
+                        : null
+                );
                 setFlashMessage(response.data.message);
             } else {
                 setFlashMessage(response.data.message || "更新に失敗しました");
             }
         } catch (error) {
             console.error(error);
-
-            // Laravel のバリデーションエラーを取得
             if (error.response && error.response.status === 422) {
                 const serverErrors = error.response.data.errors || {};
                 setLocalErrors(serverErrors);
@@ -128,9 +131,9 @@ export default function UpdateProfileInformation({
             }
         }
     };
+
     return (
         <section className={className}>
-            {/* フラッシュメッセージ */}
             {flashMessage && (
                 <FlashMessage
                     message={flashMessage}

@@ -15,6 +15,11 @@ export default function Show() {
 
     const isOwnProfile = authUserId === user.id;
 
+    // プロフィール画像URLを public/image/profile_images に合わせて修正
+    const profileImageUrl = user.profile_image
+        ? `/image/profile_images/${user.profile_image}`
+        : null;
+
     return (
         <AppLayout auth={{ user: { id: authUserId } }}>
             <Head title={`${user.name} のプロフィール`} />
@@ -30,9 +35,9 @@ export default function Show() {
                 {/* プロフィールカード */}
                 <div className="bg-white rounded-2xl shadow-md p-6 flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-10">
                     <div className="w-24 h-24 rounded-full bg-gray-300 flex items-center justify-center text-2xl font-bold text-white overflow-hidden">
-                        {user.profile_image_url ? (
+                        {profileImageUrl ? (
                             <img
-                                src={user.profile_image_url}
+                                src={profileImageUrl}
                                 alt={`${user.name}のプロフィール画像`}
                                 className="w-full h-full object-cover"
                             />
