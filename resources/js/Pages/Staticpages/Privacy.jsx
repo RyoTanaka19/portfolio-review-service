@@ -102,28 +102,6 @@ export default function Privacy() {
 
                         <section>
                             <h2 className="text-xl md:text-2xl font-semibold mb-4 border-l-4 border-blue-500 pl-3 bg-blue-50 rounded">
-                                アクセス解析ツール
-                            </h2>
-                            <p>
-                                当社は「Googleアナリティクス」を利用しています。Cookieを使用し、匿名のトラフィックデータを収集します。
-                                個人を特定するものではなく、Cookieを無効化することで収集を拒否できます。
-                            </p>
-                            <p>
-                                詳しくは{" "}
-                                <a
-                                    href="https://marketingplatform.google.com/about/analytics/terms/jp/"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-blue-600 hover:underline"
-                                >
-                                    Googleアナリティクス利用規約
-                                </a>{" "}
-                                をご覧ください。
-                            </p>
-                        </section>
-
-                        <section>
-                            <h2 className="text-xl md:text-2xl font-semibold mb-4 border-l-4 border-blue-500 pl-3 bg-blue-50 rounded">
                                 プライバシーポリシーの変更
                             </h2>
                             <p>
