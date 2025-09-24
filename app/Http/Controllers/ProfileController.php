@@ -96,10 +96,18 @@ class ProfileController extends Controller
                 : null;
 
             return response()->json([
-                'success' => true,
-                'user' => $user,
-                'message' => 'プロフィール情報を更新しました',
-            ]);
+    'success' => true,
+    'user' => [
+        'id' => $user->id,
+        'name' => $user->name,
+        'email' => $user->email,
+        'tags' => $user->tags,
+        'profile_image_url' => $user->profile_image
+            ? Storage::disk('s3')->url($user->profile_image)
+            : null,
+    ],
+    'message' => 'プロフィール情報を更新しました',
+]);
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
