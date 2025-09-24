@@ -74,57 +74,64 @@ class ProfileController extends Controller
     /**
      * Update the user's profile information.
      */
-    public function update(ProfileUpdateRequest $request)
-    {
-        $user = $request->user();
+/**
+ * Update the user's profile information.
+ */
+public function update(ProfileUpdateRequest $request)
+{
+    $user = $request->user();
 
-        try {
-            $data = $request->validated();
-            unset($data['profile_image'], $data['delete_profile_image'], $data['tags']);
-            $user->fill($data);
+    try {
+        $data = $request->validated();
+        unset($data['profile_image'], $data['delete_profile_image'], $data['tags']);
+        $user->fill($data);
 
-            if ($user->isDirty('email')) {
-                $user->email_verified_at = null;
-            }
-
-            // プロフィール画像アップロード（s3 ディスク使用）
-            if ($request->hasFile('profile_image')) {
-                if ($user->profile_image) {
-                    Storage::disk('s3')->delete($user->profile_image);
-                }
-                $path = $request->file('profile_image')->store('profile_images', 's3');
-                $user->profile_image = $path;
-            } elseif ($request->boolean('delete_profile_image')) {
-                if ($user->profile_image) {
-                    Storage::disk('s3')->delete($user->profile_image);
-                }
-                $user->profile_image = null;
-            }
-
-            $user->save();
-
-            // タグ更新
-            $tagIds = $request->input('tags', []);
-            $user->tags()->sync($tagIds);
-
-            $user->load('tags');
-            $user->profile_image_url = $user->profile_image
-                ? Storage::disk('s3')->url($user->profile_image)
-                : null;
-
-            return response()->json([
-                'success' => true,
-                'user' => $user,
-                'message' => 'プロフィール情報を更新しました',
-            ]);
-        } catch (\Throwable $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'プロフィールの更新中にエラーが発生しました',
-                'error' => $e->getMessage(),
-            ], 500);
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
         }
+
+        // プロフィール画像アップロード（公開設定付き）
+        if ($request->hasFile('profile_image')) {
+            if ($user->profile_image) {
+                Storage::disk('s3')->delete($user->profile_image);
+            }
+
+            // storePublicly でパブリックアクセス可能に
+            $path = $request->file('profile_image')->storePublicly('profile_images', 's3');
+            $user->profile_image = $path;
+        } elseif ($request->boolean('delete_profile_image')) {
+            if ($user->profile_image) {
+                Storage::disk('s3')->delete($user->profile_image);
+            }
+            $user->profile_image = null;
+        }
+
+        $user->save();
+
+        // タグ更新
+        $tagIds = $request->input('tags', []);
+        $user->tags()->sync($tagIds);
+
+        $user->load('tags');
+
+        // 公開 URL をセット
+        $user->profile_image_url = $user->profile_image
+            ? Storage::disk('s3')->url($user->profile_image)
+            : null;
+
+        return response()->json([
+            'success' => true,
+            'user' => $user,
+            'message' => 'プロフィール情報を更新しました',
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'プロフィールの更新中にエラーが発生しました',
+            'error' => $e->getMessage(),
+        ], 500);
     }
+}
 
     /**
      * Delete the user's account.
