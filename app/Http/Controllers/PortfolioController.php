@@ -104,22 +104,17 @@ public function show(Portfolio $portfolio)
 {
     $portfolio->load(['reviews.user', 'tags', 'user']);
 
-    // OGP用のタイトルと説明を設定
-    $ogTitle = $portfolio->title;
-    $ogDescription = Str::limit($portfolio->description, 100); 
-    $ogImageUrl = $portfolio->image_path 
-        ? Storage::url($portfolio->image_path) 
-        : asset('image/ogp.png'); // ← デフォルト画像のパスを指定
-
     return Inertia::render('Portfolios/Show', [
         'portfolio' => [
             'id' => $portfolio->id,
             'title' => $portfolio->title,
             'description' => $portfolio->description,
-            'url' => route('portfolio.show', $portfolio), // 修正
+            'url' => route('portfolio.show', $portfolio),
             'user_id' => $portfolio->user_id,
             'user_name' => $portfolio->user->name ?? '未設定',
-            'image_url' => $ogImageUrl,
+            'image_url' => $portfolio->image_path 
+                ? Storage::url($portfolio->image_path)
+                : null, // デフォルト画像の指定も削除
             'tags' => $portfolio->tags->map(fn($t) => $t->name)->toArray(),
             'reviews' => $portfolio->reviews->map(fn($r) => [
                 'id' => $r->id,

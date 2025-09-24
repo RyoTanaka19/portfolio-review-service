@@ -4,11 +4,6 @@ import ReviewIndex from "@/Components/Reviews/PortfolioReviews";
 import AppLayout from "@/Layouts/AppLayout";
 
 export default function Show({ portfolio, auth, errors, flash }) {
-    // Twitterシェア用のリンクを作成
-    const twitterShareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(
-        window.location.href
-    )}&text=${encodeURIComponent("ポートフォリオをチェックしてみよう!！")}`;
-
     return (
         <AppLayout auth={auth}>
             <div className="flex flex-col flex-1 bg-gray-100">
@@ -116,22 +111,6 @@ export default function Show({ portfolio, auth, errors, flash }) {
                                 </InertiaLink>
                             </div>
                         )}
-
-                        {/* Twitterシェアボタン */}
-                        <div className="mb-6 text-center">
-                            <a
-                                href={twitterShareUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center justify-center px-8 py-3 bg-blue-500 text-white rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200 ease-in-out"
-                            >
-                                <i className="fab fa-twitter text-2xl mr-3"></i>{" "}
-                                {/* Twitterアイコン */}
-                                <span className="text-lg font-semibold">
-                                    Twitterでシェア
-                                </span>
-                            </a>
-                        </div>
 
                         {/* 一覧に戻る */}
                         <div className="text-center mt-8">
