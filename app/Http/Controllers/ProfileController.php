@@ -18,7 +18,6 @@ class ProfileController extends Controller
     {
         $user->load('tags');
 
-        // S3 URL を付与
         $user->profile_image_url = $user->profile_image
             ? Storage::disk('s3')->url($user->profile_image)
             : null;
@@ -64,12 +63,13 @@ class ProfileController extends Controller
         unset($data['profile_image'], $data['delete_profile_image'], $data['tags']);
         $user->fill($data);
 
-        // プロフィール画像処理
+        // プロフィール画像処理（公開アップロード）
         if ($request->hasFile('profile_image')) {
             if ($user->profile_image) {
                 Storage::disk('s3')->delete($user->profile_image);
             }
-            $path = $request->file('profile_image')->store('profile_images', 's3');
+            // storePublicly に変更
+            $path = $request->file('profile_image')->storePublicly('profile_images', 's3');
             $user->profile_image = $path;
         } elseif ($request->boolean('delete_profile_image')) {
             if ($user->profile_image) {
