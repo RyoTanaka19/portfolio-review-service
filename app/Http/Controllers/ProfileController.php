@@ -27,9 +27,9 @@ class ProfileController extends Controller
         // タグをロード
         $user->load('tags');
 
-        // プロフィール画像URLの生成（S3から）
+        // プロフィール画像の public URL を生成
         $user->profile_image_url = $user->profile_image
-            ? Storage::disk('s3')->url($user->profile_image) // S3ディスクからURLを取得
+            ? Storage::disk('s3')->url($user->profile_image)
             : null;
 
         $allTags = Tag::where('type', 'user')->get();
@@ -55,15 +55,17 @@ class ProfileController extends Controller
         // ポートフォリオ一覧を取得
         $portfolios = $user->portfolios()->with('reviews', 'tags')->get();
 
-        // ポートフォリオ画像URLを付与（S3から）
+        // ポートフォリオ画像の public URL を付与
         $portfolios = $portfolios->map(function ($p) {
-            $p->image_url = $p->image_path ? Storage::disk('s3')->url($p->image_path) : null; // S3ディスクからURLを取得
+            $p->image_url = $p->image_path
+                ? Storage::disk('s3')->url($p->image_path)
+                : null;
             return $p;
         });
 
-        // プロフィール画像URLを付与（S3から）
+        // プロフィール画像の public URL を付与
         $user->profile_image_url = $user->profile_image
-            ? Storage::disk('s3')->url($user->profile_image) // S3ディスクからURLを取得
+            ? Storage::disk('s3')->url($user->profile_image)
             : null;
 
         return Inertia::render('Profiles/Show', [
@@ -81,7 +83,6 @@ class ProfileController extends Controller
         $user = $request->user();
 
         try {
-            // validated データを取得し、画像関連・タグを除外して fill
             $data = $request->validated();
             unset($data['profile_image'], $data['delete_profile_image'], $data['tags']);
             $user->fill($data);
@@ -90,16 +91,22 @@ class ProfileController extends Controller
                 $user->email_verified_at = null;
             }
 
-            // プロフィール画像アップロード（S3に保存）
+            // プロフィール画像アップロード（public アクセス）
             if ($request->hasFile('profile_image')) {
                 if ($user->profile_image) {
-                    Storage::disk('s3')->delete($user->profile_image); // S3ディスクから画像削除
+                    Storage::disk('s3')->delete($user->profile_image);
                 }
-                $path = $request->file('profile_image')->store('profile_images', 's3'); // S3に保存
+
+                $path = Storage::disk('s3')->putFile(
+                    'profile_images',
+                    $request->file('profile_image'),
+                    'public' // ← public アクセス
+                );
+
                 $user->profile_image = $path;
             } elseif ($request->boolean('delete_profile_image')) {
                 if ($user->profile_image) {
-                    Storage::disk('s3')->delete($user->profile_image); // S3ディスクから画像削除
+                    Storage::disk('s3')->delete($user->profile_image);
                 }
                 $user->profile_image = null;
             }
@@ -110,20 +117,17 @@ class ProfileController extends Controller
             $tagIds = $request->input('tags', []);
             $user->tags()->sync($tagIds);
 
-            // 最新情報をロード
             $user->load('tags');
             $user->profile_image_url = $user->profile_image
-                ? Storage::disk('s3')->url($user->profile_image) // S3からURLを取得
+                ? Storage::disk('s3')->url($user->profile_image)
                 : null;
 
-            // JSON で返す
             return response()->json([
                 'success' => true,
                 'user' => $user,
                 'message' => 'プロフィール情報を更新しました',
             ]);
         } catch (\Throwable $e) {
-            // エラー時
             return response()->json([
                 'success' => false,
                 'message' => 'プロフィールの更新中にエラーが発生しました',
@@ -137,51 +141,41 @@ class ProfileController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
-        // 1. パスワード確認
         $request->validate([
             'password' => ['required', 'current_password'],
         ]);
 
         $user = $request->user();
 
-        // 2. ログアウト
         Auth::logout();
 
-        // 3. ユーザーが作成したポートフォリオの画像削除
         foreach ($user->portfolios as $portfolio) {
             if ($portfolio->image_path) {
-                Storage::disk('s3')->delete($portfolio->image_path); // S3から画像削除
+                Storage::disk('s3')->delete($portfolio->image_path);
             }
         }
 
-        // 4. ユーザーが作成したレビューの画像削除（もし画像がある場合）
         foreach ($user->reviews as $review) {
             if (isset($review->image_path) && $review->image_path) {
-                Storage::disk('s3')->delete($review->image_path); // S3から画像削除
+                Storage::disk('s3')->delete($review->image_path);
             }
         }
 
-        // 5. ユーザーが作成したブックマークの画像削除（もし画像がある場合）
         foreach ($user->bookmarks as $bookmark) {
             if (isset($bookmark->image_path) && $bookmark->image_path) {
-                Storage::disk('s3')->delete($bookmark->image_path); // S3から画像削除
+                Storage::disk('s3')->delete($bookmark->image_path);
             }
         }
 
-        // 6. プロフィール画像削除
         if ($user->profile_image) {
-            Storage::disk('s3')->delete($user->profile_image); // S3からプロフィール画像削除
+            Storage::disk('s3')->delete($user->profile_image);
         }
 
-        // 7. ユーザー削除
-        // cascade設定により、portfolios/reviews/bookmarks の DB レコードも自動削除
         $user->delete();
 
-        // 8. セッション無効化
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        // 9. フラッシュメッセージとリダイレクト
         return Redirect::route('home')->with('flash', 'アカウントと関連データがすべて削除されました');
     }
 }
