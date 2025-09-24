@@ -20,11 +20,15 @@ export default function Show() {
             <Head title={`${user.name} のプロフィール`} />
 
             {/* フラッシュメッセージ */}
-            <FlashMessage
-                message={flashMessage.message}
-                type={flashMessage.type}
-                onClose={() => setFlashMessage({ message: null, type: null })}
-            />
+            {flashMessage.message && (
+                <FlashMessage
+                    message={flashMessage.message}
+                    type={flashMessage.type}
+                    onClose={() =>
+                        setFlashMessage({ message: null, type: null })
+                    }
+                />
+            )}
 
             <div className="p-6 max-w-7xl mx-auto">
                 {/* プロフィールカード */}
@@ -56,9 +60,9 @@ export default function Show() {
                         </p>
                         {user.tags?.length > 0 && (
                             <div className="mt-3 flex flex-wrap gap-2">
-                                {user.tags.map((tag, idx) => (
+                                {user.tags.map((tag) => (
                                     <span
-                                        key={idx}
+                                        key={tag.id}
                                         className="bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm"
                                     >
                                         {tag.name}
@@ -89,15 +93,18 @@ export default function Show() {
                                       ).toFixed(1)
                                     : null;
 
+                                const portfolioImageUrl =
+                                    p.image_url || "/images/placeholder.png";
+
                                 return (
                                     <div
                                         key={p.id}
                                         className="bg-white rounded-xl shadow hover:shadow-lg transition duration-300 flex flex-col overflow-hidden"
                                     >
-                                        {p.image_url && (
+                                        {portfolioImageUrl && (
                                             <Link href={`/portfolio/${p.id}`}>
                                                 <img
-                                                    src={p.image_url}
+                                                    src={portfolioImageUrl}
                                                     alt={p.title}
                                                     className="w-full h-48 object-cover"
                                                 />
@@ -146,9 +153,9 @@ export default function Show() {
 
                                             {p.tags?.length > 0 && (
                                                 <div className="flex flex-wrap gap-2 mt-auto">
-                                                    {p.tags.map((tag, idx) => (
+                                                    {p.tags.map((tag) => (
                                                         <span
-                                                            key={idx}
+                                                            key={tag.id}
                                                             className="bg-gray-200 text-gray-800 px-2 py-1 rounded-full text-xs"
                                                         >
                                                             {tag.name}

@@ -6,6 +6,7 @@ import TextInput from "@/Components/TextInput";
 import { Transition } from "@headlessui/react";
 import { Link, useForm, usePage } from "@inertiajs/react";
 import FlashMessage from "@/Components/FlashMessage";
+import axios from "axios";
 
 export default function UpdateProfileInformation({
     mustVerifyEmail,
@@ -14,25 +15,23 @@ export default function UpdateProfileInformation({
 }) {
     const { user, allTags = [] } = usePage().props;
 
-    const { data, setData, post, errors, processing, recentlySuccessful } =
-        useForm({
-            _method: "patch",
-            name: user.name,
-            email: user.email,
-            profile_image: null,
-            delete_profile_image: false,
-            tags: user.tags?.map((tag) => tag.id) || [],
-        });
+    const { data, setData, errors, processing, recentlySuccessful } = useForm({
+        _method: "patch",
+        name: user.name,
+        email: user.email,
+        profile_image: null,
+        delete_profile_image: false,
+        tags: user.tags?.map((tag) => tag.id) || [],
+    });
 
     const [preview, setPreview] = useState(user?.profile_image_url || null);
-    const [localErrors, setLocalErrors] = useState({}); // フロント側バリデーション用
-    const [flashMessage, setFlashMessage] = useState(""); // フラッシュメッセージ用
+    const [flashMessage, setFlashMessage] = useState("");
+    const [localErrors, setLocalErrors] = useState({});
 
     useEffect(() => {
         return () => {
-            if (preview && preview.startsWith("blob:")) {
+            if (preview && preview.startsWith("blob:"))
                 URL.revokeObjectURL(preview);
-            }
         };
     }, [preview]);
 
@@ -40,53 +39,42 @@ export default function UpdateProfileInformation({
         const file = e.target.files[0];
         setData("profile_image", file);
         setData("delete_profile_image", false);
-        if (file) {
-            setPreview(URL.createObjectURL(file));
-        }
+        if (file) setPreview(URL.createObjectURL(file));
     };
 
     const toggleTag = (tagId) => {
-        if (data.tags.includes(tagId)) {
-            setData(
-                "tags",
-                data.tags.filter((id) => id !== tagId)
-            );
-        } else {
-            setData("tags", [...data.tags, tagId]);
-        }
+        setData(
+            "tags",
+            data.tags.includes(tagId)
+                ? data.tags.filter((id) => id !== tagId)
+                : [...data.tags, tagId]
+        );
     };
 
     const submit = async (e) => {
         e.preventDefault();
 
-        // フロント側バリデーション
+        // フロント側簡易バリデーション
         const validationErrors = {};
         if (!data.name.trim()) validationErrors.name = "名前を入力してください";
         if (!data.email.trim())
             validationErrors.email = "メールアドレスを入力してください";
         setLocalErrors(validationErrors);
-
-        if (Object.keys(validationErrors).length > 0) return; // エラーがあれば送信中止
+        if (Object.keys(validationErrors).length > 0) return;
 
         try {
             const formData = new FormData();
             formData.append("_method", "patch");
             formData.append("name", data.name);
             formData.append("email", data.email);
-
-            if (data.profile_image) {
+            if (data.profile_image)
                 formData.append("profile_image", data.profile_image);
-            }
-
             formData.append(
                 "delete_profile_image",
                 data.delete_profile_image ? 1 : 0
             );
-
-            // tags を tags[] として送信
             data.tags.forEach((id) => formData.append("tags[]", id));
 
-            // Axios 送信（Content-Type は自動設定）
             const response = await axios.post(
                 route("profile.update"),
                 formData
@@ -95,12 +83,11 @@ export default function UpdateProfileInformation({
             if (response.data.success) {
                 const updatedUser = response.data.user;
 
-                // Header に即時反映させる
+                // Header等に即時反映
                 window.dispatchEvent(
                     new CustomEvent("user-updated", { detail: updatedUser })
                 );
 
-                // フォームに最新情報を反映
                 setData({
                     _method: "patch",
                     name: updatedUser.name,
@@ -112,25 +99,23 @@ export default function UpdateProfileInformation({
 
                 setPreview(updatedUser.profile_image_url || null);
                 setFlashMessage(response.data.message);
+                setLocalErrors({});
             } else {
                 setFlashMessage(response.data.message || "更新に失敗しました");
             }
         } catch (error) {
             console.error(error);
-
-            // Laravel のバリデーションエラーを取得
-            if (error.response && error.response.status === 422) {
-                const serverErrors = error.response.data.errors || {};
-                setLocalErrors(serverErrors);
+            if (error.response?.status === 422) {
+                setLocalErrors(error.response.data.errors || {});
                 setFlashMessage("入力内容にエラーがあります");
             } else {
                 setFlashMessage("サーバーエラーが発生しました");
             }
         }
     };
+
     return (
         <section className={className}>
-            {/* フラッシュメッセージ */}
             {flashMessage && (
                 <FlashMessage
                     message={flashMessage}
@@ -161,7 +146,6 @@ export default function UpdateProfileInformation({
                         className="mt-1 block w-full"
                         value={data.name}
                         onChange={(e) => setData("name", e.target.value)}
-                        autoComplete="name"
                     />
                     <InputError
                         className="mt-2"
@@ -178,7 +162,6 @@ export default function UpdateProfileInformation({
                         className="mt-1 block w-full"
                         value={data.email}
                         onChange={(e) => setData("email", e.target.value)}
-                        autoComplete="username"
                     />
                     <InputError
                         className="mt-2"
@@ -218,7 +201,7 @@ export default function UpdateProfileInformation({
                     />
                 </div>
 
-                {/* タグ選択 */}
+                {/* タグ */}
                 <div>
                     <InputLabel htmlFor="tags" value="タグ" />
                     <div className="mt-2 flex flex-wrap gap-2">
@@ -227,11 +210,11 @@ export default function UpdateProfileInformation({
                                 key={tag.id}
                                 type="button"
                                 onClick={() => toggleTag(tag.id)}
-                                className={`px-3 py-1 rounded-full border ${
+                                className={`px-3 py-1 rounded-full border text-sm ${
                                     data.tags.includes(tag.id)
                                         ? "bg-indigo-600 text-white border-indigo-600"
                                         : "bg-white text-gray-700 border-gray-300"
-                                } text-sm`}
+                                }`}
                             >
                                 {tag.name}
                             </button>
@@ -251,10 +234,9 @@ export default function UpdateProfileInformation({
                                 as="button"
                                 className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                             >
-                                こちらをクリックして確認メールを再送信してください
+                                確認メールを再送信
                             </Link>
                         </p>
-
                         {status === "verification-link-sent" && (
                             <div className="mt-2 text-sm font-medium text-green-600">
                                 確認メールを再送信しました。
@@ -266,7 +248,6 @@ export default function UpdateProfileInformation({
                 {/* 保存 */}
                 <div className="flex items-center gap-4">
                     <PrimaryButton disabled={processing}>保存</PrimaryButton>
-
                     <Transition
                         show={recentlySuccessful}
                         enter="transition ease-in-out"
