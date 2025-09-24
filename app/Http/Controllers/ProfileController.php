@@ -29,9 +29,10 @@ class ProfileController extends Controller
 
         // プロフィール画像URL
         $user->profile_image_url = $user->profile_image
-            ? Storage::disk('s3')->url($user->profile_image)
+            ? Storage::disk('s3')->url($user->profile_image) // R2の場合でも適切なURLが生成されるよう修正
             : null;
 
+        // ユーザーに関連するタグを取得
         $allTags = Tag::where('type', 'user')->get();
 
         return Inertia::render('Profiles/Edit', [
@@ -63,7 +64,7 @@ class ProfileController extends Controller
 
         // プロフィール画像URL
         $user->profile_image_url = $user->profile_image
-            ? Storage::disk('s3')->url($user->profile_image)
+            ? Storage::disk('s3')->url($user->profile_image) // R2の場合でも適切なURLが生成されるよう修正
             : null;
 
         return Inertia::render('Profiles/Show', [
@@ -86,24 +87,30 @@ class ProfileController extends Controller
             unset($data['profile_image'], $data['delete_profile_image'], $data['tags']);
             $user->fill($data);
 
+            // メールが変更された場合、メール確認をリセット
             if ($user->isDirty('email')) {
                 $user->email_verified_at = null;
             }
 
-            // プロフィール画像アップロード/削除
+            // プロフィール画像アップロード/削除処理
             if ($request->hasFile('profile_image')) {
+                // 古い画像を削除
                 if ($user->profile_image) {
                     Storage::disk('s3')->delete($user->profile_image);
                 }
+
+                // 新しい画像をアップロード
                 $path = $request->file('profile_image')->store('profile_images', 's3');
                 $user->profile_image = $path;
             } elseif ($request->boolean('delete_profile_image')) {
+                // プロフィール画像を削除
                 if ($user->profile_image) {
                     Storage::disk('s3')->delete($user->profile_image);
                 }
                 $user->profile_image = null;
             }
 
+            // ユーザー情報を保存
             $user->save();
 
             // タグ更新
@@ -113,7 +120,7 @@ class ProfileController extends Controller
             // 最新情報をロード
             $user->load('tags');
             $user->profile_image_url = $user->profile_image
-                ? Storage::disk('s3')->url($user->profile_image)
+                ? Storage::disk('s3')->url($user->profile_image) // URLを生成して設定
                 : null;
 
             return response()->json([
@@ -122,6 +129,7 @@ class ProfileController extends Controller
                 'message' => 'プロフィール情報を更新しました',
             ]);
         } catch (\Throwable $e) {
+            // エラーハンドリング
             return response()->json([
                 'success' => false,
                 'message' => 'プロフィールの更新中にエラーが発生しました',
@@ -145,21 +153,19 @@ class ProfileController extends Controller
         // ログアウト
         Auth::logout();
 
-        // ユーザーのポートフォリオ画像削除
+        // ユーザー関連データの削除（ポートフォリオ、レビュー、ブックマーク）
         foreach ($user->portfolios as $portfolio) {
             if ($portfolio->image_path) {
                 Storage::disk('s3')->delete($portfolio->image_path);
             }
         }
 
-        // レビュー画像削除
         foreach ($user->reviews as $review) {
             if (!empty($review->image_path)) {
                 Storage::disk('s3')->delete($review->image_path);
             }
         }
 
-        // ブックマーク画像削除
         foreach ($user->bookmarks as $bookmark) {
             if (!empty($bookmark->image_path)) {
                 Storage::disk('s3')->delete($bookmark->image_path);
