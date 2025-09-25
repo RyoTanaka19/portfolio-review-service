@@ -26,7 +26,7 @@ class PortfolioHelper
             'github_url' => $p->github_url,
             'user_id' => $p->user_id,
             'user_name' => $p->user->name ?? '未設定',
-            'image_url' => $p->image_path ? Storage::url($p->image_path) : null,
+            'image_url' => $p->image_path ? Storage::disk('s3')->url($p->image_path) : null,
             'tags' => $p->tags->map(fn($t) => $t->name)->toArray(),
             'reviews' => $p->reviews->map(fn($r) => [
                 'id' => $r->id,
