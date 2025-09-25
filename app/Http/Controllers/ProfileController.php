@@ -24,12 +24,11 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
-        // タグをロード
         $user->load('tags');
 
-        // プロフィール画像URLをデフォルトディスクで生成
+        // プロフィール画像URLをS3対応で生成
         $user->profile_image_url = $user->profile_image
-            ? Storage::url($user->profile_image)
+            ? Storage::disk('s3')->url($user->profile_image)
             : null;
 
         $allTags = Tag::where('type', 'user')->get();
@@ -53,16 +52,15 @@ class ProfileController extends Controller
 
         $portfolios = $user->portfolios()->with('reviews', 'tags')->get();
 
-        // ポートフォリオ画像URLをデフォルトディスクで生成
         $portfolios = $portfolios->map(function ($p) {
             $p->image_url = $p->image_path
-                ? Storage::url($p->image_path)
+                ? Storage::disk('s3')->url($p->image_path)
                 : null;
             return $p;
         });
 
         $user->profile_image_url = $user->profile_image
-            ? Storage::url($user->profile_image)
+            ? Storage::disk('s3')->url($user->profile_image)
             : null;
 
         return Inertia::render('Profiles/Show', [
@@ -88,17 +86,16 @@ class ProfileController extends Controller
                 $user->email_verified_at = null;
             }
 
-            // プロフィール画像アップロード（デフォルトディスク使用）
+            // プロフィール画像アップロード（S3）
             if ($request->hasFile('profile_image')) {
-                // 古い画像を削除
                 if ($user->profile_image) {
-                    Storage::delete($user->profile_image);
+                    Storage::disk('s3')->delete($user->profile_image);
                 }
-                $path = $request->file('profile_image')->store('profile_images'); // デフォルトディスクに保存
+                $path = $request->file('profile_image')->store('profile_images', 's3');
                 $user->profile_image = $path;
             } elseif ($request->boolean('delete_profile_image')) {
                 if ($user->profile_image) {
-                    Storage::delete($user->profile_image);
+                    Storage::disk('s3')->delete($user->profile_image);
                 }
                 $user->profile_image = null;
             }
@@ -111,9 +108,9 @@ class ProfileController extends Controller
 
             $user->load('tags');
 
-            // プロフィール画像URLをデフォルトディスクで生成
+            // プロフィール画像URLをS3対応で生成
             $user->profile_image_url = $user->profile_image
-                ? Storage::url($user->profile_image)
+                ? Storage::disk('s3')->url($user->profile_image)
                 : null;
 
             return response()->json([
@@ -146,27 +143,27 @@ class ProfileController extends Controller
         // ポートフォリオ画像削除
         foreach ($user->portfolios as $portfolio) {
             if ($portfolio->image_path) {
-                Storage::delete($portfolio->image_path);
+                Storage::disk('s3')->delete($portfolio->image_path);
             }
         }
 
         // レビュー画像削除
         foreach ($user->reviews as $review) {
             if (isset($review->image_path) && $review->image_path) {
-                Storage::delete($review->image_path);
+                Storage::disk('s3')->delete($review->image_path);
             }
         }
 
         // ブックマーク画像削除
         foreach ($user->bookmarks as $bookmark) {
             if (isset($bookmark->image_path) && $bookmark->image_path) {
-                Storage::delete($bookmark->image_path);
+                Storage::disk('s3')->delete($bookmark->image_path);
             }
         }
 
         // プロフィール画像削除
         if ($user->profile_image) {
-            Storage::delete($user->profile_image);
+            Storage::disk('s3')->delete($user->profile_image);
         }
 
         $user->delete();
