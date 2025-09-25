@@ -1,39 +1,40 @@
-# PHP-FPM イメージ
 FROM php:8.2-fpm
 
-# 必要パッケージと PostgreSQL PDO をインストール
+# 必要パッケージ
 RUN apt-get update && apt-get install -y \
-    libpq-dev \
-    curl \
-    zip \
-    unzip \
-    git \
-    nginx \
-    supervisor \
+    libpq-dev curl zip unzip git nginx supervisor \
     && docker-php-ext-install pdo pdo_pgsql pgsql \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# 作業ディレクトリ
+# Node.js インストール
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs
+
 WORKDIR /var/www/html
 
-# Composer インストール
+# Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# アプリケーションコピー & Composer インストール
+# Laravelコピー & Composerインストール
 COPY . /var/www/html
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+
+# Nodeモジュールインストール & Viteビルド
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
 
 # 権限設定
 RUN mkdir -p storage bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
-# Nginx & Supervisor 設定コピー
+# Nginx & Supervisor
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 COPY ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# キャッシュはビルド時に生成
+# Laravelキャッシュ
 RUN php artisan config:cache && php artisan route:cache && php artisan view:cache
 
-# 起動時は supervisord のみ
 CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
