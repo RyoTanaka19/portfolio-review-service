@@ -18,17 +18,26 @@ WORKDIR /var/www/html
 # Composer インストール
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Laravel アプリコピー
+# 依存関係だけ先にコピーしてキャッシュ活用
+COPY composer.json composer.lock /var/www/html/
+
+# Composer install（本番環境向け）
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+
+# Laravel アプリ本体コピー
 COPY . /var/www/html
 
-# Composer install
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+# Laravel キャッシュ生成
+RUN php artisan config:cache \
+    && php artisan route:cache \
+    && php artisan view:cache
 
 # Nginx 設定コピー
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 
 # Supervisor 設定（PHP-FPM をバックグラウンドで起動）
-RUN echo "[supervisord]\nnodaemon=true\n\n[program:php-fpm]\ncommand=/usr/local/sbin/php-fpm" > /etc/supervisor/conf.d/supervisord.conf
+RUN echo "[supervisord]\nnodaemon=true\n\n[program:php-fpm]\ncommand=/usr/local/sbin/php-fpm" \
+    > /etc/supervisor/conf.d/supervisord.conf
 
 # Supervisor を使って PHP-FPM を起動
 CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
