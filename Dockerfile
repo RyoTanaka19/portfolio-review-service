@@ -10,7 +10,6 @@ RUN apt-get update && apt-get install -y \
     git \
     nginx \
     supervisor \
-    gettext \
     && docker-php-ext-install pdo pdo_pgsql pgsql \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
@@ -19,10 +18,10 @@ WORKDIR /var/www/html
 # Composer インストール
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Laravel アプリ本体コピー（artisan を含む全ファイル）
+# Laravel アプリ本体コピー
 COPY . /var/www/html
 
-# Composer install
+# Composer install（本番環境向け）
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 
 # Laravel キャッシュ生成
@@ -33,11 +32,11 @@ RUN php artisan config:cache \
 # Nginx 設定コピー
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 
-# Supervisor 設定（PHP-FPM と Nginx を同時に起動）
-# envsubst で起動時に $PORT を置換して nginx を起動
-RUN echo "[supervisord]\nnodaemon=true\nuser=root\n\n\
+# Supervisor 設定（PHP-FPM と Nginx を両方起動、rootでOK）
+RUN echo "[supervisord]\nnodaemon=true\n\n\
 [program:php-fpm]\ncommand=/usr/local/sbin/php-fpm\n\
-[program:nginx]\ncommand=/bin/sh -c 'envsubst \"\${PORT}\" < /etc/nginx/conf.d/default.conf > /etc/nginx/conf.d/default.conf.rendered && nginx -g \"daemon off;\" -c /etc/nginx/conf.d/default.conf.rendered'" \
+[program:nginx]\ncommand=/usr/sbin/nginx -g 'daemon off;' -c /etc/nginx/nginx.conf\n\
+user=root" \
 > /etc/supervisor/conf.d/supervisord.conf
 
 # Supervisor を使って PHP-FPM と Nginx を起動
