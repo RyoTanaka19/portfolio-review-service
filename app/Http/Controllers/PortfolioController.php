@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
 use App\Helpers\PortfolioHelper; 
-use Illuminate\Support\Str; 
 use App\Http\Requests\PortfolioRequest;
 
 class PortfolioController extends Controller
@@ -72,8 +71,9 @@ class PortfolioController extends Controller
     {
         $validated = $request->validated();
 
+        // デフォルトディスクに保存（Laravel Cloud では自動でS3にアップロードされる）
         $imagePath = $request->hasFile('image')
-            ? $request->file('image')->store('portfolios', 's3')
+            ? $request->file('image')->store('portfolios')
             : null;
 
         $portfolio = Portfolio::create([
@@ -110,7 +110,7 @@ class PortfolioController extends Controller
                 'user_id' => $portfolio->user_id,
                 'user_name' => $portfolio->user->name ?? '未設定',
                 'image_url' => $portfolio->image_path 
-                    ? Storage::disk('s3')->url($portfolio->image_path)
+                    ? Storage::url($portfolio->image_path)
                     : null,
                 'tags' => $portfolio->tags->map(fn($t) => $t->name)->toArray(),
                 'reviews' => $portfolio->reviews->map(fn($r) => [
@@ -148,7 +148,7 @@ class PortfolioController extends Controller
                 'description' => $portfolio->description,
                 'url' => $portfolio->url,
                 'github_url' => $portfolio->github_url, 
-                'image_url' => $portfolio->image_path ? Storage::disk('s3')->url($portfolio->image_path) : null,
+                'image_url' => $portfolio->image_path ? Storage::url($portfolio->image_path) : null,
                 'tags' => $portfolio->tags->map(fn($t) => $t->name)->toArray(),
             ],
         ]);
@@ -168,13 +168,13 @@ class PortfolioController extends Controller
 
         if ($request->file('image')) {
             if ($portfolio->image_path) {
-                Storage::disk('s3')->delete($portfolio->image_path);
+                Storage::delete($portfolio->image_path);
             }
-            $portfolio->image_path = $request->file('image')->store('portfolios', 's3');
+            $portfolio->image_path = $request->file('image')->store('portfolios');
             $portfolio->save();
         } elseif (!empty($validated['delete_image']) && $validated['delete_image']) {
             if ($portfolio->image_path) {
-                Storage::disk('s3')->delete($portfolio->image_path);
+                Storage::delete($portfolio->image_path);
             }
             $portfolio->image_path = null;
             $portfolio->save();
@@ -204,7 +204,7 @@ class PortfolioController extends Controller
 
         try {
             if ($portfolio->image_path) {
-                Storage::disk('s3')->delete($portfolio->image_path);
+                Storage::delete($portfolio->image_path);
             }
 
             $portfolio->delete();

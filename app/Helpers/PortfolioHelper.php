@@ -11,10 +11,10 @@ class PortfolioHelper
      * ポートフォリオを整形するメソッド
      *
      * @param Portfolio $p
-     * @param int $userId
+     * @param int|null $userId
      * @return array
      */
-    public static function mapPortfolio(Portfolio $p, $userId)
+    public static function mapPortfolio(Portfolio $p, $userId = null)
     {
         $isBookmarked = $userId ? $p->bookmarks->contains('user_id', $userId) : false;
 
@@ -26,7 +26,8 @@ class PortfolioHelper
             'github_url' => $p->github_url,
             'user_id' => $p->user_id,
             'user_name' => $p->user->name ?? '未設定',
-            'image_url' => $p->image_path ? Storage::disk('s3')->url($p->image_path) : null,
+            // ← デフォルトディスクを使用してS3対応
+            'image_url' => $p->image_path ? Storage::url($p->image_path) : null,
             'tags' => $p->tags->map(fn($t) => $t->name)->toArray(),
             'reviews' => $p->reviews->map(fn($r) => [
                 'id' => $r->id,
