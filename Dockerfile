@@ -18,7 +18,7 @@ WORKDIR /var/www/html
 # Composer インストール
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Laravel アプリ本体コピー
+# Laravel アプリ本体コピー（artisan を含む全ファイル）
 COPY . /var/www/html
 
 # Composer install（本番環境向け）
@@ -32,12 +32,8 @@ RUN php artisan config:cache \
 # Nginx 設定コピー
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 
-# Supervisor 設定（PHP-FPM と Nginx を両方起動、rootでOK）
-RUN echo "[supervisord]\nnodaemon=true\n\n\
-[program:php-fpm]\ncommand=/usr/local/sbin/php-fpm\n\
-[program:nginx]\ncommand=/usr/sbin/nginx -g 'daemon off;' -c /etc/nginx/nginx.conf\n\
-user=root" \
-> /etc/supervisor/conf.d/supervisord.conf
+# Supervisor 設定コピー
+COPY ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Supervisor を使って PHP-FPM と Nginx を起動
 CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
