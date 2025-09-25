@@ -18,16 +18,13 @@ WORKDIR /var/www/html
 # Composer インストール
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# 依存関係だけ先にコピーしてキャッシュ活用
-COPY composer.json composer.lock /var/www/html/
-
-# Composer install（本番環境向け）
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
-
-# Laravel アプリ本体コピー
+# Laravel アプリ本体をコピー（artisan を含む全ファイル）
 COPY . /var/www/html
 
-# Laravel キャッシュ生成
+# Composer install（post-autoload-dump で artisan が存在する状態で実行）
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+
+# Laravel キャッシュ生成（本番向け）
 RUN php artisan config:cache \
     && php artisan route:cache \
     && php artisan view:cache
