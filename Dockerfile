@@ -34,6 +34,9 @@ RUN mkdir -p storage bootstrap/cache \
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 COPY ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
+# php-fpm の TCP 9000 設定を上書き
+RUN sed -i 's/listen = .*/listen = 0.0.0.0:9000/' /usr/local/etc/php-fpm.d/www.conf
+
 # Laravelキャッシュ
 RUN php artisan config:cache && php artisan route:cache && php artisan view:cache
 
