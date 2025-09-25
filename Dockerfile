@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
     git \
     nginx \
     supervisor \
+    gettext \
     && docker-php-ext-install pdo pdo_pgsql pgsql \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
@@ -32,10 +33,11 @@ RUN php artisan config:cache \
 # Nginx 設定コピー
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 
-# Supervisor 設定（PHP-FPM と Nginx を両方起動）
-RUN echo "[supervisord]\nnodaemon=true\n\n\
+# Supervisor 設定（PHP-FPM と Nginx を同時に起動）
+# envsubst で起動時に $PORT を置換して nginx を起動
+RUN echo "[supervisord]\nnodaemon=true\nuser=root\n\n\
 [program:php-fpm]\ncommand=/usr/local/sbin/php-fpm\n\
-[program:nginx]\ncommand=/usr/sbin/nginx -g 'daemon off;'" \
+[program:nginx]\ncommand=/bin/sh -c 'envsubst \"\${PORT}\" < /etc/nginx/conf.d/default.conf > /etc/nginx/conf.d/default.conf.rendered && nginx -g \"daemon off;\" -c /etc/nginx/conf.d/default.conf.rendered'" \
 > /etc/supervisor/conf.d/supervisord.conf
 
 # Supervisor を使って PHP-FPM と Nginx を起動
