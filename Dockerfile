@@ -3,7 +3,7 @@ FROM php:8.2-fpm
 
 # 必要パッケージと PostgreSQL PDO をインストール
 RUN apt-get update && apt-get install -y \
-    libpq-dev curl zip unzip git nginx supervisor nodejs npm \
+    libpq-dev curl zip unzip git nginx supervisor \
     && docker-php-ext-install pdo pdo_pgsql pgsql \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
@@ -15,9 +15,6 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 # Laravel 本体コピー & Composer インストール
 COPY . /var/www/html
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
-
-# Node モジュールインストール & Vite ビルド
-RUN npm install && npm run build -- --mode production
 
 # storage と bootstrap/cache の権限設定
 RUN mkdir -p storage bootstrap/cache \
