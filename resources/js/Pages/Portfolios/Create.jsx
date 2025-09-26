@@ -1,6 +1,6 @@
 import React from "react";
 import AppLayout from "@/Layouts/AppLayout";
-import PortfolioForm from "@/Components/Portfolios/PortfolioForm";
+import PortfolioForm from "@/Pages/Portfolios/Partials/PortfolioForm";
 import { route } from "ziggy-js";
 
 export default function Create() {

@@ -26,8 +26,8 @@ export default function PortfolioForm({
         const newErrors = {};
         if (!title.trim()) newErrors.title = "作品タイトルは必須です";
         if (!description.trim()) newErrors.description = "作品説明は必須です";
-        if (!serviceUrl.trim()) newErrors.service_url = "作品のURLは必須です";
-        if (tags.length === 0) newErrors.tags = "タグ（技術）は必須です";
+        if (!serviceUrl.trim()) newErrors.service_url = "サービスURLは必須です";
+        if (tags.length === 0) newErrors.tags = "タグは必須です";
 
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
@@ -64,6 +64,7 @@ export default function PortfolioForm({
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
+                    placeholder="作品のタイトル名"
                     className={`w-full border-2 px-4 py-3 rounded-lg shadow-sm ${
                         errors.title ? "border-red-500" : "border-gray-300"
                     }`}
@@ -72,7 +73,6 @@ export default function PortfolioForm({
                     <p className="text-red-500 mt-2 text-sm">{errors.title}</p>
                 )}
             </div>
-
             {/* 説明 */}
             <div className="mb-6">
                 <label className="block font-semibold text-lg mb-2">
@@ -81,6 +81,7 @@ export default function PortfolioForm({
                 <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
+                    placeholder="このサービスの具体的な説明"
                     className={`w-full border-2 px-4 py-3 rounded-lg shadow-sm ${
                         errors.description
                             ? "border-red-500"
@@ -94,16 +95,16 @@ export default function PortfolioForm({
                     </p>
                 )}
             </div>
-
-            {/* service_url  */}
+            {/* サービスURL */}
             <div className="mb-6">
                 <label className="block font-semibold text-lg mb-2">
-                    作品のURL <span className="text-red-500">*</span>
+                    サービスURL <span className="text-red-500">*</span>
                 </label>
                 <input
                     type="url"
                     value={serviceUrl}
                     onChange={(e) => setServiceUrl(e.target.value)}
+                    placeholder="デプロイしているサービスのURL"
                     className={`w-full border-2 px-4 py-3 rounded-lg shadow-sm ${
                         errors.service_url
                             ? "border-red-500"
@@ -116,7 +117,6 @@ export default function PortfolioForm({
                     </p>
                 )}
             </div>
-
             {/* GitHub URL */}
             <div className="mb-6">
                 <label className="block font-semibold text-lg mb-2">
@@ -126,21 +126,22 @@ export default function PortfolioForm({
                     type="url"
                     value={githubUrl}
                     onChange={(e) => setGithubUrl(e.target.value)}
+                    placeholder="このサービスのGitHubのリポジトリ"
                     className="w-full border-2 px-4 py-3 rounded-lg shadow-sm border-gray-300"
                 />
             </div>
-
-            {/* タグ */}
+            {/* タグ */}{" "}
             <div className="mb-6">
+                {" "}
                 <label className="block font-semibold text-lg mb-2">
-                    タグ（技術） <span className="text-red-500">*</span>
-                </label>
-                <TagsInput value={tags} onChange={setTags} />
+                    {" "}
+                    タグ <span className="text-red-500">*</span>{" "}
+                </label>{" "}
+                <TagsInput value={tags} onChange={setTags} />{" "}
                 {errors.tags && (
                     <p className="text-red-500 mt-2 text-sm">{errors.tags}</p>
-                )}
+                )}{" "}
             </div>
-
             <button
                 type="submit"
                 className="w-full px-6 py-3 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 focus:outline-none"

@@ -86,7 +86,7 @@ const Home = () => {
                 )}
 
                 <Link
-                    href={route("dashboard")}
+                    href={route("portfolios.index")}
                     className="btn py-2 px-4 bg-purple-500 text-white rounded-md"
                 >
                     ポートフォリオ一覧
