@@ -1,13 +1,12 @@
-// resources/js/Components/Portfolios/PortfolioForm.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Inertia } from "@inertiajs/inertia";
 import TagsInput from "@/Components/Tag/TagsInput";
 
 export default function PortfolioForm({
-    initialData = {}, // title, description, url, github_url, tags, image_url
-    onSubmitRoute, // 送信先 route 文字列
-    method = "post", // HTTPメソッド ("post" or "put")
-    buttonText = "投稿", // ボタンテキスト
+    initialData = {}, // title, description, url, github_url, tags
+    onSubmitRoute,
+    method = "post",
+    buttonText = "投稿",
 }) {
     const [title, setTitle] = useState(initialData.title || "");
     const [description, setDescription] = useState(
@@ -18,20 +17,7 @@ export default function PortfolioForm({
     const [tags, setTags] = useState(
         (initialData.tags || []).map((name) => ({ name }))
     );
-    const [image, setImage] = useState(null);
-    const [imagePreview, setImagePreview] = useState(
-        initialData.image_url || null
-    );
     const [errors, setErrors] = useState({});
-
-    // 画像プレビュー更新
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        setImage(file);
-        setImagePreview(
-            file ? URL.createObjectURL(file) : initialData.image_url || null
-        );
-    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -39,7 +25,7 @@ export default function PortfolioForm({
         // クライアント側バリデーション
         const newErrors = {};
         if (!title.trim()) newErrors.title = "作品タイトルは必須です";
-        if (!description.trim()) newErrors.description = "作品説明は必須です"; // ←追加
+        if (!description.trim()) newErrors.description = "作品説明は必須です";
         if (!url.trim()) newErrors.url = "作品のURLは必須です";
         if (tags.length === 0) newErrors.tags = "タグ（技術）は必須です";
 
@@ -52,11 +38,10 @@ export default function PortfolioForm({
         const formData = new FormData();
         if (method.toLowerCase() === "put") formData.append("_method", "put");
         formData.append("title", title);
-        formData.append("description", description); // ←必須
+        formData.append("description", description);
         formData.append("url", url);
         formData.append("github_url", githubUrl);
         tags.forEach((t, idx) => formData.append(`tags[${idx}]`, t.name));
-        if (image) formData.append("image", image);
 
         Inertia.post(onSubmitRoute, formData, {
             onError: (err) => setErrors(err),
@@ -68,7 +53,6 @@ export default function PortfolioForm({
     return (
         <form
             onSubmit={handleSubmit}
-            encType="multipart/form-data"
             className="bg-white p-6 rounded shadow-md"
         >
             {/* タイトル */}
@@ -92,7 +76,7 @@ export default function PortfolioForm({
             {/* 説明 */}
             <div className="mb-4">
                 <label className="block font-medium mb-1">
-                    作品説明<span className="text-red-500">*</span>
+                    作品説明 <span className="text-red-500">*</span>
                 </label>
                 <textarea
                     value={description}
@@ -104,32 +88,6 @@ export default function PortfolioForm({
                 />
                 {errors.description && (
                     <p className="text-red-500 mt-1">{errors.description}</p>
-                )}
-            </div>
-
-            {/* 画像 */}
-            <div className="mb-4">
-                <label className="block font-medium mb-1">画像（任意）</label>
-                {imagePreview && (
-                    <div className="mb-2">
-                        <img
-                            src={imagePreview}
-                            alt="プレビュー"
-                            className="w-full max-w-xs object-cover rounded"
-                        />
-                        <p className="text-sm text-gray-500 mt-1">
-                            {image ? image.name : "現在の画像"}
-                        </p>
-                    </div>
-                )}
-                <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="w-full"
-                />
-                {errors.image && (
-                    <p className="text-red-500 mt-1">{errors.image}</p>
                 )}
             </div>
 

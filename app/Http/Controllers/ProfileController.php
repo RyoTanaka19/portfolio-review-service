@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Helpers\PortfolioHelper; // 追加：OGP画像を取得するヘルパー
 
 class ProfileController extends Controller
 {
@@ -50,9 +51,10 @@ class ProfileController extends Controller
         // ポートフォリオ一覧を取得
         $portfolios = $user->portfolios()->with('reviews', 'tags')->get();
 
-        // ポートフォリオ画像URLを付与
+        // ポートフォリオ画像URLをOGP画像に変更
         $portfolios = $portfolios->map(function ($p) {
-            $p->image_url = $p->image_path ? asset('storage/' . $p->image_path) : null;
+            // ポートフォリオのURLからOGP画像を取得
+            $p->image_url = $p->url ? PortfolioHelper::getOgImage($p->url) : null;
             return $p;
         });
 
@@ -123,21 +125,24 @@ class ProfileController extends Controller
 
         // 3. ユーザーが作成したポートフォリオの画像削除
         foreach ($user->portfolios as $portfolio) {
+            // ポートフォリオ画像削除
             if ($portfolio->image_path) {
                 Storage::disk('public')->delete($portfolio->image_path);
             }
         }
 
-        // 4. ユーザーが作成したレビューの画像削除（もし画像がある場合）
+        // 4. ユーザーが作成したレビューの画像削除
         foreach ($user->reviews as $review) {
-            if (isset($review->image_path) && $review->image_path) {
+            // レビュー画像削除
+            if ($review->image_path) {
                 Storage::disk('public')->delete($review->image_path);
             }
         }
 
-        // 5. ユーザーが作成したブックマークの画像削除（もし画像がある場合）
+        // 5. ユーザーが作成したブックマークの画像削除
         foreach ($user->bookmarks as $bookmark) {
-            if (isset($bookmark->image_path) && $bookmark->image_path) {
+            // ブックマーク画像削除
+            if ($bookmark->image_path) {
                 Storage::disk('public')->delete($bookmark->image_path);
             }
         }

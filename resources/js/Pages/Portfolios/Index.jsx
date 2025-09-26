@@ -6,7 +6,7 @@ import axios from "axios";
 import BookmarkButton from "@/Components/Bookmark/BookmarkButton";
 import PortfolioSearch from "@/Components/Portfolios/PortfolioSearch";
 import FlashMessage from "@/Components/FlashMessage";
-import Pagination from "@/Components/Pagination/Pagination"; // 追加
+import Pagination from "@/Components/Pagination/Pagination";
 
 export default function Index({ portfolios, auth, allTags = [], flash = {} }) {
     const [portfolioList, setPortfolioList] = useState(portfolios.data || []);
@@ -42,7 +42,6 @@ export default function Index({ portfolios, auth, allTags = [], flash = {} }) {
         }
     };
 
-    // --- ページ切替（検索条件を維持） ---
     const fetchPage = (page) => {
         if (!page) return;
         Inertia.get(`/portfolios?page=${page}`, pagination.filters || {}, {
@@ -114,13 +113,15 @@ export default function Index({ portfolios, auth, allTags = [], flash = {} }) {
                                     </Link>
                                 </div>
 
-                                {p.image_url && (
+                                {/* OGP画像があれば表示 */}
+                                {p.image_url ? (
                                     <img
                                         src={p.image_url}
                                         alt={p.title}
                                         className="w-full h-40 object-cover rounded mb-3"
                                     />
-                                )}
+                                ) : null}
+
                                 <p className="text-gray-700 text-sm mb-3 line-clamp-3">
                                     {p.description}
                                 </p>
@@ -198,7 +199,6 @@ export default function Index({ portfolios, auth, allTags = [], flash = {} }) {
                 })}
             </main>
 
-            {/* Pagination コンポーネントを呼び出し */}
             <Pagination pagination={pagination} onPageChange={fetchPage} />
         </AppLayout>
     );
