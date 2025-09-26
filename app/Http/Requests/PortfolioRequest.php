@@ -35,7 +35,7 @@ class PortfolioRequest extends FormRequest
         return [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'url' => 'required|url|max:255',
+            'service_url' => 'required|url|max:255',
             'github_url' => 'nullable|url|max:255',
             'tags' => 'required|array',
             'tags.*' => 'string|max:50',

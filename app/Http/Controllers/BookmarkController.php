@@ -70,11 +70,11 @@ class BookmarkController extends Controller
                     'id' => $p->id,
                     'title' => $p->title,
                     'description' => $p->description,
-                    'url' => $p->url,
+                    'service_url' => $p->service_url,
                     'user_id' => $p->user_id,
                     'user_name' => $p->user->name ?? '未設定',
                     // URLからOGP画像を取得
-                    'image_url' => $p->url ? PortfolioHelper::getOgImage($p->url) : null,
+                    'image_url' => $p->service_url ? PortfolioHelper::getOgImage($p->service_url) : null,
                     'tags' => $p->tags->map(fn($t) => $t->name)->toArray(),
                     'reviews' => $p->reviews->map(fn($r) => [
                         'id' => $r->id,

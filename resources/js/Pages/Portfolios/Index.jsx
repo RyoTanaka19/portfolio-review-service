@@ -150,7 +150,7 @@ export default function Index({ portfolios, auth, allTags = [], flash = {} }) {
                                     </div>
                                 )}
 
-                                {p.url && (
+                                {p.service_url && (
                                     <a
                                         href={`/portfolio/${p.id}/visit`}
                                         target="_blank"

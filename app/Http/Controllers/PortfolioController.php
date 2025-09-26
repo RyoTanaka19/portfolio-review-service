@@ -74,7 +74,7 @@ class PortfolioController extends Controller
             'user_id' => auth()->id(),
             'title' => $validated['title'],
             'description' => $validated['description'],
-            'url' => $validated['url'],
+            'service_url' => $validated['service_url'],
             'github_url' => $validated['github_url'] ?? null,
         ]);
 
@@ -115,9 +115,9 @@ class PortfolioController extends Controller
                 'id' => $portfolio->id,
                 'title' => $portfolio->title,
                 'description' => $portfolio->description,
-                'url' => $portfolio->url,
+                'service_url' => $portfolio->service_url,
                 'github_url' => $portfolio->github_url,
-                'image_url' => PortfolioHelper::getOgImage($portfolio->url),
+                'image_url' => PortfolioHelper::getOgImage($portfolio->service_url),
                 'tags' => $portfolio->tags->pluck('name')->toArray(),
             ],
         ]);
@@ -135,7 +135,7 @@ public function update(PortfolioRequest $request, Portfolio $portfolio)
     $portfolio->update([
         'title' => $validated['title'],
         'description' => $validated['description'],
-        'url' => $validated['url'],
+        'service_url' => $validated['service_url'],
         'github_url' => $validated['github_url'] ?? null,
     ]);
 

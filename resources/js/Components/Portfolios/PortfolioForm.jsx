@@ -3,7 +3,7 @@ import { Inertia } from "@inertiajs/inertia";
 import TagsInput from "@/Components/Tag/TagsInput";
 
 export default function PortfolioForm({
-    initialData = {}, // title, description, url, github_url, tags
+    initialData = {}, // title, description, service_url, github_url, tags
     onSubmitRoute,
     method = "post",
     buttonText = "投稿",
@@ -12,7 +12,7 @@ export default function PortfolioForm({
     const [description, setDescription] = useState(
         initialData.description || ""
     );
-    const [url, setUrl] = useState(initialData.url || "");
+    const [serviceUrl, setServiceUrl] = useState(initialData.service_url || "");
     const [githubUrl, setGithubUrl] = useState(initialData.github_url || "");
     const [tags, setTags] = useState(
         (initialData.tags || []).map((name) => ({ name }))
@@ -26,7 +26,7 @@ export default function PortfolioForm({
         const newErrors = {};
         if (!title.trim()) newErrors.title = "作品タイトルは必須です";
         if (!description.trim()) newErrors.description = "作品説明は必須です";
-        if (!url.trim()) newErrors.url = "作品のURLは必須です";
+        if (!serviceUrl.trim()) newErrors.service_url = "作品のURLは必須です";
         if (tags.length === 0) newErrors.tags = "タグ（技術）は必須です";
 
         if (Object.keys(newErrors).length > 0) {
@@ -39,7 +39,7 @@ export default function PortfolioForm({
         if (method.toLowerCase() === "put") formData.append("_method", "put");
         formData.append("title", title);
         formData.append("description", description);
-        formData.append("url", url);
+        formData.append("service_url", serviceUrl);
         formData.append("github_url", githubUrl);
         tags.forEach((t, idx) => formData.append(`tags[${idx}]`, t.name));
 
@@ -95,21 +95,25 @@ export default function PortfolioForm({
                 )}
             </div>
 
-            {/* URL */}
+            {/* service_url  */}
             <div className="mb-6">
                 <label className="block font-semibold text-lg mb-2">
                     作品のURL <span className="text-red-500">*</span>
                 </label>
                 <input
                     type="url"
-                    value={url}
-                    onChange={(e) => setUrl(e.target.value)}
+                    value={serviceUrl}
+                    onChange={(e) => setServiceUrl(e.target.value)}
                     className={`w-full border-2 px-4 py-3 rounded-lg shadow-sm ${
-                        errors.url ? "border-red-500" : "border-gray-300"
+                        errors.service_url
+                            ? "border-red-500"
+                            : "border-gray-300"
                     }`}
                 />
-                {errors.url && (
-                    <p className="text-red-500 mt-2 text-sm">{errors.url}</p>
+                {errors.service_url && (
+                    <p className="text-red-500 mt-2 text-sm">
+                        {errors.service_url}
+                    </p>
                 )}
             </div>
 

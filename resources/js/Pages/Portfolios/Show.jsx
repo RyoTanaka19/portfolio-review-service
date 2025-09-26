@@ -43,18 +43,18 @@ export default function Show({ portfolio, auth, errors, flash }) {
                         )}
 
                         {/* 作品URL */}
-                        {portfolio.url && (
+                        {portfolio.service_url && (
                             <div className="mb-6">
                                 <h2 className="text-xl font-semibold mb-2 text-gray-700">
                                     作品URL
                                 </h2>
                                 <a
-                                    href={portfolio.url}
+                                    href={portfolio.service_url}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-blue-500 hover:underline break-all"
                                 >
-                                    {portfolio.url}
+                                    {portfolio.service_url}
                                 </a>
                             </div>
                         )}

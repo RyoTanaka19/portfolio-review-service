@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); // 投稿者
             $table->string('title');        // 作品タイトル
             $table->text('description');    // 作品説明
-            $table->string('url')->nullable(); // 任意URL
+            $table->string('service_url'); // 任意URL
             $table->string('github_url')->nullable(); // GitHub URL
             $table->timestamps();
         });

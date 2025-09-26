@@ -125,9 +125,9 @@ export default function Index({ portfolios: initialPortfolios = [], auth }) {
                                         />
                                     )}
 
-                                    {p.url && (
+                                    {p.service_url && (
                                         <a
-                                            href={p.url}
+                                            href={p.service_url}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="text-blue-500 text-sm block mt-2"
