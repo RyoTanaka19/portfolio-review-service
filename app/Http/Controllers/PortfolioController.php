@@ -124,31 +124,33 @@ class PortfolioController extends Controller
     }
 
     // 投稿更新
-    public function update(PortfolioRequest $request, Portfolio $portfolio)
-    {
-        $this->authorize('update', $portfolio);
-
-        $validated = $request->validated();
-
-        $portfolio->update([
-            'title' => $validated['title'],
-            'description' => $validated['description'],
-            'url' => $validated['url'],
-            'github_url' => $validated['github_url'] ?? null,
-        ]);
-
-        // タグ更新
-        $tagIds = [];
-        if (!empty($validated['tags'])) {
-            foreach ($validated['tags'] as $tagName) {
-                $tag = Tag::firstOrCreate(['name' => trim($tagName)]);
-                $tagIds[] = $tag->id;
-            }
-        }
-        $portfolio->tags()->sync($tagIds);
-
-        return redirect()->route('dashboard')->with('flash', ['success' => 'ポートフォリオを更新しました']);
+public function update(PortfolioRequest $request, Portfolio $portfolio)
+{
+    if ($portfolio->user_id !== auth()->id()) {
+        abort(403, 'Unauthorized action.');
     }
+
+    $validated = $request->validated();
+
+    $portfolio->update([
+        'title' => $validated['title'],
+        'description' => $validated['description'],
+        'url' => $validated['url'],
+        'github_url' => $validated['github_url'] ?? null,
+    ]);
+
+    // タグ更新
+    $tagIds = [];
+    if (!empty($validated['tags'])) {
+        foreach ($validated['tags'] as $tagName) {
+            $tag = Tag::firstOrCreate(['name' => trim($tagName)]);
+            $tagIds[] = $tag->id;
+        }
+    }
+    $portfolio->tags()->sync($tagIds);
+
+    return redirect()->route('dashboard')->with('flash', ['success' => 'ポートフォリオを更新しました']);
+}
 
     // 投稿削除
     public function destroy(Portfolio $portfolio)
