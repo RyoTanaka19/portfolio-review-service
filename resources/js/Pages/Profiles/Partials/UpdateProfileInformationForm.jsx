@@ -6,6 +6,7 @@ import TextInput from "@/Components/TextInput";
 import { Transition } from "@headlessui/react";
 import { Link, useForm, usePage } from "@inertiajs/react";
 import FlashMessage from "@/Components/FlashMessage";
+import axios from "axios";
 
 export default function UpdateProfileInformation({
     mustVerifyEmail,
@@ -20,6 +21,7 @@ export default function UpdateProfileInformation({
             name: user.name,
             email: user.email,
             tags: user.tags?.map((tag) => tag.id) || [],
+            profile_image: null, // プロフィール画像の追加
         });
 
     const [flashMessage, setFlashMessage] = useState(""); // フラッシュメッセージ用
@@ -33,6 +35,13 @@ export default function UpdateProfileInformation({
             );
         } else {
             setData("tags", [...data.tags, tagId]);
+        }
+    };
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setData("profile_image", file); // 画像ファイルをセット
         }
     };
 
@@ -57,6 +66,11 @@ export default function UpdateProfileInformation({
             // tags を tags[] として送信
             data.tags.forEach((id) => formData.append("tags[]", id));
 
+            // プロフィール画像を送信
+            if (data.profile_image) {
+                formData.append("profile_image", data.profile_image);
+            }
+
             // Axios 送信（Content-Type は自動設定）
             const response = await axios.post(
                 route("profile.update"),
@@ -77,6 +91,7 @@ export default function UpdateProfileInformation({
                     name: updatedUser.name,
                     email: updatedUser.email,
                     tags: updatedUser.tags.map((tag) => tag.id),
+                    profile_image: null, // 画像更新後はクリア
                 });
 
                 setFlashMessage(response.data.message);
@@ -152,6 +167,29 @@ export default function UpdateProfileInformation({
                     <InputError
                         className="mt-2"
                         message={localErrors.email || errors.email}
+                    />
+                </div>
+
+                {/* プロフィール画像 */}
+                <div>
+                    <InputLabel
+                        htmlFor="profile_image"
+                        value="プロフィール画像"
+                    />
+                    <div className="mt-2">
+                        <input
+                            id="profile_image"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            className="mt-2"
+                        />
+                    </div>
+                    <InputError
+                        className="mt-2"
+                        message={
+                            errors.profile_image || localErrors.profile_image
+                        }
                     />
                 </div>
 
