@@ -4,7 +4,7 @@ import { Inertia } from "@inertiajs/inertia";
 import AppLayout from "@/Layouts/AppLayout";
 import axios from "axios";
 import BookmarkButton from "@/Components/Bookmark/BookmarkButton";
-import PortfolioSearch from "@/Components/Portfolios/PortfolioSearch";
+import PortfolioSearch from "@/Pages/Portfolios/Partials/PortfolioSearch";
 import FlashMessage from "@/Components/FlashMessage";
 import Pagination from "@/Components/Pagination/Pagination";
 
@@ -122,10 +122,6 @@ export default function Index({ portfolios, auth, allTags = [], flash = {} }) {
                                     />
                                 ) : null}
 
-                                <p className="text-gray-700 text-sm mb-3 line-clamp-3">
-                                    {p.description}
-                                </p>
-
                                 {averageRating ? (
                                     <p className="text-yellow-600 font-semibold mb-2">
                                         平均評価: {averageRating} / 5 (
@@ -199,7 +195,10 @@ export default function Index({ portfolios, auth, allTags = [], flash = {} }) {
                 })}
             </main>
 
-            <Pagination pagination={pagination} onPageChange={fetchPage} />
+            {/* ページネーションコンポーネントを常に表示 */}
+            {portfolioList.length > 0 && (
+                <Pagination pagination={pagination} onPageChange={fetchPage} />
+            )}
         </AppLayout>
     );
 }
