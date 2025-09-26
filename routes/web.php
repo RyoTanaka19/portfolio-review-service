@@ -4,7 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PortfolioController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\AdviceController;
-use App\Http\Controllers\Auth\GoogleLoginController;
+use App\Http\Controllers\Auth\AuthLoginController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\StaticPagesController;
@@ -34,9 +34,8 @@ Route::get('/how-to', [StaticPagesController::class, 'howTo'])->name('how_to');
 Route::post('/contact', [StaticPagesController::class, 'submitContact'])->name('contact.send');
 
 // Googleログイン（未ログインユーザーでもアクセス可能）
-Route::get('auth/google', [GoogleLoginController::class, 'redirectToGoogle'])->name('google.login');
-Route::get('auth/google/callback', [GoogleLoginController::class, 'handleGoogleCallback']);
-
+Route::get('auth/google', [AuthLoginController::class, 'redirectToGoogle'])->name('google.login');
+Route::get('auth/google/callback', [AuthLoginController::class, 'handleGoogleCallback']);
 
 
 // ランキング（未ログインでもアクセス可能）
