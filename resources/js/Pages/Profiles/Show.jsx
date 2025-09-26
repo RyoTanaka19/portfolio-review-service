@@ -28,19 +28,7 @@ export default function Show() {
 
             <div className="p-6 max-w-7xl mx-auto">
                 {/* プロフィールカード */}
-                <div className="bg-white rounded-2xl shadow-md p-6 flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-10">
-                    <div className="w-24 h-24 rounded-full bg-gray-300 flex items-center justify-center text-2xl font-bold text-white overflow-hidden">
-                        {user.profile_image_url ? (
-                            <img
-                                src={user.profile_image_url}
-                                alt={`${user.name}のプロフィール画像`}
-                                className="w-full h-full object-cover"
-                            />
-                        ) : (
-                            <span>{user.name?.[0] || "U"}</span>
-                        )}
-                    </div>
-
+                <div className="bg-white rounded-2xl shadow-md p-6 flex flex-col sm:flex-row items-start gap-6 mb-10">
                     <div className="flex-1">
                         <h1 className="text-3xl font-bold mb-2">{user.name}</h1>
                         {isOwnProfile && (
@@ -56,9 +44,9 @@ export default function Show() {
                         </p>
                         {user.tags?.length > 0 && (
                             <div className="mt-3 flex flex-wrap gap-2">
-                                {user.tags.map((tag, idx) => (
+                                {user.tags.map((tag) => (
                                     <span
-                                        key={idx}
+                                        key={tag.id}
                                         className="bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm"
                                     >
                                         {tag.name}
@@ -146,9 +134,9 @@ export default function Show() {
 
                                             {p.tags?.length > 0 && (
                                                 <div className="flex flex-wrap gap-2 mt-auto">
-                                                    {p.tags.map((tag, idx) => (
+                                                    {p.tags.map((tag) => (
                                                         <span
-                                                            key={idx}
+                                                            key={tag.id}
                                                             className="bg-gray-200 text-gray-800 px-2 py-1 rounded-full text-xs"
                                                         >
                                                             {tag.name}
