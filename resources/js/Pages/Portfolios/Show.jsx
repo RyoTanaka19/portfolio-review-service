@@ -19,7 +19,7 @@ export default function Show({ portfolio, auth, errors, flash }) {
                             </InertiaLink>
                         </h1>
 
-                        {/* 画像 */}
+                        {/* OGP画像（存在する場合のみ表示） */}
                         {portfolio.image_url && (
                             <div className="mb-6 flex justify-center">
                                 <img
@@ -31,14 +31,16 @@ export default function Show({ portfolio, auth, errors, flash }) {
                         )}
 
                         {/* 作品説明 */}
-                        <div className="mb-6">
-                            <h2 className="text-xl font-semibold mb-2 text-gray-700">
-                                作品説明
-                            </h2>
-                            <p className="text-gray-600">
-                                {portfolio.description}
-                            </p>
-                        </div>
+                        {portfolio.description && (
+                            <div className="mb-6">
+                                <h2 className="text-xl font-semibold mb-2 text-gray-700">
+                                    作品説明
+                                </h2>
+                                <p className="text-gray-600">
+                                    {portfolio.description}
+                                </p>
+                            </div>
+                        )}
 
                         {/* 作品URL */}
                         {portfolio.url && (
@@ -75,7 +77,7 @@ export default function Show({ portfolio, auth, errors, flash }) {
                         )}
 
                         {/* タグ（クリック不可） */}
-                        {portfolio.tags && portfolio.tags.length > 0 && (
+                        {portfolio.tags?.length > 0 && (
                             <div className="mb-6">
                                 <h2 className="text-xl font-semibold mb-2 text-gray-700">
                                     タグ
@@ -94,7 +96,7 @@ export default function Show({ portfolio, auth, errors, flash }) {
                         )}
 
                         {/* レビュー */}
-                        {auth.user ? (
+                        {auth?.user ? (
                             <ReviewIndex
                                 portfolio={portfolio}
                                 auth={auth}

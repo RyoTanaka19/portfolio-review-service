@@ -1,44 +1,44 @@
 <?php
-
 namespace App\Helpers;
 
-use App\Models\Portfolio;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http;
 
 class PortfolioHelper
 {
-    /**
-     * ポートフォリオを整形するメソッド
-     *
-     * @param Portfolio $p
-     * @param int $userId
-     * @return array
-     */
-    public static function mapPortfolio(Portfolio $p, $userId)
+    public static function getOgImage(string $url): ?string
     {
-        $isBookmarked = $userId ? $p->bookmarks->contains('user_id', $userId) : false;
+        try {
+            // URLからHTMLを取得
+            $response = Http::get($url);
+            if (!$response->ok()) return null;
 
+            $html = $response->body();
+
+            // og:image メタタグを正規表現で取得
+            if (preg_match('/<meta property="og:image" content="([^"]+)"/i', $html, $matches)) {
+                return $matches[1]; // OGP画像URL
+            }
+
+            return null; // 見つからなければnull
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    public static function mapPortfolio($portfolio, $authUserId = null)
+    {
         return [
-            'id' => $p->id,
-            'title' => $p->title,
-            'description' => $p->description,
-            'url' => $p->url,
-            'github_url' => $p->github_url,
-            'user_id' => $p->user_id,
-            'user_name' => $p->user->name ?? '未設定',
-            'image_url' => $p->image_path ? Storage::url($p->image_path) : null,
-            'tags' => $p->tags->map(fn($t) => $t->name)->toArray(),
-            'reviews' => $p->reviews->map(fn($r) => [
-                'id' => $r->id,
-                'comment' => $r->comment,
-                'rating' => $r->rating,
-                'user' => [
-                    'id' => $r->user->id,
-                    'name' => $r->user->name ?? '未設定',
-                ],
-                'created_at' => $r->created_at->format('Y-m-d H:i'),
-            ]),
-            'is_bookmarked' => $isBookmarked,
+            'id' => $portfolio->id,
+            'title' => $portfolio->title,
+            'description' => $portfolio->description,
+            'url' => $portfolio->url,
+            'github_url' => $portfolio->github_url,
+            'image_url' => $portfolio->url ? self::getOgImage($portfolio->url) : null,
+            'tags' => $portfolio->tags->pluck('name')->toArray(),
+            'reviews' => $portfolio->reviews,
+            'user_id' => $portfolio->user_id,
+            'user_name' => $portfolio->user->name ?? '未設定',
+            'is_bookmarked' => $portfolio->bookmarks->contains('user_id', $authUserId),
         ];
     }
 }
