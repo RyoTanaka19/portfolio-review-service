@@ -60,7 +60,8 @@ export default function Index({ portfolios: initialPortfolios = [], auth }) {
                                     className="bg-white p-4 rounded shadow hover:shadow-md transition duration-200"
                                 >
                                     <div className="flex justify-between items-center mb-2">
-                                        <h2 className="font-bold text-lg truncate">
+                                        {/* タイトルを中央寄せ */}
+                                        <h2 className="font-bold text-lg truncate text-center w-full">
                                             <Link
                                                 href={`/portfolio/${p.id}`}
                                                 className="text-blue-500 hover:underline"
@@ -70,9 +71,6 @@ export default function Index({ portfolios: initialPortfolios = [], auth }) {
                                                     : p.title}
                                             </Link>
                                         </h2>
-                                        <span className="text-sm text-gray-500">
-                                            {p.user_name}
-                                        </span>
                                     </div>
 
                                     {p.image_url && (
@@ -82,10 +80,6 @@ export default function Index({ portfolios: initialPortfolios = [], auth }) {
                                             className="w-full h-40 object-cover mb-2 rounded"
                                         />
                                     )}
-
-                                    <p className="text-gray-700 text-sm mb-2 line-clamp-3">
-                                        {p.description}
-                                    </p>
 
                                     {averageRating ? (
                                         <p className="text-yellow-600 font-semibold mb-2">
