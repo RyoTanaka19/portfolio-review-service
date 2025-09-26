@@ -60,7 +60,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // 誰でもアクセスできるポートフォリオ一覧
-Route::get('/portfolios', [PortfolioController::class, 'index'])->name('dashboard');
+Route::get('/portfolios', [PortfolioController::class, 'index'])->name('portfolios.index');
 Route::get('/portfolios/search', [PortfolioController::class, 'search'])->name('portfolios.search');
 Route::get('/portfolio/{portfolio}', [PortfolioController::class, 'show'])
     ->whereNumber('portfolio')->name('portfolio.show');
