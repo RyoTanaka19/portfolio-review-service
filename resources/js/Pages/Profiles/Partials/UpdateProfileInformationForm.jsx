@@ -19,31 +19,11 @@ export default function UpdateProfileInformation({
             _method: "patch",
             name: user.name,
             email: user.email,
-            profile_image: null,
-            delete_profile_image: false,
             tags: user.tags?.map((tag) => tag.id) || [],
         });
 
-    const [preview, setPreview] = useState(user?.profile_image_url || null);
-    const [localErrors, setLocalErrors] = useState({}); // フロント側バリデーション用
     const [flashMessage, setFlashMessage] = useState(""); // フラッシュメッセージ用
-
-    useEffect(() => {
-        return () => {
-            if (preview && preview.startsWith("blob:")) {
-                URL.revokeObjectURL(preview);
-            }
-        };
-    }, [preview]);
-
-    const onFileChange = (e) => {
-        const file = e.target.files[0];
-        setData("profile_image", file);
-        setData("delete_profile_image", false);
-        if (file) {
-            setPreview(URL.createObjectURL(file));
-        }
-    };
+    const [localErrors, setLocalErrors] = useState({}); // フロント側バリデーション用
 
     const toggleTag = (tagId) => {
         if (data.tags.includes(tagId)) {
@@ -74,15 +54,6 @@ export default function UpdateProfileInformation({
             formData.append("name", data.name);
             formData.append("email", data.email);
 
-            if (data.profile_image) {
-                formData.append("profile_image", data.profile_image);
-            }
-
-            formData.append(
-                "delete_profile_image",
-                data.delete_profile_image ? 1 : 0
-            );
-
             // tags を tags[] として送信
             data.tags.forEach((id) => formData.append("tags[]", id));
 
@@ -105,12 +76,9 @@ export default function UpdateProfileInformation({
                     _method: "patch",
                     name: updatedUser.name,
                     email: updatedUser.email,
-                    profile_image: null,
-                    delete_profile_image: false,
                     tags: updatedUser.tags.map((tag) => tag.id),
                 });
 
-                setPreview(updatedUser.profile_image_url || null);
                 setFlashMessage(response.data.message);
             } else {
                 setFlashMessage(response.data.message || "更新に失敗しました");
@@ -128,6 +96,7 @@ export default function UpdateProfileInformation({
             }
         }
     };
+
     return (
         <section className={className}>
             {/* フラッシュメッセージ */}
@@ -144,7 +113,7 @@ export default function UpdateProfileInformation({
                     プロフィール情報
                 </h2>
                 <p className="mt-1 text-sm text-gray-600">
-                    アカウントのプロフィール情報、メールアドレス、プロフィール画像、タグを更新できます。
+                    アカウントのプロフィール情報、メールアドレス、タグを更新できます。
                 </p>
             </header>
 
@@ -183,38 +152,6 @@ export default function UpdateProfileInformation({
                     <InputError
                         className="mt-2"
                         message={localErrors.email || errors.email}
-                    />
-                </div>
-
-                {/* プロフィール画像 */}
-                <div>
-                    <InputLabel
-                        htmlFor="profile_image"
-                        value="プロフィール画像"
-                    />
-                    {preview ? (
-                        <div className="mt-2">
-                            <img
-                                src={preview}
-                                alt="preview"
-                                className="w-24 h-24 rounded-full object-cover"
-                            />
-                        </div>
-                    ) : (
-                        <div className="mt-2 text-sm text-gray-500">
-                            画像がありません
-                        </div>
-                    )}
-                    <input
-                        type="file"
-                        id="profile_image"
-                        accept="image/*"
-                        onChange={onFileChange}
-                        className="mt-2"
-                    />
-                    <InputError
-                        className="mt-2"
-                        message={errors.profile_image}
                     />
                 </div>
 
