@@ -53,89 +53,93 @@ export default function PortfolioForm({
     return (
         <form
             onSubmit={handleSubmit}
-            className="bg-white p-6 rounded shadow-md"
+            className="bg-white p-8 rounded-lg shadow-lg w-full max-w-3xl mx-auto"
         >
             {/* タイトル */}
-            <div className="mb-4">
-                <label className="block font-medium mb-1">
+            <div className="mb-6">
+                <label className="block font-semibold text-lg mb-2">
                     作品タイトル <span className="text-red-500">*</span>
                 </label>
                 <input
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className={`w-full border px-3 py-2 rounded ${
-                        errors.title ? "border-red-500" : ""
+                    className={`w-full border-2 px-4 py-3 rounded-lg shadow-sm ${
+                        errors.title ? "border-red-500" : "border-gray-300"
                     }`}
                 />
                 {errors.title && (
-                    <p className="text-red-500 mt-1">{errors.title}</p>
+                    <p className="text-red-500 mt-2 text-sm">{errors.title}</p>
                 )}
             </div>
 
             {/* 説明 */}
-            <div className="mb-4">
-                <label className="block font-medium mb-1">
+            <div className="mb-6">
+                <label className="block font-semibold text-lg mb-2">
                     作品説明 <span className="text-red-500">*</span>
                 </label>
                 <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className={`w-full border px-3 py-2 rounded ${
-                        errors.description ? "border-red-500" : ""
+                    className={`w-full border-2 px-4 py-3 rounded-lg shadow-sm ${
+                        errors.description
+                            ? "border-red-500"
+                            : "border-gray-300"
                     }`}
-                    rows={4}
+                    rows={5}
                 />
                 {errors.description && (
-                    <p className="text-red-500 mt-1">{errors.description}</p>
+                    <p className="text-red-500 mt-2 text-sm">
+                        {errors.description}
+                    </p>
                 )}
             </div>
 
             {/* URL */}
-            <div className="mb-4">
-                <label className="block font-medium mb-1">
+            <div className="mb-6">
+                <label className="block font-semibold text-lg mb-2">
                     作品のURL <span className="text-red-500">*</span>
                 </label>
                 <input
                     type="url"
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
-                    className={`w-full border px-3 py-2 rounded ${
-                        errors.url ? "border-red-500" : ""
+                    className={`w-full border-2 px-4 py-3 rounded-lg shadow-sm ${
+                        errors.url ? "border-red-500" : "border-gray-300"
                     }`}
                 />
                 {errors.url && (
-                    <p className="text-red-500 mt-1">{errors.url}</p>
+                    <p className="text-red-500 mt-2 text-sm">{errors.url}</p>
                 )}
             </div>
 
             {/* GitHub URL */}
-            <div className="mb-4">
-                <label className="block font-medium mb-1">
+            <div className="mb-6">
+                <label className="block font-semibold text-lg mb-2">
                     GitHub URL（任意）
                 </label>
                 <input
                     type="url"
                     value={githubUrl}
                     onChange={(e) => setGithubUrl(e.target.value)}
-                    className="w-full border px-3 py-2 rounded"
+                    className="w-full border-2 px-4 py-3 rounded-lg shadow-sm border-gray-300"
                 />
             </div>
 
             {/* タグ */}
-            <div className="mb-4">
-                <label className="block font-medium mb-1">
+            <div className="mb-6">
+                <label className="block font-semibold text-lg mb-2">
                     タグ（技術） <span className="text-red-500">*</span>
                 </label>
                 <TagsInput value={tags} onChange={setTags} />
                 {errors.tags && (
-                    <p className="text-red-500 mt-1">{errors.tags}</p>
+                    <p className="text-red-500 mt-2 text-sm">{errors.tags}</p>
                 )}
             </div>
 
             <button
                 type="submit"
-                className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                className="w-full px-6 py-3 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 focus:outline-none"
             >
                 {buttonText}
             </button>
