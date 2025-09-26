@@ -5,6 +5,7 @@ namespace App\Helpers;
 use App\Models\Portfolio;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Cache;
+use App\Helpers\PortfolioHelper;
 
 class ReviewHelper
 {
@@ -20,7 +21,7 @@ class ReviewHelper
                 ->orderByDesc("reviews_avg_{$avgColumn}")
                 ->take(10)
                 ->get()
-                ->map(fn($p) => ReviewHelper::formatPortfolio($p, "reviews_avg_{$avgColumn}"));
+                ->map(fn($p) => self::formatPortfolio($p, "reviews_avg_{$avgColumn}"));
         });
     }
 
@@ -34,7 +35,8 @@ class ReviewHelper
             'url' => $p->url,
             'github_url' => $p->github_url,
             'user_name' => $p->user->name ?? '未設定',
-            'image_url' => $p->image_path ? Storage::url($p->image_path) : null,
+            // URLからOGP画像を取得
+            'image_url' => $p->url ? PortfolioHelper::getOgImage($p->url) : null,
             'tags' => $p->tags->map(fn($t) => $t->name)->toArray(),
             'avg_rating' => round($p->$avgColumn, 2),
             'review_count' => $p->reviews->count(),
