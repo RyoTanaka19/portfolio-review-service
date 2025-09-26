@@ -89,9 +89,9 @@ export default function RankingList({
                                         {p.description}
                                     </p>
                                 )}
-                                {p.url && (
+                                {p.service_url && (
                                     <a
-                                        href={p.url}
+                                        href={p.service_url}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="inline-block mt-4 text-blue-600 text-sm font-medium hover:underline"

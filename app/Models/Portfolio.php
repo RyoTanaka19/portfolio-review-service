@@ -15,7 +15,7 @@ class Portfolio extends Model
         'user_id', 
         'title', 
         'description', 
-        'url', 
+        'service_url', 
         'github_url',  // 追加
         'image_path'
     ];

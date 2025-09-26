@@ -32,11 +32,11 @@ class ReviewHelper
             'id' => $p->id,
             'title' => $p->title,
             'description' => $p->description,
-            'url' => $p->url,
+            'service_url' => $p->service_url,
             'github_url' => $p->github_url,
             'user_name' => $p->user->name ?? '未設定',
             // URLからOGP画像を取得
-            'image_url' => $p->url ? PortfolioHelper::getOgImage($p->url) : null,
+            'image_url' => $p->service_url ? PortfolioHelper::getOgImage($p->service_url) : null,
             'tags' => $p->tags->map(fn($t) => $t->name)->toArray(),
             'avg_rating' => round($p->$avgColumn, 2),
             'review_count' => $p->reviews->count(),

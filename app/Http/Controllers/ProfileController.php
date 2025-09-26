@@ -54,7 +54,7 @@ class ProfileController extends Controller
         // ポートフォリオ画像URLをOGP画像に変更
         $portfolios = $portfolios->map(function ($p) {
             // ポートフォリオのURLからOGP画像を取得
-            $p->image_url = $p->url ? PortfolioHelper::getOgImage($p->url) : null;
+            $p->image_url = $p->service_url ? PortfolioHelper::getOgImage($p->service_url) : null;
             return $p;
         });
 
