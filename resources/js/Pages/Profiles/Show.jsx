@@ -6,7 +6,7 @@ import FlashMessage from "@/Components/FlashMessage";
 
 export default function Show() {
     const { props } = usePage();
-    const { user, authUserId, portfolios = [] } = props;
+    const { user, authUserId, portfolios = [], profileImageUrl } = props; // 追加: profileImageUrl を取得
 
     const [flashMessage, setFlashMessage] = useState({
         message: null,
@@ -29,6 +29,21 @@ export default function Show() {
             <div className="p-6 max-w-7xl mx-auto">
                 {/* プロフィールカード */}
                 <div className="bg-white rounded-2xl shadow-md p-6 flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-10">
+                    {/* プロフィール画像 */}
+                    <div className="w-32 h-32 sm:w-40 sm:h-40 bg-gray-200 rounded-full overflow-hidden mb-4 sm:mb-0">
+                        {profileImageUrl ? (
+                            <img
+                                src={profileImageUrl} // S3 URLを直接使用
+                                alt={`${user.name}のプロフィール画像`}
+                                className="w-full h-full object-cover"
+                            />
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-500">
+                                <span>画像なし</span>
+                            </div>
+                        )}
+                    </div>
+
                     <div className="flex-1">
                         <h1 className="text-3xl font-bold mb-2">{user.name}</h1>
                         {isOwnProfile && (
