@@ -13,8 +13,11 @@ export default function PortfolioSearch({
         filters.user_name || ""
     );
     const [tagFilter, setTagFilter] = useState(filters.tag || "");
+    const [searching, setSearching] = useState(false); // 検索中フラグを追加
 
     const handleSearch = () => {
+        setSearching(true); // 検索中に設定
+
         Inertia.get(
             route("portfolios.search"),
             { user_name: userNameFilter, tag: tagFilter },
@@ -30,6 +33,8 @@ export default function PortfolioSearch({
                         prev_page_url: props.prev_page_url,
                         filters: { user_name: userNameFilter, tag: tagFilter },
                     });
+
+                    setSearching(false); // 検索が完了したら検索中フラグを解除
                 },
             }
         );
@@ -76,10 +81,15 @@ export default function PortfolioSearch({
             </div>
 
             {/* 検索結果 */}
-            <div className="mt-4">
+            <div className="mt-4 text-center">
+                {" "}
+                {/* ここに text-center を追加 */}
                 <h2 className="text-xl font-bold">検索結果</h2>
                 <div className="mt-2">
-                    {portfolioList.length > 0 ? (
+                    {/* 検索結果が表示されるタイミングで、件数を表示 */}
+                    {searching ? (
+                        <p>検索中...</p> // 検索中は「検索中...」と表示
+                    ) : portfolioList.length > 0 ? (
                         <p>{portfolioList.length} 件の検索結果があります</p>
                     ) : (
                         <p>検索結果0件</p>
