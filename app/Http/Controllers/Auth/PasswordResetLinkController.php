@@ -13,41 +13,44 @@ use Inertia\Response;
 class PasswordResetLinkController extends Controller
 {
     /**
-     * Display the password reset link request view.
+     * パスワードリセットリンク入力画面を表示
      */
     public function create(): Response
     {
+        // フラッシュメッセージ 'status' を渡して画面をレンダリング
         return Inertia::render('Auth/ForgotPassword', [
             'status' => session('status'),
         ]);
     }
 
     /**
-     * Handle an incoming password reset link request.
+     * パスワードリセットリンク送信処理
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-public function store(Request $request): RedirectResponse
-{
-    // バリデーション時にカスタムメッセージを設定
-    $request->validate([
-        'email' => 'required|email',
-    ], [
-        'email.required' => 'メールアドレスは必須です。',
-        'email.email' => '正しいメールアドレスを入力してください。',
-    ]);
+    public function store(Request $request): RedirectResponse
+    {
+        // 入力バリデーション（メールアドレス必須・形式チェック）
+        $request->validate([
+            'email' => 'required|email',
+        ], [
+            'email.required' => 'メールアドレスは必須です。',
+            'email.email' => '正しいメールアドレスを入力してください。',
+        ]);
 
-    // パスワードリセットリンク送信
-    $status = Password::sendResetLink(
-        $request->only('email')
-    );
+        // パスワードリセットリンクを送信
+        $status = Password::sendResetLink(
+            $request->only('email') // email のみ取得
+        );
 
-    if ($status == Password::RESET_LINK_SENT) {
-        return back()->with('status', __($status));
+        // 送信成功時
+        if ($status === Password::RESET_LINK_SENT) {
+            return back()->with('status', __($status)); // 成功メッセージをフラッシュ
+        }
+
+        // 送信失敗時（ユーザー存在しない場合など）
+        throw ValidationException::withMessages([
+            'email' => [trans($status)], // エラーメッセージを email フィールドに紐付け
+        ]);
     }
-
-    throw ValidationException::withMessages([
-        'email' => [trans($status)],
-    ]);
-}
 }
