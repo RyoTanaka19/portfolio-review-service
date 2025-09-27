@@ -202,7 +202,12 @@ export default function UpdatePasswordForm({ className = "" }) {
                 </div>
 
                 <div className="flex items-center gap-4">
-                    <PrimaryButton disabled={processing}>保存</PrimaryButton>
+                    <PrimaryButton
+                        disabled={processing}
+                        className="bg-blue-400 hover:bg-blue-500 text-white"
+                    >
+                        保存
+                    </PrimaryButton>
                     {flashMessage && (
                         <p className="text-sm text-gray-600">{flashMessage}</p>
                     )}
