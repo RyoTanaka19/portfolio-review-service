@@ -75,7 +75,7 @@ export default function Header() {
                                     )}
                                     <Link
                                         href="/portfolios"
-                                        className="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 text-sm"
+                                        className="px-3 py-1 bg-purple-500 text-white rounded hover:bg-purple-600 text-sm"
                                     >
                                         投稿一覧
                                     </Link>
@@ -142,7 +142,7 @@ export default function Header() {
                             <div className="flex items-center gap-4">
                                 <Link
                                     href="/portfolios"
-                                    className="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 text-sm"
+                                    className="px-3 py-1 bg-purple-500 text-white rounded hover:bg-purple-600 text-sm"
                                 >
                                     投稿一覧
                                 </Link>

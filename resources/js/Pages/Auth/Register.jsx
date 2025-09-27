@@ -45,13 +45,24 @@ export default function Register({ status }) {
                         </h2>
 
                         <form onSubmit={submit} className="space-y-4">
-                            {/* 名前 */}
+                            {/* ユーザー名 */}
                             <div>
-                                <InputLabel htmlFor="name" value="名前" />
+                                <InputLabel
+                                    htmlFor="name"
+                                    value={
+                                        <>
+                                            ユーザー名{" "}
+                                            <span className="text-red-600">
+                                                *
+                                            </span>
+                                        </>
+                                    }
+                                />
                                 <TextInput
                                     id="name"
                                     name="name"
                                     value={data.name}
+                                    placeholder="ユーザー名"
                                     className="mt-1 block w-full"
                                     autoComplete="name"
                                     isFocused={true}
@@ -69,13 +80,21 @@ export default function Register({ status }) {
                             <div>
                                 <InputLabel
                                     htmlFor="email"
-                                    value="メールアドレス"
+                                    value={
+                                        <>
+                                            メールアドレス{" "}
+                                            <span className="text-red-600">
+                                                *
+                                            </span>
+                                        </>
+                                    }
                                 />
                                 <TextInput
                                     id="email"
                                     type="email"
                                     name="email"
                                     value={data.email}
+                                    placeholder="メールアドレス"
                                     className="mt-1 block w-full"
                                     autoComplete="username"
                                     onChange={(e) =>
@@ -92,15 +111,24 @@ export default function Register({ status }) {
                             <div>
                                 <InputLabel
                                     htmlFor="password"
-                                    value="パスワード"
+                                    value={
+                                        <>
+                                            パスワード{" "}
+                                            <span className="text-red-600">
+                                                *
+                                            </span>
+                                        </>
+                                    }
                                 />
                                 <TextInput
                                     id="password"
                                     type="password"
                                     name="password"
                                     value={data.password}
+                                    placeholder="パスワード（6文字以上）"
                                     className="mt-1 block w-full"
                                     autoComplete="new-password"
+                                    minLength={6}
                                     onChange={(e) =>
                                         setData("password", e.target.value)
                                     }
@@ -115,15 +143,24 @@ export default function Register({ status }) {
                             <div>
                                 <InputLabel
                                     htmlFor="password_confirmation"
-                                    value="パスワード（確認用）"
+                                    value={
+                                        <>
+                                            パスワード（確認用）{" "}
+                                            <span className="text-red-600">
+                                                *
+                                            </span>
+                                        </>
+                                    }
                                 />
                                 <TextInput
                                     id="password_confirmation"
                                     type="password"
                                     name="password_confirmation"
                                     value={data.password_confirmation}
+                                    placeholder="パスワード確認（6文字以上）"
                                     className="mt-1 block w-full"
                                     autoComplete="new-password"
+                                    minLength={6}
                                     onChange={(e) =>
                                         setData(
                                             "password_confirmation",
@@ -146,7 +183,7 @@ export default function Register({ status }) {
                                     すでに登録済みの方はこちら
                                 </Link>
                                 <PrimaryButton
-                                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                                    className="bg-blue-400 hover:bg-blue-500 text-white"
                                     disabled={processing}
                                 >
                                     登録

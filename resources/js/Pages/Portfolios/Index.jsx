@@ -70,7 +70,7 @@ export default function Index({ portfolios, auth, allTags = [], flash = {} }) {
 
             <div className="px-4 py-6 bg-white shadow mb-6">
                 <h1 className="text-2xl font-bold mb-4 text-center">
-                    投稿一覧
+                    ポートフォリオ一覧
                 </h1>
                 <PortfolioSearch
                     allTags={allTags}
