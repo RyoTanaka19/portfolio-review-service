@@ -117,7 +117,7 @@ export default function Show() {
 
                                             {p.service_url && (
                                                 <a
-                                                    href={p.service_url}
+                                                    href={`/portfolio/${p.id}/visit`} // /visit 経由でアクセスを記録
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="text-blue-500 text-sm mb-3 hover:underline"

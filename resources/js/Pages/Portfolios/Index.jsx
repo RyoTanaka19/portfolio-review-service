@@ -122,17 +122,6 @@ export default function Index({ portfolios, auth, allTags = [], flash = {} }) {
                                     />
                                 ) : null}
 
-                                {averageRating ? (
-                                    <p className="text-yellow-600 font-semibold mb-2">
-                                        平均評価: {averageRating} / 5 (
-                                        {p.reviews.length}件)
-                                    </p>
-                                ) : (
-                                    <p className="text-gray-500 mb-2">
-                                        レビューはまだありません
-                                    </p>
-                                )}
-
                                 {p.tags?.length > 0 && (
                                     <div className="flex flex-wrap gap-2 mb-2">
                                         {p.tags.map((tag, idx) => (

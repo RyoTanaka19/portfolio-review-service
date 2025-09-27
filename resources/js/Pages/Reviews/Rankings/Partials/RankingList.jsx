@@ -91,7 +91,7 @@ export default function RankingList({
                                 )}
                                 {p.service_url && (
                                     <a
-                                        href={p.service_url}
+                                        href={`/portfolio/${p.id}/visit`} // /visit 経由でアクセスを記録
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="inline-block mt-4 text-blue-600 text-sm font-medium hover:underline"

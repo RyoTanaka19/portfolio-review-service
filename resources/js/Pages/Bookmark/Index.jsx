@@ -121,7 +121,7 @@ export default function Index({ portfolios: initialPortfolios = [], auth }) {
 
                                     {p.service_url && (
                                         <a
-                                            href={p.service_url}
+                                            href={`/portfolio/${p.id}/visit`} // 直接URLではなく /visit 経由
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="text-blue-500 text-sm block mt-2"
