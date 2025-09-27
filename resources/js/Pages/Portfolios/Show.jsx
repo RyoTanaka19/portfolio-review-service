@@ -49,7 +49,7 @@ export default function Show({ portfolio, auth, errors, flash }) {
                                     作品URL
                                 </h2>
                                 <a
-                                    href={portfolio.service_url}
+                                    href={`/portfolio/${portfolio.id}/visit`} // 直接URLではなく /visit 経由
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-blue-500 hover:underline break-all"
