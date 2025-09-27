@@ -1,6 +1,6 @@
 import { Link, usePage, router } from "@inertiajs/react";
 import { useState, useEffect } from "react";
-import NotificationDropdown from "../Components/Notification/NotificationDropdown";
+import NotificationDropdown from "./Notification/NotificationDropdown";
 
 export default function Header() {
     const { auth = {}, nav = [], url } = usePage().props;
