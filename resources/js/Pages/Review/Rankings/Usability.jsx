@@ -1,13 +1,13 @@
 import React from "react";
 import AppLayout from "@/Layouts/AppLayout";
-import RankingList from "@/Components/Reviews/RankingList";
+import RankingList from "@/Pages/Review/Rankings/Partials/RankingList";
 
 export default function Usability({ portfolios }) {
     return (
         <AppLayout>
             <RankingList
                 portfolios={portfolios}
-                tagColor="bg-green-50 text-green-700"
+                tagColor="bg-green-50 text-green-700" // 使いやすさに合わせたカラー
                 headerProps={{
                     title: "使いやすさランキング TOP10",
                     description: "使いやすさの平均評価でランキング",
