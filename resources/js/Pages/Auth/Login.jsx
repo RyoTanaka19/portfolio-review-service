@@ -52,7 +52,14 @@ export default function Login({ status, canResetPassword }) {
                             <div>
                                 <InputLabel
                                     htmlFor="email"
-                                    value="メールアドレス"
+                                    value={
+                                        <>
+                                            メールアドレス{" "}
+                                            <span className="text-red-600">
+                                                *
+                                            </span>
+                                        </>
+                                    }
                                 />
                                 <TextInput
                                     id="email"
@@ -62,6 +69,7 @@ export default function Login({ status, canResetPassword }) {
                                     className="mt-1 block w-full"
                                     autoComplete="username"
                                     isFocused
+                                    placeholder="メールアドレスを入力"
                                     onChange={(e) =>
                                         setData("email", e.target.value)
                                     }
@@ -76,7 +84,14 @@ export default function Login({ status, canResetPassword }) {
                             <div>
                                 <InputLabel
                                     htmlFor="password"
-                                    value="パスワード"
+                                    value={
+                                        <>
+                                            パスワード{" "}
+                                            <span className="text-red-600">
+                                                *
+                                            </span>
+                                        </>
+                                    }
                                 />
                                 <TextInput
                                     id="password"
@@ -85,6 +100,8 @@ export default function Login({ status, canResetPassword }) {
                                     value={data.password}
                                     className="mt-1 block w-full"
                                     autoComplete="current-password"
+                                    placeholder="パスワード（6文字以上）"
+                                    minLength={6} // フロント側でも6文字未満は入力エラー
                                     onChange={(e) =>
                                         setData("password", e.target.value)
                                     }
@@ -121,7 +138,7 @@ export default function Login({ status, canResetPassword }) {
                                 )}
                                 <PrimaryButton
                                     disabled={processing}
-                                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                                    className="bg-blue-400 hover:bg-blue-500 text-white"
                                 >
                                     ログイン
                                 </PrimaryButton>

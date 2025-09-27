@@ -1,4 +1,6 @@
 @component('mail::message')
+<div style="text-align: center;">
+
 # パスワード再設定
 
 {{ $name }} 様
@@ -14,4 +16,6 @@
 もし心当たりがない場合は、このメールは無視してください。
 
 ポートフォリオレビューサービス
+
+</div>
 @endcomponent

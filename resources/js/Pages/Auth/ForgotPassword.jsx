@@ -1,7 +1,7 @@
 import InputError from "@/Components/InputError";
 import PrimaryButton from "@/Components/PrimaryButton";
 import TextInput from "@/Components/TextInput";
-import AppLayout from "@/Layouts/AppLayout"; // GuestLayout → AppLayout
+import AppLayout from "@/Layouts/AppLayout";
 import FlashMessage from "@/Components/FlashMessage";
 import { Head, useForm, usePage, Link } from "@inertiajs/react";
 import { useEffect, useState } from "react";
@@ -30,7 +30,7 @@ export default function ForgotPassword() {
             <Head title="パスワードをお忘れですか?" />
 
             <div className="flex min-h-screen items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-                <div className="w-full max-w-md space-y-8">
+                <div className="w-full max-w-2xl">
                     {/* フラッシュメッセージ */}
                     {flashMessage && (
                         <FlashMessage
@@ -40,25 +40,24 @@ export default function ForgotPassword() {
                         />
                     )}
 
-                    <div className="bg-white shadow-md rounded-lg px-8 py-10">
-                        <h2 className="text-2xl font-bold text-center text-gray-900 mb-6">
-                            パスワードをお忘れですか?
+                    <div className="bg-white shadow-xl rounded-2xl p-12">
+                        <h2 className="text-4xl font-bold text-center text-gray-900 mb-6">
+                            パスワードをお忘れですか？
                         </h2>
 
-                        <p className="mb-6 text-sm text-gray-600 text-center">
-                            パスワードを忘れてしまいましたか？問題ありません。
-                            メールアドレスを入力していただければ、パスワードリセットリンクをお送りします。
+                        <p className="mb-10 text-gray-700 text-center text-lg leading-relaxed">
+                            ご登録のメールアドレスを入力すると、パスワードリセットリンクをお送りします。
                             そのリンクから新しいパスワードを設定できます。
                         </p>
 
-                        <form onSubmit={submit} className="space-y-4">
+                        <form onSubmit={submit} className="space-y-6">
                             <div>
                                 <TextInput
                                     id="email"
                                     type="email"
                                     name="email"
                                     value={data.email}
-                                    className="mt-1 block w-full"
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                                     isFocused
                                     autoComplete="username"
                                     placeholder="メールアドレス"
@@ -68,20 +67,23 @@ export default function ForgotPassword() {
                                 />
                                 <InputError
                                     message={errors.email}
-                                    className="mt-1"
+                                    className="mt-2 text-sm text-red-600"
                                 />
                             </div>
 
-                            <div className="flex items-center justify-between">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                {/* ホームに戻るボタン */}
                                 <Link
                                     href={route("home")}
-                                    className="text-sm text-gray-500 underline hover:text-gray-700"
+                                    className="w-full sm:w-auto bg-green-400 hover:bg-blue-500 text-white font-semibold px-6 py-3 rounded-xl shadow text-center transition-colors duration-200"
                                 >
                                     ホーム画面に戻る
                                 </Link>
+
+                                {/* パスワードリセット送信ボタン */}
                                 <PrimaryButton
                                     disabled={processing}
-                                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                                    className="w-full sm:w-auto bg-blue-400 hover:bg-blue-500 text-white font-semibold px-6 py-3 rounded-xl shadow transition-colors duration-200"
                                 >
                                     パスワードリセットリンクを送信
                                 </PrimaryButton>

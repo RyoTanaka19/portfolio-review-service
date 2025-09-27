@@ -58,7 +58,14 @@ export default function ResetPassword({ token, email }) {
                             <div>
                                 <InputLabel
                                     htmlFor="password"
-                                    value="パスワード"
+                                    value={
+                                        <>
+                                            パスワード{" "}
+                                            <span className="text-red-600">
+                                                *
+                                            </span>
+                                        </>
+                                    }
                                 />
                                 <TextInput
                                     id="password"
@@ -82,7 +89,14 @@ export default function ResetPassword({ token, email }) {
                             <div>
                                 <InputLabel
                                     htmlFor="password_confirmation"
-                                    value="パスワード（確認用）"
+                                    value={
+                                        <>
+                                            パスワード（確認用）{" "}
+                                            <span className="text-red-600">
+                                                *
+                                            </span>
+                                        </>
+                                    }
                                 />
                                 <TextInput
                                     type="password"
@@ -107,7 +121,7 @@ export default function ResetPassword({ token, email }) {
                             {/* ボタン */}
                             <div className="flex items-center justify-between">
                                 <PrimaryButton
-                                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                                    className="bg-blue-400 hover:bg-blue-500 text-white"
                                     disabled={processing}
                                 >
                                     パスワードを再設定
