@@ -61,49 +61,63 @@ export default function AdvicesIndex({ advices }) {
                         まだアドバイスはありません。
                     </p>
                 ) : (
-                    <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {advicesList.map((advice) => (
                             <li
                                 key={advice.id}
-                                className="relative bg-white p-5 rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-shadow"
+                                className="relative bg-white p-6 rounded-lg shadow-lg border border-gray-200 hover:shadow-xl transition-shadow transform hover:scale-105"
                             >
                                 <button
                                     onClick={() => handleDelete(advice.id)}
-                                    className="absolute top-2 right-2 text-red-500 font-bold hover:text-red-700"
+                                    className="absolute top-2 right-2 text-red-500 font-bold text-xl hover:text-red-700 focus:outline-none"
                                 >
                                     ×
                                 </button>
 
-                                <p className="text-lg font-semibold text-indigo-600 mb-1">
-                                    サービス名: {advice.service_name}
-                                </p>
-                                <p className="text-gray-700 mb-1">
-                                    <span className="font-semibold text-gray-800">
-                                        概要:
-                                    </span>{" "}
-                                    {advice.service_description}
-                                </p>
-                                <p className="text-gray-700 mb-1">
-                                    <span className="font-semibold text-gray-800">
-                                        ユーザー層:
-                                    </span>{" "}
-                                    {advice.target_users}
-                                </p>
-                                {advice.service_issues && (
-                                    <p className="text-red-600 mb-1">
-                                        <span className="font-semibold">
-                                            課題:
-                                        </span>{" "}
-                                        {advice.service_issues}
+                                <div className="mb-4">
+                                    <p className="text-lg font-semibold text-indigo-600 mb-2">
+                                        サービス名:
+                                        <span className="text-gray-800">
+                                            {" "}
+                                            {advice.service_name}
+                                        </span>
                                     </p>
-                                )}
-                                <p className="mt-2 text-gray-800 whitespace-pre-line bg-indigo-50 p-3 rounded-lg">
-                                    <span className="font-semibold text-indigo-700">
+                                    <p className="text-sm text-gray-600 mb-2">
+                                        <span className="font-semibold text-gray-800">
+                                            概要:
+                                        </span>
+                                        <span className="text-gray-700">
+                                            {advice.service_description}
+                                        </span>
+                                    </p>
+                                    <p className="text-sm text-gray-600 mb-2">
+                                        <span className="font-semibold text-gray-800">
+                                            ユーザー層:
+                                        </span>
+                                        <span className="text-gray-700">
+                                            {advice.target_users}
+                                        </span>
+                                    </p>
+                                    {advice.service_issues && (
+                                        <p className="text-sm text-red-600 mb-2">
+                                            <span className="font-semibold">
+                                                課題:
+                                            </span>{" "}
+                                            {advice.service_issues}
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div className="mt-4 text-gray-800 bg-indigo-50 p-4 rounded-lg">
+                                    <p className="font-semibold text-indigo-700">
                                         アドバイス:
-                                    </span>{" "}
-                                    {advice.ai_advice}
-                                </p>
-                                <p className="text-sm text-gray-400 mt-3 text-right">
+                                    </p>
+                                    <p className="whitespace-pre-line text-gray-700">
+                                        {advice.ai_advice}
+                                    </p>
+                                </div>
+
+                                <p className="text-xs text-gray-400 mt-3 text-right">
                                     {new Date(
                                         advice.created_at
                                     ).toLocaleString()}

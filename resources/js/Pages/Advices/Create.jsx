@@ -5,10 +5,10 @@ import FlashMessage from "@/Components/FlashMessage";
 
 export default function Create() {
     const [form, setForm] = useState({
-        name: "",
+        service_name: "", // 'name' を 'service_name' に変更
         description: "",
         target_users: "",
-        issues: "",
+        service_issues: "", // 'issues' を 'service_issues' に変更
     });
     const [advice, setAdvice] = useState("");
     const [loading, setLoading] = useState(false);
@@ -93,13 +93,14 @@ export default function Create() {
                             </label>
                             <input
                                 type="text"
-                                name="name"
-                                value={form.name}
+                                name="service_name" // 'name' を 'service_name' に変更
+                                value={form.service_name} // 'name' を 'service_name' に変更
                                 onChange={handleChange}
                                 className="w-full border border-gray-300 p-3 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                                 placeholder="例: アドバイスをしてもらいたいサービス名"
                             />
-                            {renderError("name")}
+                            {renderError("service_name")}{" "}
+                            {/* 'name' を 'service_name' に変更 */}
                         </div>
 
                         {/* サービス概要 */}
@@ -143,14 +144,15 @@ export default function Create() {
                                 <span className="text-red-500">*</span>
                             </label>
                             <textarea
-                                name="issues"
-                                value={form.issues}
+                                name="service_issues" // 'issues' を 'service_issues' に変更
+                                value={form.service_issues} // 'issues' を 'service_issues' に変更
                                 onChange={handleChange}
                                 className="w-full border border-gray-300 p-3 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                                 rows={4}
                                 placeholder="例: サービス改善のアイデアが欲しい"
                             />
-                            {renderError("issues")}
+                            {renderError("service_issues")}{" "}
+                            {/* 'issues' を 'service_issues' に変更 */}
                         </div>
 
                         <button

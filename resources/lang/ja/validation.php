@@ -18,8 +18,9 @@ return [
         'password_confirmation' => 'パスワード（確認用）',
 
         // サービス作成フォーム
+        'service_name' => 'サービス名',
         'description' => 'サービス概要',
         'target_users' => 'ターゲットユーザー',
-        'issues' => '悩み・相談内容',
+        'service_issues' => '悩み・相談内容',
     ],
 ];
