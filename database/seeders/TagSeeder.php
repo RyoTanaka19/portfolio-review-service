@@ -9,25 +9,30 @@ class TagSeeder extends Seeder
 {
     public function run(): void
     {
+        // 既存のタグを全削除
+        Tag::truncate();
+
+        // 新しく登録したいタグ一覧
         $tags = [
             // 言語
-            'Ruby', 'Python', 'Java', 'PHP', 'JavaScript', 'TypeScript', 'Go', 'C#', 'C++', 
+            'Ruby', 'Python', 'Java', 'PHP', 'JavaScript', 'TypeScript',
 
             // フレームワーク・ライブラリ
-            'Ruby on Rails', 'Laravel', 'Django', 'Spring', 'React', 'Vue.js', 'Angular', 'Next.js', 'Nuxt.js', 'Flutter',
+            'Ruby on Rails', 'Laravel', 'Django', 'Spring', 'React', 'Vue.js', 'Next.js',
 
             // フロントエンド関連
-            'HTML', 'CSS', 'TailwindCSS', 'Sass', 'Bootstrap', 
+            'HTML', 'CSS', 'TailwindCSS', 'Bootstrap',
 
             // データベース・インフラ
-            'MySQL', 'PostgreSQL', 'MongoDB', 'Redis', 'Docker', 'AWS', 
+            'MySQL', 'PostgreSQL', 'Docker', 'AWS',
 
             // その他
-            'Git', 'CI/CD', 'REST API', 'GraphQL'
+            'Git',
         ];
 
+        // 新しいタグを作成
         foreach ($tags as $name) {
-            Tag::firstOrCreate(['name' => $name]);
+            Tag::create(['name' => $name]);
         }
     }
 }
