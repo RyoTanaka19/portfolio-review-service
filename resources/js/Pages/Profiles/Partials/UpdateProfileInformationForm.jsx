@@ -247,18 +247,12 @@ export default function UpdateProfileInformation({
 
                 {/* 保存 */}
                 <div className="flex items-center gap-4">
-                    <PrimaryButton disabled={processing}>保存</PrimaryButton>
-                    <Transition
-                        show={recentlySuccessful}
-                        enter="transition ease-in-out"
-                        enterFrom="opacity-0"
-                        leave="transition ease-in-out"
-                        leaveTo="opacity-0"
+                    <PrimaryButton
+                        disabled={processing}
+                        className="bg-blue-400 hover:bg-blue-500 text-white"
                     >
-                        <p className="text-sm text-gray-600">
-                            保存されました。
-                        </p>
-                    </Transition>
+                        保存
+                    </PrimaryButton>
                 </div>
             </form>
         </section>

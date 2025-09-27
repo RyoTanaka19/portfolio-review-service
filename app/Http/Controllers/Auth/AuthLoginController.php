@@ -23,27 +23,34 @@ class AuthLoginController extends Controller
             // Googleからユーザー情報を取得
             $googleUser = Socialite::driver('google')->stateless()->user();
 
-            // auth_id（Googleの一意なID）でユーザー検索、なければ作成
-            $user = User::firstOrCreate(
-                ['auth_id' => $googleUser->getId()], // Googleのauth_idでユーザーを検索
-                [
+            // 1. メールアドレスで既存ユーザーを検索
+            $user = User::where('email', $googleUser->getEmail())->first();
+
+            if ($user) {
+                // 既存ユーザーが存在する場合
+                // auth_id が未設定なら更新
+                if (empty($user->auth_id)) {
+                    $user->auth_id = $googleUser->getId();
+                    $user->save();
+                }
+            } else {
+                // 新規ユーザー作成
+                $user = User::create([
                     'name' => $googleUser->getName() ?? '名無し',
                     'email' => $googleUser->getEmail(),
-                    'password' => bcrypt(Str::random(16)), // 仮のパスワードを設定（Googleログインには使用しません）
-                ]
-            );
+                    'auth_id' => $googleUser->getId(),
+                    'password' => bcrypt(Str::random(16)), // Googleログインでは使用しません
+                ]);
+            }
 
-            // ログイン処理
+            // ログイン
             Auth::login($user);
 
-            // フラッシュメッセージ付きでリダイレクト
             return redirect()->intended('/portfolios')
                              ->with('flash', ['success' => 'Googleログインしました']);
 
         } catch (\Exception $e) {
-            // エラーログの記録
             \Log::error('Google OAuth Error: ' . $e->getMessage());
-            // エラーメッセージを表示してログイン画面へリダイレクト
             return redirect('/login')->with('error', 'Googleログインに失敗しました');
         }
     }

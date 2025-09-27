@@ -75,7 +75,7 @@ export default function ForgotPassword() {
                                 {/* ホームに戻るボタン */}
                                 <Link
                                     href={route("home")}
-                                    className="w-full sm:w-auto bg-green-400 hover:bg-blue-500 text-white font-semibold px-6 py-3 rounded-xl shadow text-center transition-colors duration-200"
+                                    className="w-full sm:w-auto bg-green-400 hover:bg-green-500 text-white font-semibold px-6 py-3 rounded-xl shadow text-center transition-colors duration-200"
                                 >
                                     ホーム画面に戻る
                                 </Link>

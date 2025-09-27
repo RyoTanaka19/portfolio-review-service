@@ -44,94 +44,71 @@ export default function Index({ portfolios: initialPortfolios = [], auth }) {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {portfolioList.map((p) => {
-                            const averageRating = p.reviews?.length
-                                ? (
-                                      p.reviews.reduce(
-                                          (sum, r) => sum + r.rating,
-                                          0
-                                      ) / p.reviews.length
-                                  ).toFixed(1)
-                                : null;
-
-                            return (
-                                <div
-                                    key={p.id}
-                                    className="bg-white p-4 rounded shadow hover:shadow-md transition duration-200"
-                                >
-                                    <div className="flex justify-between items-center mb-2">
-                                        {/* タイトルを中央寄せ */}
-                                        <h2 className="font-bold text-lg truncate text-center w-full">
-                                            <Link
-                                                href={`/portfolio/${p.id}`}
-                                                className="text-blue-500 hover:underline"
-                                            >
-                                                {p.title.length > 30
-                                                    ? p.title.slice(0, 30) + "…"
-                                                    : p.title}
-                                            </Link>
-                                        </h2>
-                                    </div>
-
-                                    {p.image_url && (
-                                        <img
-                                            src={p.image_url}
-                                            alt={p.title}
-                                            className="w-full h-40 object-cover mb-2 rounded"
-                                        />
-                                    )}
-
-                                    {averageRating ? (
-                                        <p className="text-yellow-600 font-semibold mb-2">
-                                            平均評価: {averageRating} / 5 (
-                                            {p.reviews.length}件)
-                                        </p>
-                                    ) : (
-                                        <p className="text-gray-500 mb-2">
-                                            レビューはまだありません
-                                        </p>
-                                    )}
-
-                                    {p.tags?.length > 0 && (
-                                        <div className="mt-2 flex flex-wrap gap-1">
-                                            {p.tags.map((tag, idx) => (
-                                                <span
-                                                    key={idx}
-                                                    className="bg-gray-200 text-gray-800 px-2 py-1 rounded text-xs"
-                                                >
-                                                    {tag}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    )}
-
-                                    {auth?.user && (
-                                        <BookmarkButton
-                                            portfolioId={p.id}
-                                            initialBookmarked={true}
-                                            onToggle={(isBookmarked, message) =>
-                                                handleBookmarkToggle(
-                                                    p.id,
-                                                    isBookmarked,
-                                                    message
-                                                )
-                                            }
-                                        />
-                                    )}
-
-                                    {p.service_url && (
-                                        <a
-                                            href={`/portfolio/${p.id}/visit`} // 直接URLではなく /visit 経由
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-blue-500 text-sm block mt-2"
+                        {portfolioList.map((p) => (
+                            <div
+                                key={p.id}
+                                className="bg-white p-4 rounded shadow hover:shadow-md transition duration-200"
+                            >
+                                <div className="flex justify-center mb-2">
+                                    <h2 className="font-bold text-lg truncate text-center w-full">
+                                        <Link
+                                            href={`/portfolio/${p.id}`}
+                                            className="text-blue-500 hover:underline"
                                         >
-                                            サイトを見る →
-                                        </a>
-                                    )}
+                                            {p.title.length > 30
+                                                ? p.title.slice(0, 30) + "…"
+                                                : p.title}
+                                        </Link>
+                                    </h2>
                                 </div>
-                            );
-                        })}
+
+                                {p.image_url && (
+                                    <img
+                                        src={p.image_url}
+                                        alt={p.title}
+                                        className="w-full h-40 object-cover mb-2 rounded"
+                                    />
+                                )}
+
+                                {p.tags?.length > 0 && (
+                                    <div className="mt-2 flex flex-wrap gap-1">
+                                        {p.tags.map((tag, idx) => (
+                                            <span
+                                                key={idx}
+                                                className="bg-gray-200 text-gray-800 px-2 py-1 rounded text-xs"
+                                            >
+                                                {tag}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {auth?.user && (
+                                    <BookmarkButton
+                                        portfolioId={p.id}
+                                        initialBookmarked={true}
+                                        onToggle={(isBookmarked, message) =>
+                                            handleBookmarkToggle(
+                                                p.id,
+                                                isBookmarked,
+                                                message
+                                            )
+                                        }
+                                    />
+                                )}
+
+                                {p.service_url && (
+                                    <a
+                                        href={`/portfolio/${p.id}/visit`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-500 text-sm block mt-2"
+                                    >
+                                        サイトを見る →
+                                    </a>
+                                )}
+                            </div>
+                        ))}
                     </div>
                 )}
             </main>

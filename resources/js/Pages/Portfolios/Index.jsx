@@ -83,13 +83,6 @@ export default function Index({ portfolios, auth, allTags = [], flash = {} }) {
 
             <main className="px-4 md:px-8 py-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {portfolioList?.map((p) => {
-                    const averageRating = p.reviews?.length
-                        ? (
-                              p.reviews.reduce((sum, r) => sum + r.rating, 0) /
-                              p.reviews.length
-                          ).toFixed(1)
-                        : null;
-
                     return (
                         <div
                             key={p.id}
@@ -113,14 +106,13 @@ export default function Index({ portfolios, auth, allTags = [], flash = {} }) {
                                     </Link>
                                 </div>
 
-                                {/* OGP画像があれば表示 */}
-                                {p.image_url ? (
+                                {p.image_url && (
                                     <img
                                         src={p.image_url}
                                         alt={p.title}
                                         className="w-full h-40 object-cover rounded mb-3"
                                     />
-                                ) : null}
+                                )}
 
                                 {p.tags?.length > 0 && (
                                     <div className="flex flex-wrap gap-2 mb-2">

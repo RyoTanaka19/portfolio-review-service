@@ -22,11 +22,27 @@ ChartJS.register(
 );
 
 export default function ReviewChart({ reviews }) {
+    // reviewsが空の場合も想定
     const reviewCount = reviews?.length || 0;
 
+    // 総合評価を計算
     const avg = (key) => {
         const vals = reviews
-            .map((r) => r[key])
+            .map((r) => {
+                // 総合評価(rating)がない場合は計算
+                if (key === "rating") {
+                    const arr = [
+                        r.technical,
+                        r.usability,
+                        r.design,
+                        r.user_focus,
+                    ].filter((v) => v !== null && v !== undefined);
+                    return arr.length
+                        ? arr.reduce((sum, v) => sum + v, 0) / arr.length
+                        : 0;
+                }
+                return r[key] ?? 0;
+            })
             .filter((v) => v !== null && v !== undefined);
         return vals.length
             ? (vals.reduce((sum, v) => sum + v, 0) / vals.length).toFixed(1)
