@@ -1,6 +1,6 @@
 import React from "react";
 import { InertiaLink } from "@inertiajs/inertia-react";
-import ReviewIndex from "@/Components/Reviews/PortfolioReviews";
+import ReviewIndex from "@/Pages/Portfolios/Partials/PortfolioReviews";
 import AppLayout from "@/Layouts/AppLayout";
 
 export default function Show({ portfolio, auth, errors, flash }) {
