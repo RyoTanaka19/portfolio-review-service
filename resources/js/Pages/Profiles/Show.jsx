@@ -6,7 +6,7 @@ import FlashMessage from "@/Components/FlashMessage";
 
 export default function Show() {
     const { props } = usePage();
-    const { user, authUserId, portfolios = [], profileImageUrl } = props; // 追加: profileImageUrl を取得
+    const { user, authUserId, portfolios = [], profileImageUrl } = props;
 
     const [flashMessage, setFlashMessage] = useState({
         message: null,
@@ -19,21 +19,20 @@ export default function Show() {
         <AppLayout auth={{ user: { id: authUserId } }}>
             <Head title={`${user.name} のプロフィール`} />
 
-            {/* フラッシュメッセージ */}
             <FlashMessage
                 message={flashMessage.message}
                 type={flashMessage.type}
                 onClose={() => setFlashMessage({ message: null, type: null })}
             />
 
-            <div className="p-6 max-w-7xl mx-auto">
+            <div className="p-6 max-w-7xl mx-auto flex flex-col items-center">
                 {/* プロフィールカード */}
-                <div className="bg-white rounded-2xl shadow-md p-6 flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-10">
+                <div className="bg-white rounded-2xl shadow-md p-6 flex flex-col items-center gap-6 mb-10 w-full max-w-4xl">
                     {/* プロフィール画像 */}
-                    <div className="w-32 h-32 sm:w-40 sm:h-40 bg-gray-200 rounded-full overflow-hidden mb-4 sm:mb-0">
+                    <div className="w-32 h-32 sm:w-40 sm:h-40 bg-gray-200 rounded-full overflow-hidden">
                         {profileImageUrl ? (
                             <img
-                                src={profileImageUrl} // S3 URLを直接使用
+                                src={profileImageUrl}
                                 alt={`${user.name}のプロフィール画像`}
                                 className="w-full h-full object-cover"
                             />
@@ -44,7 +43,7 @@ export default function Show() {
                         )}
                     </div>
 
-                    <div className="flex-1">
+                    <div className="flex flex-col items-center text-center">
                         <h1 className="text-3xl font-bold mb-2">{user.name}</h1>
                         {isOwnProfile && (
                             <p className="text-gray-600 mb-2">
@@ -57,8 +56,9 @@ export default function Show() {
                                 {portfolios.length}
                             </span>
                         </p>
+
                         {user.tags?.length > 0 && (
-                            <div className="mt-3 flex flex-wrap gap-2">
+                            <div className="mt-3 flex flex-wrap justify-center gap-2">
                                 {user.tags.map((tag, idx) => (
                                     <span
                                         key={idx}
@@ -73,8 +73,8 @@ export default function Show() {
                 </div>
 
                 {/* ポートフォリオ一覧 */}
-                <div>
-                    <h2 className="text-2xl font-semibold mb-6 border-b pb-2">
+                <div className="w-full max-w-7xl">
+                    <h2 className="text-2xl font-semibold mb-6 border-b pb-2 text-center">
                         {isOwnProfile
                             ? "あなたの投稿したポートフォリオ"
                             : `${user.name} さんの投稿したポートフォリオ`}
@@ -114,27 +114,6 @@ export default function Show() {
                                             >
                                                 {p.title}
                                             </Link>
-
-                                            <div className="mb-2 text-sm text-gray-500">
-                                                作者:{" "}
-                                                <Link
-                                                    href={`/profile/${p.user_id}`}
-                                                    className="text-blue-500 hover:underline"
-                                                >
-                                                    {p.user_name}
-                                                </Link>
-                                            </div>
-
-                                            <p className="text-gray-700 text-sm mb-3 line-clamp-4">
-                                                {p.description}
-                                            </p>
-
-                                            {averageRating && (
-                                                <p className="text-yellow-600 font-semibold mb-3">
-                                                    ⭐ {averageRating} / 5 (
-                                                    {p.reviews.length}件)
-                                                </p>
-                                            )}
 
                                             {p.service_url && (
                                                 <a

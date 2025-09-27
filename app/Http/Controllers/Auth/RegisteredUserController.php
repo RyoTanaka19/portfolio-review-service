@@ -40,7 +40,7 @@ public function store(RegisterRequest $request): RedirectResponse
     event(new Registered($user));
     Auth::login($user);
 
-    return redirect(route('dashboard', absolute: false))
+    return redirect(route('portfolios.index', absolute: false))
     ->with('flash', ['success' => 'ユーザー登録が完了しました']);
 }
 }

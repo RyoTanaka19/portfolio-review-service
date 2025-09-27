@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import PrimaryButton from "@/Components/PrimaryButton";
@@ -13,7 +13,7 @@ export default function UpdateProfileInformation({
     status,
     className = "",
 }) {
-    const { user, allTags = [] } = usePage().props;
+    const { user, allTags = [], userProfileImageUrl } = usePage().props;
 
     const { data, setData, post, errors, processing, recentlySuccessful } =
         useForm({
@@ -21,11 +21,14 @@ export default function UpdateProfileInformation({
             name: user.name,
             email: user.email,
             tags: user.tags?.map((tag) => tag.id) || [],
-            profile_image: null, // プロフィール画像の追加
+            profile_image: null,
         });
 
-    const [flashMessage, setFlashMessage] = useState(""); // フラッシュメッセージ用
-    const [localErrors, setLocalErrors] = useState({}); // フロント側バリデーション用
+    const [previewImage, setPreviewImage] = useState(
+        userProfileImageUrl || null
+    );
+    const [flashMessage, setFlashMessage] = useState("");
+    const [localErrors, setLocalErrors] = useState({});
 
     const toggleTag = (tagId) => {
         if (data.tags.includes(tagId)) {
@@ -41,37 +44,32 @@ export default function UpdateProfileInformation({
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            setData("profile_image", file); // 画像ファイルをセット
+            setData("profile_image", file); // 送信用
+            setPreviewImage(URL.createObjectURL(file)); // プレビュー用
         }
     };
 
     const submit = async (e) => {
         e.preventDefault();
 
-        // フロント側バリデーション
+        // フロントバリデーション
         const validationErrors = {};
         if (!data.name.trim()) validationErrors.name = "名前を入力してください";
         if (!data.email.trim())
             validationErrors.email = "メールアドレスを入力してください";
         setLocalErrors(validationErrors);
-
-        if (Object.keys(validationErrors).length > 0) return; // エラーがあれば送信中止
+        if (Object.keys(validationErrors).length > 0) return;
 
         try {
             const formData = new FormData();
             formData.append("_method", "patch");
             formData.append("name", data.name);
             formData.append("email", data.email);
-
-            // tags を tags[] として送信
             data.tags.forEach((id) => formData.append("tags[]", id));
-
-            // プロフィール画像を送信
             if (data.profile_image) {
                 formData.append("profile_image", data.profile_image);
             }
 
-            // Axios 送信（Content-Type は自動設定）
             const response = await axios.post(
                 route("profile.update"),
                 formData
@@ -80,19 +78,22 @@ export default function UpdateProfileInformation({
             if (response.data.success) {
                 const updatedUser = response.data.user;
 
-                // Header に即時反映させる
-                window.dispatchEvent(
-                    new CustomEvent("user-updated", { detail: updatedUser })
-                );
+                // プレビュー画像をサーバーの最新URLに更新
+                setPreviewImage(response.data.profileImageUrl);
 
-                // フォームに最新情報を反映
+                // フォームを最新情報で更新
                 setData({
                     _method: "patch",
                     name: updatedUser.name,
                     email: updatedUser.email,
                     tags: updatedUser.tags.map((tag) => tag.id),
-                    profile_image: null, // 画像更新後はクリア
+                    profile_image: null,
                 });
+
+                const event = new CustomEvent("user-updated", {
+                    detail: updatedUser,
+                });
+                window.dispatchEvent(event);
 
                 setFlashMessage(response.data.message);
             } else {
@@ -101,7 +102,6 @@ export default function UpdateProfileInformation({
         } catch (error) {
             console.error(error);
 
-            // Laravel のバリデーションエラーを取得
             if (error.response && error.response.status === 422) {
                 const serverErrors = error.response.data.errors || {};
                 setLocalErrors(serverErrors);
@@ -114,7 +114,6 @@ export default function UpdateProfileInformation({
 
     return (
         <section className={className}>
-            {/* フラッシュメッセージ */}
             {flashMessage && (
                 <FlashMessage
                     message={flashMessage}
@@ -185,6 +184,15 @@ export default function UpdateProfileInformation({
                             className="mt-2"
                         />
                     </div>
+                    {previewImage && (
+                        <div className="mt-2">
+                            <img
+                                src={previewImage}
+                                alt="プロフィールプレビュー"
+                                className="h-24 w-24 rounded-full object-cover border"
+                            />
+                        </div>
+                    )}
                     <InputError
                         className="mt-2"
                         message={
@@ -226,10 +234,9 @@ export default function UpdateProfileInformation({
                                 as="button"
                                 className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                             >
-                                こちらをクリックして確認メールを再送信してください
+                                確認メールを再送信
                             </Link>
                         </p>
-
                         {status === "verification-link-sent" && (
                             <div className="mt-2 text-sm font-medium text-green-600">
                                 確認メールを再送信しました。
@@ -241,7 +248,6 @@ export default function UpdateProfileInformation({
                 {/* 保存 */}
                 <div className="flex items-center gap-4">
                     <PrimaryButton disabled={processing}>保存</PrimaryButton>
-
                     <Transition
                         show={recentlySuccessful}
                         enter="transition ease-in-out"
