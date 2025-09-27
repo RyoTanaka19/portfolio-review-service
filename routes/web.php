@@ -1,21 +1,27 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\PortfolioController;
-use App\Http\Controllers\ReviewController;
-use App\Http\Controllers\AdviceController;
-use App\Http\Controllers\Auth\AuthLoginController;
-use App\Http\Controllers\TagController;
-use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\StaticPagesController;
-use App\Http\Controllers\BookmarkController;
-use App\Http\Controllers\AutocompleteController;
+use App\Http\Controllers\{
+    ProfileController,
+    PortfolioController,
+    ReviewController,
+    AdviceController,
+    Auth\AuthLoginController,
+    TagController,
+    NotificationController,
+    StaticPagesController,
+    BookmarkController,
+    AutocompleteController,
+    AccessController
+};
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AccessController;
 use Inertia\Inertia;
 
-// ホーム
+/*
+|--------------------------------------------------------------------------
+| ホームページ
+|--------------------------------------------------------------------------
+*/
 Route::get('/', function () {
     return Inertia::render('Home', [
         'canLogin' => Route::has('login'),
@@ -23,51 +29,85 @@ Route::get('/', function () {
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
     ]);
-})->name('home'); 
+})->name('home');
 
+/*
+|--------------------------------------------------------------------------
+| オートコンプリート
+|--------------------------------------------------------------------------
+*/
 Route::get('/autocomplete/users', [AutocompleteController::class, 'user']);
 
+/*
+|--------------------------------------------------------------------------
+| 静的ページ
+|--------------------------------------------------------------------------
+*/
 Route::get('/terms', [StaticPagesController::class, 'terms'])->name('terms');
 Route::get('/privacy', [StaticPagesController::class, 'privacy'])->name('privacy');
 Route::get('/contact', [StaticPagesController::class, 'form'])->name('contact');
-Route::get('/how-to', [StaticPagesController::class, 'howTo'])->name('how_to');
 Route::post('/contact', [StaticPagesController::class, 'submitContact'])->name('contact.send');
+Route::get('/how-to', [StaticPagesController::class, 'howTo'])->name('how_to');
 
-// Googleログイン（未ログインユーザーでもアクセス可能）
+/*
+|--------------------------------------------------------------------------
+| 認証・ソーシャルログイン（Google）
+|--------------------------------------------------------------------------
+*/
 Route::get('auth/google', [AuthLoginController::class, 'redirectToGoogle'])->name('google.login');
 Route::get('auth/google/callback', [AuthLoginController::class, 'handleGoogleCallback']);
 
+/*
+|--------------------------------------------------------------------------
+| ランキング（未ログインでも閲覧可能）
+|--------------------------------------------------------------------------
+*/
+Route::prefix('review/rankings')->group(function () {
+    Route::get('total', [ReviewController::class, 'ranking'])->name('ranking.total');
+    Route::get('technical', [ReviewController::class, 'rankingTechnical'])->name('ranking.technical');
+    Route::get('usability', [ReviewController::class, 'rankingUsability'])->name('ranking.usability');
+    Route::get('design', [ReviewController::class, 'rankingDesign'])->name('ranking.design');
+    Route::get('user-focus', [ReviewController::class, 'rankingUserFocus'])->name('ranking.user-focus');
+});
 
-// ランキング（未ログインでもアクセス可能）
-// → ReviewController に移動したランキングメソッドを参照
-Route::get('review/rankings/total', [ReviewController::class, 'ranking'])->name('ranking.total');
-Route::get('review/rankings/technical', [ReviewController::class, 'rankingTechnical'])->name('ranking.technical');
-Route::get('review/rankings/usability', [ReviewController::class, 'rankingUsability'])->name('ranking.usability');
-Route::get('review/rankings/design', [ReviewController::class, 'rankingDesign'])->name('ranking.design');
-Route::get('review/rankings/user-focus', [ReviewController::class, 'rankingUserFocus'])->name('ranking.user-focus');
-
-// 通知関連（要ログイン）
+/*
+|--------------------------------------------------------------------------
+| 認証済みユーザー専用ルート（通知）
+|--------------------------------------------------------------------------
+*/
 Route::middleware('auth')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
 });
 
-// 認証済みユーザー用ルート
+/*
+|--------------------------------------------------------------------------
+| 認証済みユーザー専用ルート（ブックマーク）
+|--------------------------------------------------------------------------
+*/
 Route::middleware(['auth'])->group(function () {
     Route::get('/bookmarks', [BookmarkController::class, 'index'])->name('bookmarks.index');
     Route::post('/portfolios/{portfolio}/bookmark', [BookmarkController::class, 'store'])->name('bookmark.store');
     Route::delete('/portfolios/{portfolio}/bookmark', [BookmarkController::class, 'destroy'])->name('bookmark.destroy');
 });
 
-// 誰でもアクセスできるポートフォリオ一覧
+/*
+|--------------------------------------------------------------------------
+| ポートフォリオ閲覧（誰でもアクセス可能）
+|--------------------------------------------------------------------------
+*/
 Route::get('/portfolios', [PortfolioController::class, 'index'])->name('portfolios.index');
 Route::get('/portfolios/search', [PortfolioController::class, 'search'])->name('portfolios.search');
 Route::get('/portfolio/{portfolio}', [PortfolioController::class, 'show'])
     ->whereNumber('portfolio')->name('portfolio.show');
 
-// 認証済みユーザー用ルート（ポートフォリオ作成・編集・削除など）
+/*
+|--------------------------------------------------------------------------
+| 認証済みユーザー専用ルート（ポートフォリオ管理・レビュー・タグ・AIアドバイス）
+|--------------------------------------------------------------------------
+*/
 Route::middleware(['auth', 'verified'])->group(function () {
-    // ポートフォリオ
+    // ポートフォリオ管理
     Route::get('/portfolios/create', [PortfolioController::class, 'create'])->name('portfolios.create');
     Route::post('/portfolios', [PortfolioController::class, 'store'])->name('portfolios.store');
     Route::get('/portfolios/{portfolio}/edit', [PortfolioController::class, 'edit'])
@@ -77,44 +117,34 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/portfolio/{portfolio}', [PortfolioController::class, 'destroy'])
         ->whereNumber('portfolio')->name('portfolio.destroy');
 
-    // サイトを見る用
-Route::get('/portfolio/{portfolio}/visit', [AccessController::class, 'track'])
-    ->name('portfolio.visit');
+    // ポートフォリオアクセス関連
+    Route::get('/portfolio/{portfolio}/visit', [AccessController::class, 'track'])->name('portfolio.visit');
+    Route::get('/portfolio/{portfolio}/accesses', [AccessController::class, 'index'])->name('portfolio.index');
 
-// アクセス数画面
-Route::get('/portfolio/{portfolio}/accesses', [AccessController::class, 'index'])
-    ->name('portfolio.index');
-
-Route::get('/tags/user', [TagController::class, 'userTags']);
-
-
-
-    // タグ
+    // タグ関連
+    Route::get('/tags/user', [TagController::class, 'userTags']);
     Route::get('/tags', [TagController::class, 'index'])->name('tags.index');
 
-
-    // レビュー
+    // レビュー関連
     Route::post('/portfolio/{portfolio}/reviews', [ReviewController::class, 'store'])
         ->whereNumber('portfolio')->name('reviews.store');
-   Route::delete('/portfolio/{portfolio}/reviews/{reviewId}', [ReviewController::class, 'destroy'])
-    ->name('reviews.destroy');
-
-         Route::put('/portfolio/{portfolio}/reviews/{review}', [ReviewController::class, 'update']);
+    Route::delete('/portfolio/{portfolio}/reviews/{reviewId}', [ReviewController::class, 'destroy'])
+        ->name('reviews.destroy');
+    Route::put('/portfolio/{portfolio}/reviews/{review}', [ReviewController::class, 'update']);
     Route::post('/reviews/{review}/check', [ReviewController::class, 'checkReview'])->name('reviews.check');
 
     // AIアドバイス
     Route::get('/advices', [AdviceController::class, 'index'])->name('advices.index');
-
-    Route::post('/advices', [AdviceController::class, 'store'])->name('api.advices.store');
     Route::get('/advices/create', [AdviceController::class, 'create'])->name('advices.create');
+    Route::post('/advices', [AdviceController::class, 'store'])->name('api.advices.store');
     Route::delete('/advices/{id}', [AdviceController::class, 'destroy'])->name('api.advices.destroy');
 
     // プロフィール
-   Route::get('/profile/{user}', [ProfileController::class, 'show'])
-    ->name('profile.show');
+    Route::get('/profile/{user}', [ProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// 認証ルートを読み込む
 require __DIR__ . '/auth.php';

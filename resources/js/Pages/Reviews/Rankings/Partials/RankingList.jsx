@@ -44,7 +44,13 @@ export default function RankingList({
                                                 {p.title}
                                             </Link>
                                             <div className="text-sm text-gray-500 mt-1">
-                                                投稿者: {p.user_name}
+                                                投稿者:{" "}
+                                                <Link
+                                                    href={`/profile/${p.user_id}`}
+                                                    className="text-blue-600 hover:underline"
+                                                >
+                                                    {p.user_name}
+                                                </Link>
                                             </div>
                                         </div>
                                     </div>
@@ -84,11 +90,6 @@ export default function RankingList({
                                     </div>
                                 )}
 
-                                {p.description && (
-                                    <p className="mt-4 text-gray-700 text-sm leading-relaxed">
-                                        {p.description}
-                                    </p>
-                                )}
                                 {p.service_url && (
                                     <a
                                         href={`/portfolio/${p.id}/visit`} // /visit 経由でアクセスを記録
