@@ -1,6 +1,6 @@
 import React from "react";
 import AppLayout from "@/Layouts/AppLayout";
-import RankingList from "@/Pages/Review/Rankings/Partials/RankingList";
+import RankingList from "@/Pages/Reviews/Rankings/Partials/RankingList";
 
 export default function Technical({ portfolios }) {
     return (

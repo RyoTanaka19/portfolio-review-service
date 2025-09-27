@@ -13,10 +13,13 @@ use App\Helpers\ReviewHelper;
 
 class ReviewController extends Controller
 {
-    // レビュー投稿
+    /**
+     * 新しいレビューを投稿する
+     */
     public function store(Request $request, Portfolio $portfolio)
     {
         try {
+            // バリデーション
             $validated = $request->validate([
                 'comment' => 'nullable|string|max:1000',
                 'technical' => 'nullable|integer|between:1,5',
@@ -25,6 +28,7 @@ class ReviewController extends Controller
                 'user_focus' => 'nullable|integer|between:1,5',
             ]);
 
+            // 評価項目が全て空でないかを確認
             if (
                 is_null($validated['technical']) &&
                 is_null($validated['usability']) &&
@@ -37,6 +41,7 @@ class ReviewController extends Controller
                 ], 422);
             }
 
+            // 評価項目の平均値を計算
             $ratings = array_filter([
                 $validated['technical'],
                 $validated['usability'],
@@ -46,6 +51,7 @@ class ReviewController extends Controller
 
             $rating = count($ratings) ? round(array_sum($ratings) / count($ratings), 1) : null;
 
+            // レビューを保存
             $review = Review::create([
                 'user_id' => $request->user()->id,
                 'portfolio_id' => $portfolio->id,
@@ -57,11 +63,12 @@ class ReviewController extends Controller
                 'user_focus' => $validated['user_focus'],
             ]);
 
-            // 通知（コメントがある場合のみ）
+            // コメントがある場合、通知を送信
             if (!empty($review->comment)) {
                 $portfolioOwner = $portfolio->user;
                 $portfolioOwner->notify(new ReviewCreated($review));
 
+                // 自分以外のユーザーには通知
                 if ($review->user->id !== $portfolioOwner->id) {
                     $review->user->notify(new ReviewCreated($review));
                 }
@@ -76,6 +83,7 @@ class ReviewController extends Controller
                 'review' => $review->load('user')
             ]);
         } catch (\Throwable $e) {
+            // エラー処理
             \Log::error('Review作成失敗: ' . $e->getMessage());
 
             return response()->json([
@@ -86,8 +94,12 @@ class ReviewController extends Controller
         }
     }
 
+    /**
+     * レビューを削除する
+     */
     public function destroy(Portfolio $portfolio, $reviewId)
     {
+        // レビューが存在するか確認
         $review = Review::where('id', $reviewId)
             ->where('portfolio_id', $portfolio->id)
             ->first();
@@ -100,6 +112,7 @@ class ReviewController extends Controller
             ]);
         }
 
+        // 削除権限の確認
         if ($review->user_id !== auth()->id()) {
             return response()->json([
                 'success' => false,
@@ -108,6 +121,7 @@ class ReviewController extends Controller
         }
 
         try {
+            // レビューを削除
             $review->delete();
 
             // ランキングキャッシュを削除
@@ -119,6 +133,7 @@ class ReviewController extends Controller
                 'review_id' => $review->id
             ]);
         } catch (\Throwable $e) {
+            // エラー処理
             \Log::error('レビュー削除失敗: ' . $e->getMessage());
 
             return response()->json([
@@ -129,12 +144,17 @@ class ReviewController extends Controller
         }
     }
 
+    /**
+     * レビューを更新する
+     */
     public function update(Request $request, Portfolio $portfolio, Review $review)
     {
+        // 更新対象のレビューが正しいか確認
         if ($review->portfolio_id !== $portfolio->id) {
             abort(404, 'レビューが見つかりません');
         }
 
+        // 更新権限の確認
         if ($review->user_id !== $request->user()->id) {
             return response()->json([
                 'success' => false,
@@ -143,6 +163,7 @@ class ReviewController extends Controller
         }
 
         try {
+            // バリデーション
             $validated = $request->validate([
                 'comment' => 'nullable|string|max:1000',
                 'technical' => 'nullable|integer|between:1,5',
@@ -151,6 +172,7 @@ class ReviewController extends Controller
                 'user_focus' => 'nullable|integer|between:1,5',
             ]);
 
+            // 評価項目が全て空でないかを確認
             if (
                 is_null($validated['technical']) &&
                 is_null($validated['usability']) &&
@@ -163,6 +185,7 @@ class ReviewController extends Controller
                 ], 422);
             }
 
+            // 評価項目の平均値を計算
             $ratings = array_filter([
                 $validated['technical'],
                 $validated['usability'],
@@ -174,6 +197,7 @@ class ReviewController extends Controller
 
             $oldComment = $review->comment;
 
+            // レビューを更新
             $review->update([
                 'comment' => $validated['comment'] ?? null,
                 'technical' => $validated['technical'],
@@ -183,10 +207,12 @@ class ReviewController extends Controller
                 'rating' => $rating,
             ]);
 
+            // コメントが変更された場合、通知を送信
             if (!empty($review->comment)) {
                 $portfolioOwner = $portfolio->user;
                 $portfolioOwner->notify(new ReviewUpdated($review, $oldComment));
 
+                // 自分以外のユーザーには通知
                 if ($review->user->id !== $portfolioOwner->id) {
                     $review->user->notify(new ReviewUpdated($review, $oldComment));
                 }
@@ -201,6 +227,7 @@ class ReviewController extends Controller
                 'review' => $review->load('user')
             ]);
         } catch (\Throwable $e) {
+            // エラー処理
             \Log::error('レビュー更新失敗: ' . $e->getMessage());
 
             return response()->json([
@@ -211,14 +238,19 @@ class ReviewController extends Controller
         }
     }
 
+    /**
+     * レビューの確認ステータスを切り替える
+     */
     public function checkReview(Review $review)
     {
         $user = auth()->user();
         $wasChecked = $review->checked;
 
+        // 確認ステータスを切り替え
         $review->checked = !$wasChecked;
         $review->save();
 
+        // 確認ステータス変更通知
         if (!$wasChecked && $review->checked) {
             $review->user->notify(new ReviewChecked($user, $review));
         }
@@ -232,31 +264,49 @@ class ReviewController extends Controller
     // -----------------------------
     // ランキング関連メソッド（キャッシュ対応済）
     // -----------------------------
+    /**
+     * 総合ランキングを取得
+     */
     public function ranking()
     {
-        return $this->getRanking('rating', 'Review/Rankings/Total');
+        return $this->getRanking('rating', 'Reviews/Rankings/Total');
     }
 
+    /**
+     * 技術ランキングを取得
+     */
     public function rankingTechnical()
     {
-        return $this->getRanking('technical', 'Review/Rankings/Technical');
+        return $this->getRanking('technical', 'Reviews/Rankings/Technical');
     }
 
+    /**
+     * 使用感ランキングを取得
+     */
     public function rankingUsability()
     {
-        return $this->getRanking('usability', 'Review/Rankings/Usability');
+        return $this->getRanking('usability', 'Reviews/Rankings/Usability');
     }
 
+    /**
+     * デザインランキングを取得
+     */
     public function rankingDesign()
     {
-        return $this->getRanking('design', 'Review/Rankings/Design');
+        return $this->getRanking('design', 'Reviews/Rankings/Design');
     }
 
+    /**
+     * ユーザー重視ランキングを取得
+     */
     public function rankingUserFocus()
     {
-        return $this->getRanking('user_focus', 'Review/Rankings/UserFocus');
+        return $this->getRanking('user_focus', 'Reviews/Rankings/UserFocus');
     }
 
+    /**
+     * 指定した評価のランキングを取得
+     */
     private function getRanking(string $avgColumn, string $view)
     {
         $portfolios = ReviewHelper::getRanking($avgColumn);

@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "@inertiajs/react";
-import RankingHeader from "@/Pages/Review/Rankings/Partials/RankingHeader";
+import RankingHeader from "@/Pages/Reviews/Rankings/Partials/RankingHeader";
 
 export default function RankingList({
     portfolios,

@@ -1,9 +1,8 @@
-// Reviews/Components/Index.jsx
 import React, { useState } from "react";
 import axios from "axios";
-import ReviewForm from "@/Components/Reviews/ReviewForm";
-import ReviewList from "@/Components/Reviews/ReviewList";
-import ReviewChart from "@/Components/Reviews//ReviewChart";
+import ReviewForm from "@/Pages/Reviews/Partials/ReviewForm";
+import ReviewList from "@/Pages/Reviews/Partials/ReviewList";
+import ReviewChart from "@/Pages/Reviews/Partials/ReviewChart";
 import FlashMessage from "@/Components/FlashMessage";
 
 export default function ReviewIndex({ portfolio, auth, errors, flash }) {
@@ -51,10 +50,15 @@ export default function ReviewIndex({ portfolio, auth, errors, flash }) {
         );
     };
 
+    // レビュー削除確認
+    const handleConfirmDelete = (reviewId) => {
+        if (confirm("本当に削除しますか？")) {
+            handleDelete(reviewId);
+        }
+    };
+
     // レビュー削除
     const handleDelete = async (reviewId) => {
-        if (!confirm("本当に削除しますか？")) return;
-
         try {
             const response = await axios.delete(
                 `/portfolio/${portfolio.id}/reviews/${reviewId}`,
@@ -99,6 +103,7 @@ export default function ReviewIndex({ portfolio, auth, errors, flash }) {
                 onDeleted={handleDelete}
                 onEdit={handleEdit} // 編集ボタン連携
                 editingReviewId={editingReview?.id}
+                onConfirmDelete={handleConfirmDelete} // 削除確認を親から渡す
             />
 
             {auth?.user && (

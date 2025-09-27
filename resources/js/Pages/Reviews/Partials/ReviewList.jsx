@@ -9,30 +9,8 @@ export default function ReviewList({
     onDeleted,
     onEdit, // 編集ボタン用
     editingReviewId, // 追加: 現在編集中のレビューID
+    onConfirmDelete, // 親から渡された削除確認の関数
 }) {
-    // レビュー削除
-    const deleteReview = async (reviewId) => {
-        if (!confirm("本当に削除しますか？")) return;
-
-        try {
-            const response = await axios.delete(
-                `/portfolio/${portfolioId}/reviews/${reviewId}`,
-                { headers: { "X-Requested-With": "XMLHttpRequest" } }
-            );
-
-            if (response.data.success) {
-                onDeleted(reviewId);
-            } else {
-                alert(response.data.message);
-            }
-        } catch (error) {
-            console.error(error);
-            alert(
-                error.response?.data?.message || "レビュー削除に失敗しました"
-            );
-        }
-    };
-
     // レビュー確認チェック
     const toggleReviewChecked = async (review) => {
         try {
@@ -84,7 +62,7 @@ export default function ReviewList({
                                         <div className="flex gap-2">
                                             <button
                                                 onClick={() =>
-                                                    deleteReview(review.id)
+                                                    onConfirmDelete(review.id)
                                                 }
                                                 className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
                                             >
