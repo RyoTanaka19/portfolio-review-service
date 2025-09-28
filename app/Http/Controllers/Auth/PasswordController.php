@@ -15,10 +15,15 @@ class PasswordController extends Controller
     public function update(Request $request)
     {
         try {
-            // 入力値のバリデーション
+            // 入力値のバリデーション（日本語メッセージ指定）
             $validated = $request->validate([
                 'current_password' => ['required', 'current_password'], // 現在のパスワード確認
                 'password' => ['required', Password::defaults(), 'confirmed'], // 新しいパスワード確認
+            ], [
+                'current_password.current_password' => '現在のパスワードが正しくありません。',
+                'current_password.required' => '現在のパスワードを入力してください。',
+                'password.required' => '新しいパスワードを入力してください。',
+                'password.confirmed' => '新しいパスワードと確認用パスワードが一致しません。',
             ]);
 
             // パスワードをハッシュ化して更新
