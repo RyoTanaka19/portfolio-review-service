@@ -29,6 +29,7 @@ class ProfileUpdateRequest extends FormRequest
             'profile_image' => ['nullable', 'image', 'max:2048'],
             // 削除フラグ（チェックボックスやフロントから送られる場合）
             'delete_profile_image' => ['sometimes', 'boolean'],
+            'git_url' => ['nullable', 'url', 'max:255']
         ];
     }
 }

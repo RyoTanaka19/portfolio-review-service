@@ -20,6 +20,7 @@ export default function UpdateProfileInformation({
         email: user.email,
         tags: user.tags?.map((tag) => tag.id) || [],
         profile_image: null,
+        git_url: user.git_url || "",
     });
 
     const [previewImage, setPreviewImage] = useState(
@@ -69,6 +70,7 @@ export default function UpdateProfileInformation({
             formData.append("name", data.name);
             formData.append("email", data.email);
             data.tags.forEach((id) => formData.append("tags[]", id));
+            formData.append("git_url", data.git_url);
             if (data.profile_image)
                 formData.append("profile_image", data.profile_image);
 
@@ -182,6 +184,23 @@ export default function UpdateProfileInformation({
                     />
                 </div>
 
+                {/* GitHub URL */}
+                <div>
+                    <InputLabel htmlFor="git_url" value="GitHub URL" />
+                    <TextInput
+                        id="git_url"
+                        type="url"
+                        className="mt-1 block w-full"
+                        value={data.git_url}
+                        onChange={(e) => setData("git_url", e.target.value)}
+                        placeholder="https://github.com/username"
+                    />
+                    <InputError
+                        className="mt-2"
+                        message={localErrors.git_url || errors.git_url}
+                    />
+                </div>
+
                 {/* プロフィール画像 */}
                 <div>
                     <InputLabel
@@ -240,7 +259,7 @@ export default function UpdateProfileInformation({
                 <div className="flex items-center gap-4">
                     <PrimaryButton
                         disabled={processing}
-                        className="bg-blue-400 hover:bg-blue-500 text-white"
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
                     >
                         保存
                     </PrimaryButton>

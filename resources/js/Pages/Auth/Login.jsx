@@ -138,7 +138,7 @@ export default function Login({ status, canResetPassword }) {
                                 )}
                                 <PrimaryButton
                                     disabled={processing}
-                                    className="bg-blue-400 hover:bg-blue-500 text-white"
+                                    className="bg-blue-600 hover:bg-blue-700 text-white"
                                 >
                                     ログイン
                                 </PrimaryButton>
