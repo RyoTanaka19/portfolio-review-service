@@ -25,11 +25,10 @@ export default function ReviewChart({ reviews }) {
     // reviewsが空の場合も想定
     const reviewCount = reviews?.length || 0;
 
-    // 総合評価を計算
+    // 平均値を計算する関数
     const avg = (key) => {
         const vals = reviews
-            .map((r) => {
-                // 総合評価(rating)がない場合は計算
+            ?.map((r) => {
                 if (key === "rating") {
                     const arr = [
                         r.technical,
@@ -44,11 +43,12 @@ export default function ReviewChart({ reviews }) {
                 return r[key] ?? 0;
             })
             .filter((v) => v !== null && v !== undefined);
-        return vals.length
+        return vals?.length
             ? (vals.reduce((sum, v) => sum + v, 0) / vals.length).toFixed(1)
             : 0;
     };
 
+    // Chart.js データ
     const chartData = {
         labels: [
             "総合評価",
@@ -67,20 +67,55 @@ export default function ReviewChart({ reviews }) {
                     avg("design"),
                     avg("user_focus"),
                 ],
-                backgroundColor: [
-                    "rgba(107,114,128,0.7)",
-                    "rgba(37,99,235,0.7)",
-                    "rgba(16,185,129,0.7)",
-                    "rgba(255,105,180,1)",
-                    "rgba(128,0,128,1)",
-                ],
-                borderColor: [
-                    "rgba(107,114,128,1)",
-                    "rgba(37,99,235,1)",
-                    "rgba(16,185,129,1)",
-                    "rgba(255,105,180,1)",
-                    "rgba(128,0,128,1)",
-                ],
+                // 総合評価だけ横方向グラデーション、その他は通常カラー
+                backgroundColor: (ctx) => {
+                    const index = ctx.dataIndex;
+                    if (index === 0) {
+                        const chart = ctx.chart;
+                        const gradient = chart.ctx.createLinearGradient(
+                            0,
+                            0,
+                            chart.width,
+                            0
+                        );
+                        gradient.addColorStop(0, "#f87171"); // red-500
+                        gradient.addColorStop(0.25, "#facc15"); // yellow-500
+                        gradient.addColorStop(0.5, "#22c55e"); // green-500
+                        gradient.addColorStop(0.75, "#3b82f6"); // blue-500
+                        gradient.addColorStop(1, "#a855f7"); // purple-500
+                        return gradient;
+                    }
+                    return [
+                        "rgba(37,99,235,0.7)",
+                        "rgba(16,185,129,0.7)",
+                        "rgba(255,105,180,1)",
+                        "rgba(128,0,128,1)",
+                    ][index - 1];
+                },
+                borderColor: (ctx) => {
+                    const index = ctx.dataIndex;
+                    if (index === 0) {
+                        const chart = ctx.chart;
+                        const gradient = chart.ctx.createLinearGradient(
+                            0,
+                            0,
+                            chart.width,
+                            0
+                        );
+                        gradient.addColorStop(0, "#f87171"); // red-500
+                        gradient.addColorStop(0.25, "#facc15"); // yellow-500
+                        gradient.addColorStop(0.5, "#22c55e"); // green-500
+                        gradient.addColorStop(0.75, "#3b82f6"); // blue-500
+                        gradient.addColorStop(1, "#a855f7"); // purple-500
+                        return gradient;
+                    }
+                    return [
+                        "rgba(37,99,235,1)",
+                        "rgba(16,185,129,1)",
+                        "rgba(255,105,180,1)",
+                        "rgba(128,0,128,1)",
+                    ][index - 1];
+                },
                 borderWidth: 1,
             },
         ],

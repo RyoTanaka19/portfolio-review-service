@@ -176,7 +176,7 @@ export default function Index({ portfolios, auth, allTags = [], flash = {} }) {
                                 <div className="px-4 pb-4 flex justify-end gap-2">
                                     <Link
                                         href={`/portfolios/${p.id}/edit`}
-                                        className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm"
+                                        className="bg-blue-400 text-white px-3 py-1 rounded hover:bg-blue-500 text-sm"
                                     >
                                         編集
                                     </Link>
