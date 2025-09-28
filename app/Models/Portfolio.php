@@ -16,8 +16,7 @@ class Portfolio extends Model
         'title', 
         'description', 
         'service_url', 
-        'github_url',  // 追加
-        'image_path'
+        'repository_url'
     ];
 
     /**

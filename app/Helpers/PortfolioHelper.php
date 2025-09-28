@@ -32,7 +32,7 @@ class PortfolioHelper
             'title' => $portfolio->title,
             'description' => $portfolio->description,
             'service_url' => $portfolio->service_url,
-            'github_url' => $portfolio->github_url,
+            'repository_url' => $portfolio->repository_url,
             'image_url' => $portfolio->service_url ? self::getOgImage($portfolio->service_url) : null,
             'tags' => $portfolio->tags->pluck('name')->toArray(),
             'reviews' => $portfolio->reviews,

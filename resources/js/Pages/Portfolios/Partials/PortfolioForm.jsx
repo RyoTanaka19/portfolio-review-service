@@ -3,7 +3,7 @@ import { Inertia } from "@inertiajs/inertia";
 import TagsInput from "@/Components/Tag/TagsInput";
 
 export default function PortfolioForm({
-    initialData = {}, // title, description, service_url, github_url, tags
+    initialData = {}, // title, description, service_url, tags
     onSubmitRoute,
     method = "post",
     buttonText = "投稿",
@@ -13,7 +13,9 @@ export default function PortfolioForm({
         initialData.description || ""
     );
     const [serviceUrl, setServiceUrl] = useState(initialData.service_url || "");
-    const [githubUrl, setGithubUrl] = useState(initialData.github_url || "");
+    const [repositoryUrl, setRepositoryUrl] = useState(
+        initialData.repository_url || ""
+    );
     const [tags, setTags] = useState(
         (initialData.tags || []).map((name) => ({ name }))
     );
@@ -40,7 +42,7 @@ export default function PortfolioForm({
         formData.append("title", title);
         formData.append("description", description);
         formData.append("service_url", serviceUrl);
-        formData.append("github_url", githubUrl);
+        formData.append("repository_url", repositoryUrl);
         tags.forEach((t, idx) => formData.append(`tags[${idx}]`, t.name));
 
         Inertia.post(onSubmitRoute, formData, {
@@ -120,13 +122,13 @@ export default function PortfolioForm({
             {/* GitHub URL */}
             <div className="mb-6">
                 <label className="block font-semibold text-lg mb-2">
-                    GitHub URL（任意）
+                    このサービスのリポジトリURL（任意）
                 </label>
                 <input
                     type="url"
-                    value={githubUrl}
-                    onChange={(e) => setGithubUrl(e.target.value)}
-                    placeholder="このサービスのGitHubのリポジトリ"
+                    value={repositoryUrl}
+                    onChange={(e) => setRepositoryUrl(e.target.value)}
+                    placeholder="このサービスのリポジトリURL"
                     className="w-full border-2 px-4 py-3 rounded-lg shadow-sm border-gray-300"
                 />
             </div>

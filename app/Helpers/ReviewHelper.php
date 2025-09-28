@@ -50,7 +50,7 @@ class ReviewHelper
             'title' => $p->title,  // タイトル
             'description' => $p->description,  // 説明
             'service_url' => $p->service_url,  // サービスのURL
-            'github_url' => $p->github_url,  // GitHubのURL
+            'repository_url' => $p->repository_url,  // GitHubのURL
             'user_id' => $p->user->id ?? null,
             'user_name' => $p->user->name ?? '未設定',  // ユーザー名（未設定の場合は '未設定' と表示）
             'image_url' => $p->service_url ? PortfolioHelper::getOgImage($p->service_url) : null,  // サービスURLからOGP画像を取得
