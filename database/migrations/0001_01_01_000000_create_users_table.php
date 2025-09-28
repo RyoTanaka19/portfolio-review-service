@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('profile_image')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('auth_id')->nullable()->unique(); // Google ID
+            $table->string('social_id')->nullable()->unique(); // Google ID
             $table->rememberToken();
             $table->timestamps();
         });

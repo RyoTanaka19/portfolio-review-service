@@ -5,7 +5,7 @@ use App\Http\Controllers\{
     PortfolioController,
     ReviewController,
     AdviceController,
-    Auth\AuthLoginController,
+    Auth\SocialLoginController,
     TagController,
     NotificationController,
     StaticPagesController,
@@ -54,8 +54,8 @@ Route::get('/how-to', [StaticPagesController::class, 'howTo'])->name('how_to');
 | 認証・ソーシャルログイン（Google）
 |--------------------------------------------------------------------------
 */
-Route::get('auth/google', [AuthLoginController::class, 'redirectToGoogle'])->name('google.login');
-Route::get('auth/google/callback', [AuthLoginController::class, 'handleGoogleCallback']);
+Route::get('auth/google', [SocialLoginController::class, 'redirectToGoogle'])->name('google.login');
+Route::get('auth/google/callback', [SocialLoginController::class, 'handleGoogleCallback']);
 
 /*
 |--------------------------------------------------------------------------
