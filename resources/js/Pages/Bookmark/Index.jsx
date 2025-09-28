@@ -24,107 +24,113 @@ export default function Index({ portfolios: initialPortfolios = [], auth }) {
 
     return (
         <AppLayout>
-            <header className="px-8 py-6 bg-white shadow flex justify-center">
-                <h1 className="text-3xl font-bold">お気に入り一覧</h1>
-            </header>
+            {/* ページ全体を bg-gray-100 に */}
+            <div className="bg-gray-100 min-h-screen">
+                <header className="px-8 py-6 bg-white shadow flex justify-center">
+                    <h1 className="text-3xl font-bold">お気に入り一覧</h1>
+                </header>
 
-            {/* フラッシュメッセージ */}
-            <FlashMessage
-                message={flashMessage}
-                type={flashType}
-                onClose={() => setFlashMessage(null)}
-            />
+                {/* フラッシュメッセージ */}
+                <FlashMessage
+                    message={flashMessage}
+                    type={flashType}
+                    onClose={() => setFlashMessage(null)}
+                />
 
-            <main className="px-4 py-8 max-w-6xl mx-auto">
-                {portfolioList.length === 0 ? (
-                    <div className="flex justify-center items-center h-64">
-                        <p className="text-gray-500 text-lg font-medium">
-                            お気に入りはまだありません
-                        </p>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {portfolioList.map((p) => (
-                            <div
-                                key={p.id}
-                                className="bg-white p-4 rounded shadow hover:shadow-md transition duration-200 flex flex-col"
-                            >
-                                {/* タイトル */}
-                                <div className="flex justify-center mb-2">
-                                    <h2 className="font-bold text-lg truncate text-center w-full">
-                                        <Link
-                                            href={`/portfolio/${p.id}`}
-                                            className="text-blue-500 hover:underline"
-                                        >
-                                            {p.title.length > 30
-                                                ? p.title.slice(0, 30) + "…"
-                                                : p.title}
-                                        </Link>
-                                    </h2>
-                                </div>
-
-                                {/* OGP画像 */}
-                                <div className="w-full h-40 bg-gray-200 rounded overflow-hidden flex items-center justify-center mb-2">
-                                    {p.image_url ? (
-                                        <img
-                                            src={p.image_url}
-                                            alt={p.title}
-                                            className="w-full h-full object-cover"
-                                        />
-                                    ) : (
-                                        <span className="text-gray-500 text-sm text-center">
-                                            OGP画像なし
-                                        </span>
-                                    )}
-                                </div>
-
-                                {/* タグ */}
-                                {p.tags?.length > 0 && (
-                                    <div className="mt-2 flex flex-wrap gap-1">
-                                        {p.tags.map((tag, idx) => (
-                                            <span
-                                                key={idx}
-                                                className="bg-gray-200 text-gray-800 px-2 py-1 rounded text-xs"
+                <main className="px-4 py-8 max-w-6xl mx-auto">
+                    {portfolioList.length === 0 ? (
+                        <div className="flex justify-center items-center h-64">
+                            <p className="text-gray-500 text-lg font-medium">
+                                お気に入りはまだありません
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {portfolioList.map((p) => (
+                                <div
+                                    key={p.id}
+                                    className="bg-white p-4 rounded shadow hover:shadow-md transition duration-200 flex flex-col"
+                                >
+                                    {/* タイトル */}
+                                    <div className="flex justify-center mb-2">
+                                        <h2 className="font-bold text-lg truncate text-center w-full">
+                                            <Link
+                                                href={`/portfolio/${p.id}`}
+                                                className="text-blue-500 hover:underline"
                                             >
-                                                {tag}
-                                            </span>
-                                        ))}
+                                                {p.title.length > 30
+                                                    ? p.title.slice(0, 30) + "…"
+                                                    : p.title}
+                                            </Link>
+                                        </h2>
                                     </div>
-                                )}
 
-                                {/* サイトリンク */}
-                                {p.service_url && (
-                                    <a
-                                        href={`/portfolio/${p.id}/visit`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-blue-500 text-sm block mt-2"
-                                    >
-                                        サイトを見る →
-                                    </a>
-                                )}
+                                    {/* OGP画像 */}
+                                    <div className="w-full h-40 bg-gray-200 rounded overflow-hidden flex items-center justify-center mb-2">
+                                        {p.image_url ? (
+                                            <img
+                                                src={p.image_url}
+                                                alt={p.title}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <span className="text-gray-500 text-sm text-center">
+                                                OGP画像なし
+                                            </span>
+                                        )}
+                                    </div>
 
-                                {/* ブックマークボタン */}
-                                {auth?.user && (
-                                    <div className="mt-auto">
-                                        <BookmarkButton
-                                            portfolioId={p.id}
-                                            initialBookmarked={true}
-                                            onToggle={(isBookmarked, message) =>
-                                                handleBookmarkToggle(
-                                                    p.id,
+                                    {/* タグ */}
+                                    {p.tags?.length > 0 && (
+                                        <div className="mt-2 flex flex-wrap gap-1">
+                                            {p.tags.map((tag, idx) => (
+                                                <span
+                                                    key={idx}
+                                                    className="bg-gray-200 text-gray-800 px-2 py-1 rounded text-xs"
+                                                >
+                                                    {tag}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {/* サイトリンク */}
+                                    {p.service_url && (
+                                        <a
+                                            href={`/portfolio/${p.id}/visit`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-500 text-sm block mt-2"
+                                        >
+                                            サイトを見る →
+                                        </a>
+                                    )}
+
+                                    {/* ブックマークボタン */}
+                                    {auth?.user && (
+                                        <div className="mt-auto">
+                                            <BookmarkButton
+                                                portfolioId={p.id}
+                                                initialBookmarked={true}
+                                                onToggle={(
                                                     isBookmarked,
                                                     message
-                                                )
-                                            }
-                                        />
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </main>
+                                                ) =>
+                                                    handleBookmarkToggle(
+                                                        p.id,
+                                                        isBookmarked,
+                                                        message
+                                                    )
+                                                }
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </main>
+            </div>
         </AppLayout>
     );
 }

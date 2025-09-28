@@ -6,12 +6,12 @@ export default function RankingList({
     portfolios,
     headerProps,
     tagColor,
-    bgColor,
+    // bgColor, // もう不要
 }) {
     const rankColors = ["text-yellow-500", "text-gray-400", "text-orange-500"];
 
     return (
-        <div className={`${bgColor} min-h-screen`}>
+        <div className="bg-gray-100 min-h-screen">
             <RankingHeader {...headerProps} />
 
             <main className="px-8 py-10 max-w-4xl mx-auto">

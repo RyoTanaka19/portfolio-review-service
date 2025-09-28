@@ -82,79 +82,84 @@ export default function Show() {
 
                     {portfolios.length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {portfolios.map((p) => (
-                                <div
-                                    key={p.id}
-                                    className="bg-white rounded-xl shadow hover:shadow-lg transition duration-300 flex flex-col overflow-hidden"
-                                >
-                                    {/* OGP画像 */}
-                                    <div className="w-full h-48 bg-gray-200 flex items-center justify-center overflow-hidden">
-                                        {p.image_url ? (
+                            {portfolios.map((p) => {
+                                const averageRating = p.reviews?.length
+                                    ? (
+                                          p.reviews.reduce(
+                                              (sum, r) => sum + r.rating,
+                                              0
+                                          ) / p.reviews.length
+                                      ).toFixed(1)
+                                    : null;
+
+                                return (
+                                    <div
+                                        key={p.id}
+                                        className="bg-white rounded-xl shadow hover:shadow-lg transition duration-300 flex flex-col overflow-hidden"
+                                    >
+                                        {p.image_url && (
                                             <Link href={`/portfolio/${p.id}`}>
                                                 <img
                                                     src={p.image_url}
                                                     alt={p.title}
-                                                    className="w-full h-full object-cover"
+                                                    className="w-full h-48 object-cover"
                                                 />
                                             </Link>
-                                        ) : (
-                                            <span className="text-gray-500 text-sm text-center">
-                                                OGP画像なし
-                                            </span>
                                         )}
-                                    </div>
 
-                                    <div className="p-5 flex flex-col flex-1">
-                                        <Link
-                                            href={`/portfolio/${p.id}`}
-                                            className="font-bold text-xl text-blue-600 hover:underline mb-2 truncate"
-                                        >
-                                            {p.title}
-                                        </Link>
-
-                                        {p.service_url && (
-                                            <a
-                                                href={`/portfolio/${p.id}/visit`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-blue-500 text-sm mb-3 hover:underline"
+                                        <div className="p-5 flex flex-col flex-1">
+                                            <Link
+                                                href={`/portfolio/${p.id}`}
+                                                className="font-bold text-xl text-blue-600 hover:underline mb-2 truncate"
                                             >
-                                                サイトを見る →
-                                            </a>
-                                        )}
+                                                {p.title}
+                                            </Link>
 
-                                        {p.tags?.length > 0 && (
-                                            <div className="flex flex-wrap gap-2 mt-auto">
-                                                {p.tags.map((tag, idx) => (
-                                                    <span
-                                                        key={idx}
-                                                        className="bg-gray-200 text-gray-800 px-2 py-1 rounded-full text-xs"
-                                                    >
-                                                        {tag.name}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        )}
+                                            {p.service_url && (
+                                                <a
+                                                    href={`/portfolio/${p.id}/visit`} // /visit 経由でアクセスを記録
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-blue-500 text-sm mb-3 hover:underline"
+                                                >
+                                                    サイトを見る →
+                                                </a>
+                                            )}
 
-                                        {isOwnProfile && (
-                                            <div className="mt-3">
-                                                <BookmarkButton
-                                                    portfolioId={p.id}
-                                                    initialBookmarked={
-                                                        p.is_bookmarked || false
-                                                    }
-                                                    onToggle={(_, msg) =>
-                                                        setFlashMessage({
-                                                            message: msg,
-                                                            type: "success",
-                                                        })
-                                                    }
-                                                />
-                                            </div>
-                                        )}
+                                            {p.tags?.length > 0 && (
+                                                <div className="flex flex-wrap gap-2 mt-auto">
+                                                    {p.tags.map((tag, idx) => (
+                                                        <span
+                                                            key={idx}
+                                                            className="bg-gray-200 text-gray-800 px-2 py-1 rounded-full text-xs"
+                                                        >
+                                                            {tag.name}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            {isOwnProfile && (
+                                                <div className="mt-3">
+                                                    <BookmarkButton
+                                                        portfolioId={p.id}
+                                                        initialBookmarked={
+                                                            p.is_bookmarked ||
+                                                            false
+                                                        }
+                                                        onToggle={(_, msg) =>
+                                                            setFlashMessage({
+                                                                message: msg,
+                                                                type: "success",
+                                                            })
+                                                        }
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     ) : (
                         <div className="flex flex-col items-center justify-center py-20">
