@@ -62,142 +62,144 @@ export default function Index({ portfolios, auth, allTags = [], flash = {} }) {
 
     return (
         <AppLayout>
-            <FlashMessage
-                message={flashMessage.message}
-                type={flashMessage.type}
-                onClose={() => setFlashMessage({ message: null, type: null })}
-            />
-
-            {/* 検索フォーム */}
-            <div className="px-4 py-6 bg-white shadow mb-6">
-                <h1 className="text-2xl font-bold mb-4 text-center">
-                    ポートフォリオ一覧
-                </h1>
-                <PortfolioSearch
-                    allTags={allTags}
-                    filters={pagination.filters}
-                    portfolioList={portfolioList}
-                    setPortfolioList={setPortfolioList}
-                    setPagination={setPagination}
+            {/* ページ全体の背景ラッパー */}
+            <div className="bg-gray-100 min-h-screen">
+                <FlashMessage
+                    message={flashMessage.message}
+                    type={flashMessage.type}
+                    onClose={() =>
+                        setFlashMessage({ message: null, type: null })
+                    }
                 />
-            </div>
 
-            {/* ポートフォリオ一覧 */}
-            <main className="px-4 md:px-8 py-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {portfolioList?.map((p) => (
-                    <div
-                        key={p.id}
-                        className="bg-white flex flex-col rounded shadow hover:shadow-lg transition duration-200 overflow-hidden"
-                    >
-                        {/* OGP画像 */}
-                        <div className="w-full h-48 bg-gray-200 flex items-center justify-center overflow-hidden">
-                            {p.image_url ? (
+                {/* 検索フォーム */}
+                <div className="px-4 py-6 bg-white shadow mb-6">
+                    <h1 className="text-2xl font-bold mb-4 text-center">
+                        ポートフォリオ一覧
+                    </h1>
+                    <PortfolioSearch
+                        allTags={allTags}
+                        filters={pagination.filters}
+                        portfolioList={portfolioList}
+                        setPortfolioList={setPortfolioList}
+                        setPagination={setPagination}
+                    />
+                </div>
+
+                {/* ポートフォリオ一覧 */}
+                <main className="px-4 md:px-8 py-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {portfolioList?.map((p) => (
+                        <div
+                            key={p.id}
+                            className="bg-white flex flex-col rounded shadow hover:shadow-lg transition duration-200 overflow-hidden"
+                        >
+                            {/* OGP画像 */}
+                            <div className="w-full h-48 bg-gray-200 flex items-center justify-center overflow-hidden">
+                                {p.image_url ? (
+                                    <Link
+                                        href={`/portfolio/${p.id}`}
+                                        className="w-full h-full block"
+                                    >
+                                        <img
+                                            src={p.image_url}
+                                            alt={p.title}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </Link>
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center px-2">
+                                        <span className="text-gray-500 text-base text-center">
+                                            OGP画像なし
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* 内容部分 */}
+                            <div className="p-4 flex flex-col flex-1 gap-2">
                                 <Link
                                     href={`/portfolio/${p.id}`}
-                                    className="w-full h-full block"
+                                    className="font-bold text-lg text-blue-500 hover:underline line-clamp-2"
                                 >
-                                    <img
-                                        src={p.image_url}
-                                        alt={p.title}
-                                        className="w-full h-full object-cover"
-                                    />
+                                    {p.title}
                                 </Link>
-                            ) : (
-                                <div className="w-full h-full flex items-center justify-center px-2">
-                                    <span className="text-gray-500 text-base text-center">
-                                        OGP画像なし
-                                    </span>
-                                </div>
-                            )}
-                        </div>
 
-                        {/* 内容部分 */}
-                        <div className="p-4 flex flex-col flex-1 gap-2">
-                            {/* タイトル */}
-                            <Link
-                                href={`/portfolio/${p.id}`}
-                                className="font-bold text-lg text-blue-500 hover:underline line-clamp-2"
-                            >
-                                {p.title}
-                            </Link>
-
-                            {/* ユーザー名 */}
-                            <Link
-                                href={`/profile/${p.user_id}`}
-                                className="text-sm text-gray-500 hover:underline"
-                            >
-                                {p.user_name}
-                            </Link>
-
-                            {/* タグ */}
-                            {p.tags?.length > 0 && (
-                                <div className="flex flex-wrap gap-2 mt-auto">
-                                    {p.tags.map((tag, idx) => (
-                                        <span
-                                            key={idx}
-                                            className="bg-gray-200 text-gray-800 px-2 py-1 rounded text-xs cursor-default"
-                                        >
-                                            {tag}
-                                        </span>
-                                    ))}
-                                </div>
-                            )}
-
-                            {/* サイトリンク & ブックマーク */}
-                            <div className="mt-2 flex justify-between items-center">
-                                {p.service_url && (
-                                    <a
-                                        href={`/portfolio/${p.id}/visit`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-blue-500 text-sm hover:underline"
-                                    >
-                                        サイトを見る →
-                                    </a>
-                                )}
-                                {auth?.user && (
-                                    <BookmarkButton
-                                        portfolioId={p.id}
-                                        initialBookmarked={
-                                            p.is_bookmarked || false
-                                        }
-                                        onToggle={(_, msg) =>
-                                            setFlashMessage({
-                                                message: msg,
-                                                type: "success",
-                                            })
-                                        }
-                                    />
-                                )}
-                            </div>
-                        </div>
-
-                        {/* 編集・削除ボタン（所有者のみ） */}
-                        {auth?.user?.id === p.user_id && (
-                            <div className="px-4 pb-4 flex justify-end gap-2">
                                 <Link
-                                    href={`/portfolios/${p.id}/edit`}
-                                    className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm"
+                                    href={`/profile/${p.user_id}`}
+                                    className="text-sm text-gray-500 hover:underline"
                                 >
-                                    編集
+                                    {p.user_name}
                                 </Link>
-                                <button
-                                    type="button"
-                                    onClick={() => handleDelete(p.id)}
-                                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
-                                >
-                                    削除
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                ))}
-            </main>
 
-            {/* ページネーション */}
-            {portfolioList.length > 0 && (
-                <Pagination pagination={pagination} onPageChange={fetchPage} />
-            )}
+                                {p.tags?.length > 0 && (
+                                    <div className="flex flex-wrap gap-2 mt-auto">
+                                        {p.tags.map((tag, idx) => (
+                                            <span
+                                                key={idx}
+                                                className="bg-gray-200 text-gray-800 px-2 py-1 rounded text-xs cursor-default"
+                                            >
+                                                {tag}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+
+                                <div className="mt-2 flex justify-between items-center">
+                                    {p.service_url && (
+                                        <a
+                                            href={`/portfolio/${p.id}/visit`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-500 text-sm hover:underline"
+                                        >
+                                            サイトを見る →
+                                        </a>
+                                    )}
+                                    {auth?.user && (
+                                        <BookmarkButton
+                                            portfolioId={p.id}
+                                            initialBookmarked={
+                                                p.is_bookmarked || false
+                                            }
+                                            onToggle={(_, msg) =>
+                                                setFlashMessage({
+                                                    message: msg,
+                                                    type: "success",
+                                                })
+                                            }
+                                        />
+                                    )}
+                                </div>
+                            </div>
+
+                            {auth?.user?.id === p.user_id && (
+                                <div className="px-4 pb-4 flex justify-end gap-2">
+                                    <Link
+                                        href={`/portfolios/${p.id}/edit`}
+                                        className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm"
+                                    >
+                                        編集
+                                    </Link>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleDelete(p.id)}
+                                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
+                                    >
+                                        削除
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </main>
+
+                {portfolioList.length > 0 && (
+                    <Pagination
+                        pagination={pagination}
+                        onPageChange={fetchPage}
+                    />
+                )}
+            </div>
         </AppLayout>
     );
 }
