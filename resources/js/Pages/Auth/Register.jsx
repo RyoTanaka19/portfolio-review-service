@@ -40,7 +40,7 @@ export default function Register({ status }) {
                     )}
 
                     <div className="bg-white shadow-md rounded-lg px-8 py-10">
-                        <h2 className="text-2xl font-bold text-center text-gray-900 mb-6">
+                        <h2 className="text-2xl font-bold text-center text-green-500 mb-6">
                             ユーザー登録
                         </h2>
 
@@ -183,7 +183,7 @@ export default function Register({ status }) {
                                     すでに登録済みの方はこちら
                                 </Link>
                                 <PrimaryButton
-                                    className="bg-blue-400 hover:bg-blue-500 text-white"
+                                    className="bg-green-500 hover:bg-green-600 text-white"
                                     disabled={processing}
                                 >
                                     登録

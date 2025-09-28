@@ -204,7 +204,7 @@ export default function UpdatePasswordForm({ className = "" }) {
                 <div className="flex items-center gap-4">
                     <PrimaryButton
                         disabled={processing}
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        className="bg-blue-700 hover:bg-blue-800 text-white"
                     >
                         保存
                     </PrimaryButton>

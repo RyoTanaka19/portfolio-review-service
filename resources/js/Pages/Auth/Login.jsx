@@ -43,7 +43,7 @@ export default function Login({ status, canResetPassword }) {
                     )}
 
                     <div className="bg-white shadow-md rounded-lg px-8 py-10">
-                        <h2 className="text-2xl font-bold text-center text-gray-900 mb-6">
+                        <h2 className="text-2xl font-bold text-center text-blue-400 mb-6">
                             ログイン
                         </h2>
 
@@ -138,7 +138,7 @@ export default function Login({ status, canResetPassword }) {
                                 )}
                                 <PrimaryButton
                                     disabled={processing}
-                                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                                    className="bg-blue-700 hover:bg-blue-800 text-white"
                                 >
                                     ログイン
                                 </PrimaryButton>

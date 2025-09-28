@@ -92,10 +92,11 @@ export default function Header() {
                                 </Link>
                                 <Link
                                     href="/review/rankings/total"
-                                    className="px-3 py-1 bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 text-white rounded text-sm"
+                                    className="px-3 py-1 bg-orange-500 text-white rounded text-sm hover:bg-orange-600 transition-colors"
                                 >
                                     ランキング
                                 </Link>
+
                                 <Link
                                     href={route("bookmarks.index")}
                                     className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-sm"
