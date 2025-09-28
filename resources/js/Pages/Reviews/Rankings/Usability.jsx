@@ -7,7 +7,14 @@ export default function Usability({ portfolios }) {
         <AppLayout>
             <RankingList
                 portfolios={portfolios}
-                tagColor="bg-green-50 text-green-700" // 使いやすさに合わせたカラー
+                colors={{
+                    rank: "text-green-600",
+                    tag: "bg-green-50 text-green-700",
+                    title: "text-green-600 hover:underline",
+                    author: "text-green-600 hover:underline",
+                    reviews: "text-green-700",
+                    link: "text-green-600 hover:underline",
+                }}
                 headerProps={{
                     title: "使いやすさランキング TOP10",
                     description: "使いやすさの平均評価でランキング",
