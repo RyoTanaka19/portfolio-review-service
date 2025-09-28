@@ -77,7 +77,7 @@ class PortfolioController extends Controller
             'title' => $validated['title'],
             'description' => $validated['description'],
             'service_url' => $validated['service_url'],
-            'github_url' => $validated['github_url'] ?? null,
+            'repository_url' => $validated['repository_url'] ?? null,
         ]);
 
         if (!empty($validated['tags'])) {
@@ -118,7 +118,7 @@ class PortfolioController extends Controller
                 'title' => $portfolio->title,
                 'description' => $portfolio->description,
                 'service_url' => $portfolio->service_url,
-                'github_url' => $portfolio->github_url,
+                'repository_url' => $portfolio->repository_url,
                 'image_url' => PortfolioHelper::getOgImage($portfolio->service_url),
                 'tags' => $portfolio->tags->pluck('name')->toArray(),
             ],
@@ -138,7 +138,7 @@ class PortfolioController extends Controller
             'title' => $validated['title'],
             'description' => $validated['description'],
             'service_url' => $validated['service_url'],
-            'github_url' => $validated['github_url'] ?? null,
+            'repository_url' => $validated['repository_url'] ?? null,
         ]);
 
         $tagIds = [];

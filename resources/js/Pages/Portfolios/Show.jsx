@@ -60,18 +60,18 @@ export default function Show({ portfolio, auth, errors, flash }) {
                         )}
 
                         {/* GitHub URL */}
-                        {portfolio.github_url && (
+                        {portfolio.repository_url && (
                             <div className="mb-6">
                                 <h2 className="text-xl font-semibold mb-2 text-gray-700">
-                                    GitHub URL
+                                    リポジトリURL
                                 </h2>
                                 <a
-                                    href={portfolio.github_url}
+                                    href={portfolio.repository_url}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-blue-500 hover:underline break-all"
                                 >
-                                    {portfolio.github_url}
+                                    {portfolio.repository_url}
                                 </a>
                             </div>
                         )}

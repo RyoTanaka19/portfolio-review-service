@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('title');        // 作品タイトル
             $table->text('description');    // 作品説明
             $table->string('service_url'); // 任意URL
-            $table->string('github_url')->nullable(); // GitHub URL
+            $table->string('repository_url')->nullable();
             $table->timestamps();
         });
     }

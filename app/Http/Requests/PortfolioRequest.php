@@ -36,11 +36,9 @@ class PortfolioRequest extends FormRequest
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'service_url' => 'required|url|max:255',
-            'github_url' => 'nullable|url|max:255',
+            'repository_url' => 'nullable|url|max:255',
             'tags' => 'required|array',
             'tags.*' => 'string|max:50',
-            'image' => 'nullable|image|max:2048',
-            'delete_image' => 'nullable|boolean',
         ];
     }
 }
