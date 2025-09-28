@@ -121,7 +121,7 @@ export default function ResetPassword({ token, email }) {
                             {/* ボタン */}
                             <div className="flex items-center justify-between">
                                 <PrimaryButton
-                                    className="bg-blue-700 hover:bg-blue-800 text-white"
+                                    className="bg-blue-600 hover:bg-blue-700 text-white"
                                     disabled={processing}
                                 >
                                     パスワードを再設定

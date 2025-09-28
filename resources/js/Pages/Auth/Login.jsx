@@ -138,12 +138,22 @@ export default function Login({ status, canResetPassword }) {
                                 )}
                                 <PrimaryButton
                                     disabled={processing}
-                                    className="bg-blue-700 hover:bg-blue-800 text-white"
+                                    className="bg-blue-600 hover:bg-blue-700 text-white"
                                 >
                                     ログイン
                                 </PrimaryButton>
                             </div>
                         </form>
+
+                        {/* 新規登録ボタン */}
+                        <div className="mt-6">
+                            <Link
+                                href={route("register")}
+                                className="w-full flex items-center justify-center px-4 py-2 border border-green-500 rounded shadow-sm bg-green-500 text-white hover:bg-green-600 transition-colors"
+                            >
+                                新規登録
+                            </Link>
+                        </div>
 
                         {/* Googleログイン */}
                         <div className="mt-6">
