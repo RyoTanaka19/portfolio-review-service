@@ -20,15 +20,21 @@ export default function Show({ portfolio, auth, errors, flash }) {
                         </h1>
 
                         {/* OGP画像 */}
-                        {portfolio.image_url && (
-                            <div className="mb-6 flex justify-center">
+                        <div className="mb-6 flex justify-center">
+                            {portfolio.image_url ? (
                                 <img
                                     src={portfolio.image_url}
                                     alt={portfolio.title}
                                     className="w-full max-w-md object-cover rounded"
                                 />
-                            </div>
-                        )}
+                            ) : (
+                                <div className="w-full max-w-md h-48 flex items-center justify-center bg-gray-200 rounded">
+                                    <span className="text-gray-500 text-base">
+                                        OGP画像なし
+                                    </span>
+                                </div>
+                            )}
+                        </div>
 
                         {/* 作品説明 */}
                         {portfolio.description && (
