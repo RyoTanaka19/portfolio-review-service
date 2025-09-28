@@ -25,20 +25,22 @@ class PortfolioHelper
         }
     }
 
-    public static function mapPortfolio($portfolio, $authUserId = null)
-    {
-        return [
-            'id' => $portfolio->id,
-            'title' => $portfolio->title,
-            'description' => $portfolio->description,
-            'service_url' => $portfolio->service_url,
-            'repository_url' => $portfolio->repository_url,
-            'image_url' => $portfolio->service_url ? self::getOgImage($portfolio->service_url) : null,
-            'tags' => $portfolio->tags->pluck('name')->toArray(),
-            'reviews' => $portfolio->reviews,
-            'user_id' => $portfolio->user_id,
-            'user_name' => $portfolio->user->name ?? '未設定',
-            'is_bookmarked' => $portfolio->bookmarks->contains('user_id', $authUserId),
-        ];
-    }
+public static function mapPortfolio($portfolio, $authUserId = null)
+{
+    return [
+        'id' => $portfolio->id,
+        'title' => $portfolio->title,
+        'description' => $portfolio->description,
+        'service_url' => $portfolio->service_url,
+        'repository_url' => $portfolio->repository_url,
+        'image_url' => $portfolio->service_url ? self::getOgImage($portfolio->service_url) : null,
+        'tags' => $portfolio->tags->pluck('name')->toArray(),
+        'reviews' => $portfolio->reviews,
+        'user' => $portfolio->user ? [
+            'id' => $portfolio->user->id,
+            'name' => $portfolio->user->name,
+        ] : null,
+        'is_bookmarked' => $portfolio->bookmarks->contains('user_id', $authUserId),
+    ];
+}
 }

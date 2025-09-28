@@ -19,7 +19,7 @@ export default function Show({ portfolio, auth, errors, flash }) {
                             </InertiaLink>
                         </h1>
 
-                        {/* OGP画像（存在する場合のみ表示） */}
+                        {/* OGP画像 */}
                         {portfolio.image_url && (
                             <div className="mb-6 flex justify-center">
                                 <img
@@ -32,12 +32,29 @@ export default function Show({ portfolio, auth, errors, flash }) {
 
                         {/* 作品説明 */}
                         {portfolio.description && (
-                            <div className="mb-6">
-                                <h2 className="text-xl font-semibold mb-2 text-gray-700">
+                            <div className="mb-2">
+                                <h2 className="text-xl font-semibold mb-1 text-gray-700">
                                     作品説明
                                 </h2>
                                 <p className="text-gray-600">
                                     {portfolio.description}
+                                </p>
+                            </div>
+                        )}
+
+                        {/* 作成者表示（作品説明と同じスタイル） */}
+                        {portfolio.user && (
+                            <div className="mb-6">
+                                <h2 className="text-xl font-semibold mb-1 text-gray-700">
+                                    作成者
+                                </h2>
+                                <p className="text-gray-600">
+                                    <InertiaLink
+                                        href={`/profile/${portfolio.user.id}`}
+                                        className="hover:underline text-blue-600"
+                                    >
+                                        {portfolio.user.name}
+                                    </InertiaLink>
                                 </p>
                             </div>
                         )}
@@ -49,7 +66,7 @@ export default function Show({ portfolio, auth, errors, flash }) {
                                     作品URL
                                 </h2>
                                 <a
-                                    href={`/portfolio/${portfolio.id}/visit`} // 直接URLではなく /visit 経由
+                                    href={`/portfolio/${portfolio.id}/visit`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-blue-500 hover:underline break-all"
@@ -76,7 +93,7 @@ export default function Show({ portfolio, auth, errors, flash }) {
                             </div>
                         )}
 
-                        {/* タグ（クリック不可） */}
+                        {/* タグ */}
                         {portfolio.tags?.length > 0 && (
                             <div className="mb-6">
                                 <h2 className="text-xl font-semibold mb-2 text-gray-700">
@@ -111,6 +128,28 @@ export default function Show({ portfolio, auth, errors, flash }) {
                                 >
                                     レビューを投稿するにはログインしてください
                                 </InertiaLink>
+                            </div>
+                        )}
+
+                        {/* Twitterシェアボタン */}
+                        {auth?.user && portfolio.service_url && (
+                            <div className="mb-6 text-center">
+                                <a
+                                    href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
+                                        `${portfolio.title}\n\n${
+                                            portfolio.description ?? ""
+                                        }\n作成者: ${
+                                            portfolio.user?.name ?? "不明"
+                                        }`
+                                    )}&url=${encodeURIComponent(
+                                        portfolio.service_url
+                                    )}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-block px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                >
+                                    Twitterでシェア
+                                </a>
                             </div>
                         )}
 
