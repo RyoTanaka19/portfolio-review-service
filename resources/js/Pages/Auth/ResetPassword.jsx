@@ -69,6 +69,7 @@ export default function ResetPassword({ token, email }) {
                                 />
                                 <TextInput
                                     id="password"
+                                    placeholder="パスワード(6文字以上)"
                                     type="password"
                                     name="password"
                                     value={data.password}
@@ -100,6 +101,7 @@ export default function ResetPassword({ token, email }) {
                                 />
                                 <TextInput
                                     type="password"
+                                    placeholder="パスワード(確認用)(6文字以上)"
                                     id="password_confirmation"
                                     name="password_confirmation"
                                     value={data.password_confirmation}

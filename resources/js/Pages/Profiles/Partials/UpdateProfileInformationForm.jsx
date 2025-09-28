@@ -244,7 +244,7 @@ export default function UpdateProfileInformation({
                                 onClick={() => toggleTag(tag.id)}
                                 className={`px-3 py-1 rounded-full border ${
                                     data.tags.includes(tag.id)
-                                        ? "bg-indigo-600 text-white border-indigo-600"
+                                        ? "bg-green-400 text-white border-green-400"
                                         : "bg-white text-gray-700 border-gray-300"
                                 } text-sm`}
                             >
@@ -259,7 +259,7 @@ export default function UpdateProfileInformation({
                 <div className="flex items-center gap-4">
                     <PrimaryButton
                         disabled={processing}
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        className="bg-blue-500 hover:bg-blue-600 text-white"
                     >
                         保存
                     </PrimaryButton>
