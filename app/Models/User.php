@@ -16,6 +16,7 @@ class User extends Authenticatable
         'email',
         'password',
         'social_id',
+        'git_url',
         'profile_image'
     ];
 

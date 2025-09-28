@@ -50,6 +50,18 @@ export default function Show() {
                                 メールアドレス: {user.email}
                             </p>
                         )}
+                        {user.git_url && (
+                            <p className="text-blue-500 hover:underline mt-2">
+                                GitHub:{" "}
+                                <a
+                                    href={user.git_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    {user.git_url}
+                                </a>
+                            </p>
+                        )}
                         <p className="text-gray-500 text-sm">
                             投稿したポートフォリオ数:{" "}
                             <span className="font-semibold">
