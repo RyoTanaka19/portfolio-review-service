@@ -11,7 +11,8 @@ export default function Edit({ mustVerifyEmail, status }) {
         <AppLayout>
             <Head title="Profile" />
 
-            <div className="py-12">
+            {/* 全体の背景をグレーに */}
+            <div className="py-12 bg-gray-100 min-h-screen">
                 <div className="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
                     <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
                         <UpdateProfileInformationForm

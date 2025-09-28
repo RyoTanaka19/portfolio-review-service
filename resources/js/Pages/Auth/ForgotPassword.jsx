@@ -83,7 +83,7 @@ export default function ForgotPassword() {
                                 {/* パスワードリセット送信ボタン */}
                                 <PrimaryButton
                                     disabled={processing}
-                                    className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl shadow transition-colors duration-200"
+                                    className="w-full sm:w-auto bg-blue-700 hover:bg-blue-800 text-white font-semibold px-6 py-3 rounded-xl shadow transition-colors duration-200"
                                 >
                                     パスワードリセットリンクを送信
                                 </PrimaryButton>

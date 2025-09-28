@@ -148,7 +148,7 @@ export default function Index({ portfolios, auth, allTags = [], flash = {} }) {
                                 {/* 総合評価 */}
                                 <div className="mt-2">
                                     {p.reviews?.length > 0 ? (
-                                        <span className="inline-block px-3 py-1 bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 text-black rounded text-sm font-medium">
+                                        <span className="inline-block px-3 py-1 bg-orange-400 text-white rounded text-sm font-medium">
                                             総合評価:{" "}
                                             {(
                                                 p.reviews
