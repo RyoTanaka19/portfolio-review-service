@@ -30,7 +30,10 @@ export default function Header() {
             <div className="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between">
                 {/* 左側：サイトロゴ */}
                 <div className="flex-1">
-                    <Link href="/" className="font-bold text-lg">
+                    <Link
+                        href="/"
+                        className="font-bold text-lg text-purple-500"
+                    >
                         PortfolioReview
                     </Link>
                 </div>

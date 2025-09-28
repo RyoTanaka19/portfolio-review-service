@@ -131,7 +131,7 @@ export default function Index({ portfolio, accessData, tagAccessData }) {
     return (
         <AppLayout>
             <div className="max-w-4xl mx-auto py-10 px-4 space-y-12">
-                <h1 className="text-3xl font-bold mb-6 text-center">
+                <h1 className="text-3xl font-bold mb-6 text-center text-blue-500">
                     {portfolio.title} のアクセス分析
                 </h1>
 

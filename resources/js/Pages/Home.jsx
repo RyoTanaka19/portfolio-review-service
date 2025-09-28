@@ -46,7 +46,7 @@ const Home = () => {
             )}
 
             <div className="text-center mb-10">
-                <h1 className="text-5xl font-bold text-blue-600">
+                <h1 className="text-5xl font-bold text-purple-600">
                     ポートフォリオレビューサービス
                 </h1>
             </div>
