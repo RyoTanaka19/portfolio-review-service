@@ -9,7 +9,8 @@ export default function RankingHeader({ title, description, activeKey }) {
             key: "total",
             label: "総合",
             routeName: "ranking.total",
-            baseColor: "gray",
+            baseColor:
+                "bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 text-black rounded text-sm",
             rainbow: true, // 総合はレインボーカラーにする
         },
         {
