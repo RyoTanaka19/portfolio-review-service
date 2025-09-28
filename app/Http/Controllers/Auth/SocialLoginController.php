@@ -23,24 +23,26 @@ class SocialLoginController extends Controller
             // Googleからユーザー情報を取得
             $googleUser = Socialite::driver('google')->stateless()->user();
 
-            // 1. メールアドレスで既存ユーザーを検索
-            $user = User::where('email', $googleUser->getEmail())->first();
+            // まず social_id で既存ユーザーを検索
+            $user = User::where('social_id', $googleUser->getId())->first();
 
-            if ($user) {
-                // 既存ユーザーが存在する場合
-                // social_id が未設定なら更新
-                if (empty($user->social_id)) {
+            if (!$user) {
+                // social_id が存在しない場合はメールで既存ユーザーを検索
+                $user = User::where('email', $googleUser->getEmail())->first();
+
+                if ($user) {
+                    // 既存ユーザーに social_id をセット
                     $user->social_id = $googleUser->getId();
                     $user->save();
+                } else {
+                    // 新規ユーザー作成
+                    $user = User::create([
+                        'name' => $googleUser->getName() ?? '名無し',
+                        'email' => $googleUser->getEmail(),
+                        'social_id' => $googleUser->getId(),
+                        'password' => bcrypt(Str::random(16)), // Googleログインでは使用しません
+                    ]);
                 }
-            } else {
-                // 新規ユーザー作成
-                $user = User::create([
-                    'name' => $googleUser->getName() ?? '名無し',
-                    'email' => $googleUser->getEmail(),
-                    'social_id' => $googleUser->getId(),
-                    'password' => bcrypt(Str::random(16)), // Googleログインでは使用しません
-                ]);
             }
 
             // ログイン

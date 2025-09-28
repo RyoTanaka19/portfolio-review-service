@@ -3,7 +3,6 @@ import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import PrimaryButton from "@/Components/PrimaryButton";
 import TextInput from "@/Components/TextInput";
-import { Transition } from "@headlessui/react";
 import { Link, useForm, usePage } from "@inertiajs/react";
 import FlashMessage from "@/Components/FlashMessage";
 import axios from "axios";
@@ -15,19 +14,18 @@ export default function UpdateProfileInformation({
 }) {
     const { user, allTags = [], userProfileImageUrl } = usePage().props;
 
-    const { data, setData, post, errors, processing, recentlySuccessful } =
-        useForm({
-            _method: "patch",
-            name: user.name,
-            email: user.email,
-            tags: user.tags?.map((tag) => tag.id) || [],
-            profile_image: null,
-        });
+    const { data, setData, errors, processing } = useForm({
+        _method: "patch",
+        name: user.name,
+        email: user.email,
+        tags: user.tags?.map((tag) => tag.id) || [],
+        profile_image: null,
+    });
 
     const [previewImage, setPreviewImage] = useState(
         userProfileImageUrl || null
     );
-    const [flashMessage, setFlashMessage] = useState("");
+    const [flashMessage, setFlashMessage] = useState(null); // { message: "", type: "success" | "error" }
     const [localErrors, setLocalErrors] = useState({});
 
     const toggleTag = (tagId) => {
@@ -44,21 +42,26 @@ export default function UpdateProfileInformation({
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            setData("profile_image", file); // 送信用
-            setPreviewImage(URL.createObjectURL(file)); // プレビュー用
+            setData("profile_image", file);
+            setPreviewImage(URL.createObjectURL(file));
         }
     };
 
     const submit = async (e) => {
         e.preventDefault();
 
-        // フロントバリデーション
         const validationErrors = {};
         if (!data.name.trim()) validationErrors.name = "名前を入力してください";
         if (!data.email.trim())
             validationErrors.email = "メールアドレスを入力してください";
         setLocalErrors(validationErrors);
-        if (Object.keys(validationErrors).length > 0) return;
+        if (Object.keys(validationErrors).length > 0) {
+            setFlashMessage({
+                message: "入力内容にエラーがあります",
+                type: "error",
+            });
+            return;
+        }
 
         try {
             const formData = new FormData();
@@ -66,9 +69,8 @@ export default function UpdateProfileInformation({
             formData.append("name", data.name);
             formData.append("email", data.email);
             data.tags.forEach((id) => formData.append("tags[]", id));
-            if (data.profile_image) {
+            if (data.profile_image)
                 formData.append("profile_image", data.profile_image);
-            }
 
             const response = await axios.post(
                 route("profile.update"),
@@ -78,10 +80,9 @@ export default function UpdateProfileInformation({
             if (response.data.success) {
                 const updatedUser = response.data.user;
 
-                // プレビュー画像をサーバーの最新URLに更新
-                setPreviewImage(response.data.profileImageUrl);
+                if (response.data.profileImageUrl)
+                    setPreviewImage(response.data.profileImageUrl);
 
-                // フォームを最新情報で更新
                 setData({
                     _method: "patch",
                     name: updatedUser.name,
@@ -90,24 +91,36 @@ export default function UpdateProfileInformation({
                     profile_image: null,
                 });
 
-                const event = new CustomEvent("user-updated", {
-                    detail: updatedUser,
-                });
-                window.dispatchEvent(event);
+                window.dispatchEvent(
+                    new CustomEvent("user-updated", { detail: updatedUser })
+                );
 
-                setFlashMessage(response.data.message);
+                setFlashMessage({
+                    message:
+                        response.data.message ||
+                        "プロフィール情報を更新しました",
+                    type: "success",
+                });
             } else {
-                setFlashMessage(response.data.message || "更新に失敗しました");
+                setFlashMessage({
+                    message: response.data.message || "更新に失敗しました",
+                    type: "error",
+                });
             }
         } catch (error) {
             console.error(error);
-
             if (error.response && error.response.status === 422) {
                 const serverErrors = error.response.data.errors || {};
                 setLocalErrors(serverErrors);
-                setFlashMessage("入力内容にエラーがあります");
+                setFlashMessage({
+                    message: "入力内容にエラーがあります",
+                    type: "error",
+                });
             } else {
-                setFlashMessage("サーバーエラーが発生しました");
+                setFlashMessage({
+                    message: "サーバーエラーが発生しました",
+                    type: "error",
+                });
             }
         }
     };
@@ -116,9 +129,9 @@ export default function UpdateProfileInformation({
         <section className={className}>
             {flashMessage && (
                 <FlashMessage
-                    message={flashMessage}
-                    type="success"
-                    onClose={() => setFlashMessage("")}
+                    message={flashMessage.message}
+                    type={flashMessage.type}
+                    onClose={() => setFlashMessage(null)}
                 />
             )}
 
@@ -222,28 +235,6 @@ export default function UpdateProfileInformation({
                     </div>
                     <InputError className="mt-2" message={errors.tags} />
                 </div>
-
-                {/* メール確認再送 */}
-                {mustVerifyEmail && user.email_verified_at === null && (
-                    <div>
-                        <p className="mt-2 text-sm text-gray-800">
-                            メールアドレスが未確認です。
-                            <Link
-                                href={route("verification.send")}
-                                method="post"
-                                as="button"
-                                className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                            >
-                                確認メールを再送信
-                            </Link>
-                        </p>
-                        {status === "verification-link-sent" && (
-                            <div className="mt-2 text-sm font-medium text-green-600">
-                                確認メールを再送信しました。
-                            </div>
-                        )}
-                    </div>
-                )}
 
                 {/* 保存 */}
                 <div className="flex items-center gap-4">
