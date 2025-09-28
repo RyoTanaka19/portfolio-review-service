@@ -8,7 +8,7 @@ use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 
-class AuthLoginController extends Controller
+class SocialLoginController extends Controller
 {
     // Google にリダイレクト
     public function redirectToGoogle()
@@ -28,9 +28,9 @@ class AuthLoginController extends Controller
 
             if ($user) {
                 // 既存ユーザーが存在する場合
-                // auth_id が未設定なら更新
-                if (empty($user->auth_id)) {
-                    $user->auth_id = $googleUser->getId();
+                // social_id が未設定なら更新
+                if (empty($user->social_id)) {
+                    $user->social_id = $googleUser->getId();
                     $user->save();
                 }
             } else {
@@ -38,7 +38,7 @@ class AuthLoginController extends Controller
                 $user = User::create([
                     'name' => $googleUser->getName() ?? '名無し',
                     'email' => $googleUser->getEmail(),
-                    'auth_id' => $googleUser->getId(),
+                    'social_id' => $googleUser->getId(),
                     'password' => bcrypt(Str::random(16)), // Googleログインでは使用しません
                 ]);
             }
