@@ -4,7 +4,12 @@ import NotificationDropdown from "./Notification/NotificationDropdown";
 
 export default function Header() {
     const { auth = {}, nav = [], url } = usePage().props;
-
+    <Link
+        href={route("login")}
+        className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+    >
+        ログイン
+    </Link>;
     const [currentUser, setCurrentUser] = useState(auth?.user || null);
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -150,12 +155,14 @@ export default function Header() {
                                 >
                                     投稿一覧
                                 </Link>
+
                                 <Link
                                     href={route("login")}
                                     className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
                                 >
                                     ログイン
                                 </Link>
+
                                 <Link
                                     href={route("register")}
                                     className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm"

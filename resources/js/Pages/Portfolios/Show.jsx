@@ -42,18 +42,18 @@ export default function Show({ portfolio, auth, errors, flash }) {
                             </div>
                         )}
 
-                        {/* 作成者表示（作品説明と同じスタイル） */}
-                        {portfolio.user && (
+                        {/* 作成者表示 */}
+                        {portfolio.user_name && (
                             <div className="mb-6">
                                 <h2 className="text-xl font-semibold mb-1 text-gray-700">
                                     作成者
                                 </h2>
                                 <p className="text-gray-600">
                                     <InertiaLink
-                                        href={`/profile/${portfolio.user.id}`}
+                                        href={`/profile/${portfolio.user_id}`}
                                         className="hover:underline text-blue-600"
                                     >
-                                        {portfolio.user.name}
+                                        {portfolio.user_name}
                                     </InertiaLink>
                                 </p>
                             </div>
@@ -139,7 +139,7 @@ export default function Show({ portfolio, auth, errors, flash }) {
                                         `${portfolio.title}\n\n${
                                             portfolio.description ?? ""
                                         }\n作成者: ${
-                                            portfolio.user?.name ?? "不明"
+                                            portfolio.user_name ?? "不明"
                                         }`
                                     )}&url=${encodeURIComponent(
                                         portfolio.service_url

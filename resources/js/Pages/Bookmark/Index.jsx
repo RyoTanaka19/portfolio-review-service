@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "@inertiajs/react";
 import AppLayout from "@/Layouts/AppLayout";
 import BookmarkButton from "@/Components/Bookmark/BookmarkButton";
-import FlashMessage from "@/Components/FlashMessage";
+import FlashMessage from "@/Components/FlashMessage/FlashMessage";
 
 export default function Index({ portfolios: initialPortfolios = [], auth }) {
     const [portfolioList, setPortfolioList] = useState(initialPortfolios);

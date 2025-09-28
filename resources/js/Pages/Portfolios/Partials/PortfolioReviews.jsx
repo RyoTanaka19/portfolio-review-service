@@ -3,7 +3,7 @@ import axios from "axios";
 import ReviewForm from "@/Pages/Reviews/Partials/ReviewForm";
 import ReviewList from "@/Pages/Reviews/Partials/ReviewList";
 import ReviewChart from "@/Pages/Reviews/Partials/ReviewChart";
-import FlashMessage from "@/Components/FlashMessage";
+import FlashMessage from "@/Components/FlashMessage/FlashMessage";
 
 export default function ReviewIndex({ portfolio, auth, errors, flash }) {
     const [reviews, setReviews] = useState(

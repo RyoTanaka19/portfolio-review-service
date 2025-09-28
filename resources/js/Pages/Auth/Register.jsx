@@ -4,7 +4,7 @@ import PrimaryButton from "@/Components/PrimaryButton";
 import TextInput from "@/Components/TextInput";
 import AppLayout from "@/Layouts/AppLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
-import FlashMessage from "@/Components/FlashMessage";
+import FlashMessage from "@/Components/FlashMessage/FlashMessage";
 import React from "react";
 
 export default function Register({ status }) {
