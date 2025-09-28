@@ -78,7 +78,7 @@ export default function Show() {
                                     {user.tags.map((tag, idx) => (
                                         <span
                                             key={idx}
-                                            className="bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm"
+                                            className="bg-green-200 text-gray-800 px-3 py-1 rounded-full text-sm"
                                         >
                                             {tag.name}
                                         </span>

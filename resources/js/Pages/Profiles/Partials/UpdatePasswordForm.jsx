@@ -146,6 +146,7 @@ export default function UpdatePasswordForm({ className = "" }) {
                             })
                         }
                         type="password"
+                        placeholder="現在のパスワードを入力してください"
                         className="mt-1 block w-full"
                         autoComplete="current-password"
                     />
@@ -168,6 +169,7 @@ export default function UpdatePasswordForm({ className = "" }) {
                             })
                         }
                         type="password"
+                        placeholder="パスワード(6文字以上)"
                         className="mt-1 block w-full"
                         autoComplete="new-password"
                     />
@@ -192,6 +194,7 @@ export default function UpdatePasswordForm({ className = "" }) {
                             })
                         }
                         type="password"
+                        placeholder="パスワード(確認)(6文字以上)"
                         className="mt-1 block w-full"
                         autoComplete="new-password"
                     />
