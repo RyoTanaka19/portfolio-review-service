@@ -1,7 +1,7 @@
 // resources/js/Pages/ContactForm.jsx
 import React from "react";
 import { Head } from "@inertiajs/react";
-import AppLayout from "@/Layouts/AppLayout"; // ← 追加
+import AppLayout from "@/Layouts/AppLayout";
 
 export default function ContactForm() {
     return (

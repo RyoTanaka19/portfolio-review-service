@@ -28,11 +28,4 @@ class StaticPagesController extends Controller
             'title' => 'お問い合わせ',
         ]);
     }
-
-    public function howTo()
-{
-    return Inertia::render('Staticpages/HowTo', [
-        'title' => '使い方',
-    ]);
-}
 }

@@ -129,7 +129,7 @@ export default function Privacy() {
 
                     <div className="flex justify-end mt-14">
                         <p className="text-sm text-gray-500">
-                            2025年9月3日 制定
+                            2025年9月28日 制定
                         </p>
                     </div>
                 </div>

@@ -63,7 +63,7 @@ const Home = () => {
                         </Link>
                         <Link
                             href={route("portfolios.create")}
-                            className="btn py-2 px-4 bg-green-500 text-white rounded-md"
+                            className="btn py-2 px-4 bg-blue-400 text-white rounded-md"
                         >
                             ポートフォリオ投稿
                         </Link>
