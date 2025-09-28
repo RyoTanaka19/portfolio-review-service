@@ -73,7 +73,7 @@ export default function PortfolioSearch({
                     <button
                         type="button"
                         onClick={handleSearch}
-                        className="w-full md:w-auto px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                        className="w-full md:w-auto px-6 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition"
                     >
                         検索
                     </button>
@@ -81,8 +81,7 @@ export default function PortfolioSearch({
             </div>
 
             {/* 検索結果 */}
-            <div className="mt-4 text-center">
-                {" "}
+            <div className="mt-4 text-center text-purple-500">
                 {/* ここに text-center を追加 */}
                 <h2 className="text-xl font-bold">検索結果</h2>
                 <div className="mt-2">

@@ -7,7 +7,14 @@ export default function Technical({ portfolios }) {
         <AppLayout>
             <RankingList
                 portfolios={portfolios}
-                tagColor="bg-blue-50 text-blue-700" // 技術力に合わせたカラー
+                colors={{
+                    rank: "text-blue-600",
+                    tag: "bg-blue-50 text-blue-700",
+                    title: "text-blue-600 hover:underline",
+                    author: "text-blue-600 hover:underline",
+                    reviews: "text-blue-700",
+                    link: "text-blue-600 hover:underline",
+                }}
                 headerProps={{
                     title: "技術力ランキング TOP10",
                     description: "技術力の平均評価でランキング",

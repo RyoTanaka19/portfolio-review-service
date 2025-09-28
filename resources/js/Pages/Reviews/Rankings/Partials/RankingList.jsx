@@ -5,11 +5,8 @@ import RankingHeader from "@/Pages/Reviews/Rankings/Partials/RankingHeader";
 export default function RankingList({
     portfolios,
     headerProps,
-    tagColor,
-    // bgColor, // もう不要
+    colors, // ← 複数の色をまとめて渡す
 }) {
-    const rankColors = ["text-yellow-500", "text-gray-400", "text-orange-500"];
-
     return (
         <div className="bg-gray-100 min-h-screen">
             <RankingHeader {...headerProps} />
@@ -28,26 +25,26 @@ export default function RankingList({
                             >
                                 <div className="flex items-start justify-between">
                                     <div className="flex items-start gap-4">
+                                        {/* ランキング順位 */}
                                         <span
-                                            className={`text-3xl font-extrabold w-10 text-right ${
-                                                rankColors[idx] ||
-                                                "text-gray-700"
-                                            }`}
+                                            className={`text-3xl font-extrabold w-10 text-right ${colors.rank}`}
                                         >
                                             {idx + 1}
                                         </span>
                                         <div>
                                             <Link
                                                 href={`/portfolio/${p.id}`}
-                                                className="text-xl font-semibold text-blue-600 hover:underline"
+                                                className={`text-xl font-semibold ${colors.title}`}
                                             >
                                                 {p.title}
                                             </Link>
-                                            <div className="text-sm text-gray-500 mt-1">
+                                            <div
+                                                className={`text-sm mt-1 ${colors.author}`}
+                                            >
                                                 投稿者:{" "}
                                                 <Link
                                                     href={`/profile/${p.user_id}`}
-                                                    className="text-blue-600 hover:underline"
+                                                    className={colors.author}
                                                 >
                                                     {p.user_name}
                                                 </Link>
@@ -56,14 +53,18 @@ export default function RankingList({
                                     </div>
 
                                     <div className="text-right">
-                                        <div className="text-2xl font-bold text-gray-800">
+                                        <div
+                                            className={`text-2xl font-bold ${colors.reviews}`}
+                                        >
                                             {p.avg_rating}
                                             <span className="text-gray-500 text-base">
                                                 {" "}
                                                 / 5
                                             </span>
                                         </div>
-                                        <div className="text-gray-500 text-sm">
+                                        <div
+                                            className={`text-sm ${colors.reviews}`}
+                                        >
                                             {p.reviews_count} 件のレビュー
                                         </div>
                                     </div>
@@ -91,7 +92,7 @@ export default function RankingList({
                                         {p.tags.map((t, i) => (
                                             <span
                                                 key={i}
-                                                className={`px-3 py-1 rounded-full ${tagColor} text-xs font-medium`}
+                                                className={`px-3 py-1 rounded-full ${colors.tag} text-xs font-medium`}
                                             >
                                                 #{t}
                                             </span>
@@ -104,7 +105,7 @@ export default function RankingList({
                                         href={`/portfolio/${p.id}/visit`}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="inline-block mt-4 text-blue-600 text-sm font-medium hover:underline"
+                                        className={`inline-block mt-4 text-sm font-medium ${colors.link}`}
                                     >
                                         サイトを見る →
                                     </a>
