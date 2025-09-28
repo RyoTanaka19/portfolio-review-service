@@ -47,8 +47,9 @@ export default function Index({ portfolios: initialPortfolios = [], auth }) {
                         {portfolioList.map((p) => (
                             <div
                                 key={p.id}
-                                className="bg-white p-4 rounded shadow hover:shadow-md transition duration-200"
+                                className="bg-white p-4 rounded shadow hover:shadow-md transition duration-200 flex flex-col"
                             >
+                                {/* タイトル */}
                                 <div className="flex justify-center mb-2">
                                     <h2 className="font-bold text-lg truncate text-center w-full">
                                         <Link
@@ -62,14 +63,22 @@ export default function Index({ portfolios: initialPortfolios = [], auth }) {
                                     </h2>
                                 </div>
 
-                                {p.image_url && (
-                                    <img
-                                        src={p.image_url}
-                                        alt={p.title}
-                                        className="w-full h-40 object-cover mb-2 rounded"
-                                    />
-                                )}
+                                {/* OGP画像 */}
+                                <div className="w-full h-40 bg-gray-200 rounded overflow-hidden flex items-center justify-center mb-2">
+                                    {p.image_url ? (
+                                        <img
+                                            src={p.image_url}
+                                            alt={p.title}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <span className="text-gray-500 text-sm text-center">
+                                            OGP画像なし
+                                        </span>
+                                    )}
+                                </div>
 
+                                {/* タグ */}
                                 {p.tags?.length > 0 && (
                                     <div className="mt-2 flex flex-wrap gap-1">
                                         {p.tags.map((tag, idx) => (
@@ -83,20 +92,7 @@ export default function Index({ portfolios: initialPortfolios = [], auth }) {
                                     </div>
                                 )}
 
-                                {auth?.user && (
-                                    <BookmarkButton
-                                        portfolioId={p.id}
-                                        initialBookmarked={true}
-                                        onToggle={(isBookmarked, message) =>
-                                            handleBookmarkToggle(
-                                                p.id,
-                                                isBookmarked,
-                                                message
-                                            )
-                                        }
-                                    />
-                                )}
-
+                                {/* サイトリンク */}
                                 {p.service_url && (
                                     <a
                                         href={`/portfolio/${p.id}/visit`}
@@ -106,6 +102,23 @@ export default function Index({ portfolios: initialPortfolios = [], auth }) {
                                     >
                                         サイトを見る →
                                     </a>
+                                )}
+
+                                {/* ブックマークボタン */}
+                                {auth?.user && (
+                                    <div className="mt-auto">
+                                        <BookmarkButton
+                                            portfolioId={p.id}
+                                            initialBookmarked={true}
+                                            onToggle={(isBookmarked, message) =>
+                                                handleBookmarkToggle(
+                                                    p.id,
+                                                    isBookmarked,
+                                                    message
+                                                )
+                                            }
+                                        />
+                                    </div>
                                 )}
                             </div>
                         ))}

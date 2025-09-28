@@ -69,13 +69,22 @@ export default function RankingList({
                                     </div>
                                 </div>
 
-                                {p.image_url && (
-                                    <img
-                                        src={p.image_url}
-                                        alt={p.title}
-                                        className="w-full h-48 object-cover mt-4 rounded-xl"
-                                    />
-                                )}
+                                {/* OGP画像 */}
+                                <div className="w-full h-48 bg-gray-200 flex items-center justify-center mt-4 rounded-xl overflow-hidden">
+                                    {p.image_url ? (
+                                        <Link href={`/portfolio/${p.id}`}>
+                                            <img
+                                                src={p.image_url}
+                                                alt={p.title}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </Link>
+                                    ) : (
+                                        <span className="text-gray-500 text-sm text-center">
+                                            OGP画像なし
+                                        </span>
+                                    )}
+                                </div>
 
                                 {p.tags?.length > 0 && (
                                     <div className="mt-4 flex flex-wrap gap-2">
@@ -92,7 +101,7 @@ export default function RankingList({
 
                                 {p.service_url && (
                                     <a
-                                        href={`/portfolio/${p.id}/visit`} // /visit 経由でアクセスを記録
+                                        href={`/portfolio/${p.id}/visit`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="inline-block mt-4 text-blue-600 text-sm font-medium hover:underline"
