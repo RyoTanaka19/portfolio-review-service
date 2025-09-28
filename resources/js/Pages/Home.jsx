@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, usePage } from "@inertiajs/react";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import FlashMessage from "@/Components/FlashMessage"; // FlashMessage コンポーネントをインポート
+import FlashMessage from "@/Components/FlashMessage/FlashMessage";
 
 const Home = () => {
     const { auth, flash = {} } = usePage().props; // Laravel の auth.user と flash を取得
@@ -54,13 +54,6 @@ const Home = () => {
             <div className="space-x-4 mb-8">
                 {auth.user ? (
                     <>
-                        <Link
-                            href={route("logout")}
-                            method="post"
-                            className="btn py-2 px-4 bg-red-500 text-white rounded-md"
-                        >
-                            ログアウト
-                        </Link>
                         <Link
                             href={route("portfolios.create")}
                             className="btn py-2 px-4 bg-blue-400 text-white rounded-md"

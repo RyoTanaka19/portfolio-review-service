@@ -5,7 +5,7 @@ import AppLayout from "@/Layouts/AppLayout";
 import axios from "axios";
 import BookmarkButton from "@/Components/Bookmark/BookmarkButton";
 import PortfolioSearch from "@/Pages/Portfolios/Partials/PortfolioSearch";
-import FlashMessage from "@/Components/FlashMessage";
+import FlashMessage from "@/Components/FlashMessage/FlashMessage";
 import Pagination from "@/Components/Pagination/Pagination";
 
 export default function Index({ portfolios, auth, allTags = [], flash = {} }) {
@@ -221,8 +221,7 @@ export default function Index({ portfolios, auth, allTags = [], flash = {} }) {
                                     )}
                                 </div>
                             </div>
-
-                            {auth?.user?.id === p.user_id && (
+                            {auth?.user && auth.user.id === p.user_id && (
                                 <div className="px-4 pb-4 flex justify-end gap-2">
                                     <Link
                                         href={`/portfolios/${p.id}/edit`}

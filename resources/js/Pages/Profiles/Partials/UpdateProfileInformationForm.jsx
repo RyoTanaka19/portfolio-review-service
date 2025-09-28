@@ -4,7 +4,7 @@ import InputLabel from "@/Components/InputLabel";
 import PrimaryButton from "@/Components/PrimaryButton";
 import TextInput from "@/Components/TextInput";
 import { Link, useForm, usePage } from "@inertiajs/react";
-import FlashMessage from "@/Components/FlashMessage";
+import FlashMessage from "@/Components/FlashMessage/FlashMessage";
 import axios from "axios";
 
 export default function UpdateProfileInformation({

@@ -4,7 +4,7 @@ import PrimaryButton from "@/Components/PrimaryButton";
 import TextInput from "@/Components/TextInput";
 import { Transition } from "@headlessui/react";
 import { useRef, useState } from "react";
-import FlashMessage from "@/Components/FlashMessage";
+import FlashMessage from "@/Components/FlashMessage/FlashMessage";
 
 export default function UpdatePasswordForm({ className = "" }) {
     const passwordInput = useRef();

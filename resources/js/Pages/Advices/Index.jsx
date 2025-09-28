@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import AppLayout from "@/Layouts/AppLayout";
-import FlashMessage from "@/Components/FlashMessage";
+import FlashMessage from "@/Components/FlashMessage/FlashMessage";
 
 export default function AdvicesIndex({ advices }) {
     const [advicesList, setAdvicesList] = useState(advices || []);

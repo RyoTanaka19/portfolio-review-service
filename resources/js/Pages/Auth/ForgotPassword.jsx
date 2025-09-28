@@ -2,7 +2,7 @@ import InputError from "@/Components/InputError";
 import PrimaryButton from "@/Components/PrimaryButton";
 import TextInput from "@/Components/TextInput";
 import AppLayout from "@/Layouts/AppLayout";
-import FlashMessage from "@/Components/FlashMessage";
+import FlashMessage from "@/Components/FlashMessage/FlashMessage";
 import { Head, useForm, usePage, Link } from "@inertiajs/react";
 import { useEffect, useState } from "react";
 

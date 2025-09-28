@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { InertiaLink } from "@inertiajs/inertia-react";
 import AppLayout from "@/Layouts/AppLayout";
-import FlashMessage from "@/Components/FlashMessage";
+import FlashMessage from "@/Components/FlashMessage/FlashMessage";
 
 export default function Create() {
     const [form, setForm] = useState({

@@ -36,10 +36,8 @@ public static function mapPortfolio($portfolio, $authUserId = null)
         'image_url' => $portfolio->service_url ? self::getOgImage($portfolio->service_url) : null,
         'tags' => $portfolio->tags->pluck('name')->toArray(),
         'reviews' => $portfolio->reviews,
-        'user' => $portfolio->user ? [
-            'id' => $portfolio->user->id,
-            'name' => $portfolio->user->name,
-        ] : null,
+        'user_id' => $portfolio->user ? $portfolio->user->id : null, // ← 追加
+        'user_name' => $portfolio->user ? $portfolio->user->name : null, // ← 追加
         'is_bookmarked' => $portfolio->bookmarks->contains('user_id', $authUserId),
     ];
 }
