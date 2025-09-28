@@ -88,7 +88,7 @@ export default function Index({ portfolios: initialPortfolios = [], auth }) {
                                             {p.tags.map((tag, idx) => (
                                                 <span
                                                     key={idx}
-                                                    className="bg-gray-200 text-gray-800 px-2 py-1 rounded text-xs"
+                                                    className="bg-blue-200 text-blue-800 px-2 py-1 rounded text-xs"
                                                 >
                                                     {tag}
                                                 </span>

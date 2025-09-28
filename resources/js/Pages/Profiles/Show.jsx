@@ -90,13 +90,16 @@ export default function Show() {
                 </div>
 
                 {/* ポートフォリオ一覧 */}
-                <div className="w-full max-w-7xl mt-10 p-6 bg-gray-100 rounded-2xl">
-                    <h2 className="text-2xl font-semibold mb-6 border-b pb-2 text-center">
+                <div className="w-full max-w-7xl mt-10 p-6 bg-blue-100 rounded-2xl">
+                    <h2
+                        className={`text-2xl font-semibold mb-6 border-b pb-2 text-center ${
+                            isOwnProfile ? "text-blue-600" : "text-gray-800"
+                        }`}
+                    >
                         {isOwnProfile
                             ? "あなたの投稿したポートフォリオ"
                             : `${user.name} さんの投稿したポートフォリオ`}
                     </h2>
-
                     {portfolios.length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                             {portfolios.map((p) => (
@@ -138,7 +141,7 @@ export default function Show() {
                                                 {p.tags.map((tag, idx) => (
                                                     <span
                                                         key={idx}
-                                                        className="bg-gray-200 text-gray-800 px-2 py-1 rounded-full text-xs"
+                                                        className="bg-blue-200 text-blue-800 px-2 py-1 rounded-full text-xs"
                                                     >
                                                         {tag.name}
                                                     </span>
