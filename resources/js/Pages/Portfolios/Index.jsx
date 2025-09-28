@@ -131,6 +131,7 @@ export default function Index({ portfolios, auth, allTags = [], flash = {} }) {
                                     {p.user_name}
                                 </Link>
 
+                                {/* タグ */}
                                 {p.tags?.length > 0 && (
                                     <div className="flex flex-wrap gap-2 mt-auto">
                                         {p.tags.map((tag, idx) => (
@@ -143,6 +144,55 @@ export default function Index({ portfolios, auth, allTags = [], flash = {} }) {
                                         ))}
                                     </div>
                                 )}
+
+                                {/* 総合評価 */}
+                                <div className="mt-2">
+                                    {p.reviews?.length > 0 ? (
+                                        <span className="inline-block px-3 py-1 bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 text-black rounded text-sm font-medium">
+                                            総合評価:{" "}
+                                            {(
+                                                p.reviews
+                                                    .map(
+                                                        (r) =>
+                                                            [
+                                                                r.technical,
+                                                                r.usability,
+                                                                r.design,
+                                                                r.user_focus,
+                                                            ]
+                                                                .filter(
+                                                                    (v) =>
+                                                                        v !==
+                                                                        null
+                                                                )
+                                                                .reduce(
+                                                                    (a, b) =>
+                                                                        a + b,
+                                                                    0
+                                                                ) /
+                                                            [
+                                                                r.technical,
+                                                                r.usability,
+                                                                r.design,
+                                                                r.user_focus,
+                                                            ].filter(
+                                                                (v) =>
+                                                                    v !== null
+                                                            ).length
+                                                    )
+                                                    .reduce(
+                                                        (sum, v) => sum + v,
+                                                        0
+                                                    ) / p.reviews.length
+                                            ).toFixed(1)}{" "}
+                                            / 5
+                                        </span>
+                                    ) : (
+                                        <p className="text-gray-500">
+                                            まだ、レビューがありません
+                                        </p>
+                                    )}
+                                </div>
 
                                 <div className="mt-2 flex justify-between items-center">
                                     {p.service_url && (
