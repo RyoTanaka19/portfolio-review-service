@@ -56,50 +56,50 @@ class ProfileController extends Controller
         ]);
     }
 
-    // プロフィール情報更新
-    public function update(ProfileUpdateRequest $request)
-    {
-        $user = $request->user();
+public function update(ProfileUpdateRequest $request)
+{
+    $user = $request->user();
 
-        try {
-            $data = $request->validated();
-            unset($data['tags']); // タグは別処理
+    try {
+        $data = $request->validated();
+        unset($data['tags']); // タグは別処理
 
-            // 画像アップロード
-            if ($request->hasFile('profile_image')) {
-                if ($user->profile_image) {
-                    Storage::disk('s3')->delete($user->profile_image);
-                }
-                $data['profile_image'] = $request->file('profile_image')->store('profile_images', 's3');
+        // 画像アップロード
+        if ($request->hasFile('profile_image')) {
+            if ($user->profile_image) {
+                Storage::disk('s3')->delete($user->profile_image);
             }
-
-            $user->fill($data);
-            if ($user->isDirty('email')) {
-                $user->email_verified_at = null;
-            }
-
-            // タグ同期
-            $user->tags()->sync($request->input('tags', []));
-            $user->save();
-            $user->load('tags');
-
-            $profileImageUrl = Storage::disk('s3')->url($user->profile_image);
-
-            return response()->json([
-                'success' => true,
-                'user' => $user,
-                'profileImageUrl' => $profileImageUrl,
-                'message' => 'プロフィール情報を更新しました',
-            ]);
-        } catch (\Throwable $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'プロフィールの更新中にエラーが発生しました',
-                'error' => $e->getMessage(),
-            ], 500);
+            $data['profile_image'] = $request->file('profile_image')->store('profile_images', 's3');
         }
-    }
 
+        $user->fill($data);
+
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+
+        // タグ同期
+        $user->tags()->sync($request->input('tags', []));
+        $user->save();
+        $user->load('tags');
+
+        // 画像URLは null でも安全に返す
+        $profileImageUrl = $user->profile_image ? Storage::disk('s3')->url($user->profile_image) : null;
+
+        return response()->json([
+            'success' => true,
+            'user' => $user,
+            'profileImageUrl' => $profileImageUrl,
+            'message' => 'プロフィール情報を更新しました',
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'プロフィールの更新中にエラーが発生しました',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+}
     // アカウント削除
     public function destroy(Request $request): RedirectResponse
     {
