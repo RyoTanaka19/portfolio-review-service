@@ -27,7 +27,9 @@ export default function Index({ portfolios: initialPortfolios = [], auth }) {
             {/* ページ全体を bg-gray-100 に */}
             <div className="bg-gray-100 min-h-screen">
                 <header className="px-8 py-6 bg-white shadow flex justify-center">
-                    <h1 className="text-3xl font-bold">お気に入り一覧</h1>
+                    <h1 className="text-3xl font-bold text-yellow-500">
+                        お気に入り一覧
+                    </h1>
                 </header>
 
                 {/* フラッシュメッセージ */}

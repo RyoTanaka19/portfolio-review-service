@@ -74,7 +74,7 @@ export default function Index({ portfolios, auth, allTags = [], flash = {} }) {
 
                 {/* 検索フォーム */}
                 <div className="px-4 py-6 bg-white shadow mb-6">
-                    <h1 className="text-2xl font-bold mb-4 text-center">
+                    <h1 className="text-2xl font-bold mb-4 text-center text-purple-400">
                         ポートフォリオ一覧
                     </h1>
                     <PortfolioSearch
@@ -137,7 +137,7 @@ export default function Index({ portfolios, auth, allTags = [], flash = {} }) {
                                         {p.tags.map((tag, idx) => (
                                             <span
                                                 key={idx}
-                                                className="bg-gray-200 text-gray-800 px-2 py-1 rounded text-xs cursor-default"
+                                                className="bg-blue-200 text-blue-800 px-2 py-1 rounded text-xs cursor-default"
                                             >
                                                 {tag}
                                             </span>

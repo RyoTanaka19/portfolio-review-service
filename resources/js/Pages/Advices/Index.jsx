@@ -45,7 +45,7 @@ export default function AdvicesIndex({ advices }) {
     return (
         <AppLayout>
             <div className="flex-1 p-6 bg-gray-50">
-                <h1 className="text-3xl font-bold mb-6 text-center text-indigo-700">
+                <h1 className="text-3xl font-bold mb-6 text-center text-green-500">
                     過去のアドバイス一覧
                 </h1>
 
@@ -75,9 +75,9 @@ export default function AdvicesIndex({ advices }) {
                                 </button>
 
                                 <div className="mb-4">
-                                    <p className="text-lg font-semibold text-indigo-600 mb-2">
+                                    <p className="text-lg font-semibold text-green-600 mb-2">
                                         サービス名:
-                                        <span className="text-gray-800">
+                                        <span className="text-green-6z00">
                                             {" "}
                                             {advice.service_name}
                                         </span>
@@ -108,8 +108,8 @@ export default function AdvicesIndex({ advices }) {
                                     )}
                                 </div>
 
-                                <div className="mt-4 text-gray-800 bg-indigo-50 p-4 rounded-lg">
-                                    <p className="font-semibold text-indigo-700">
+                                <div className="mt-4 text-gray-800 bg-green-50 p-4 rounded-lg">
+                                    <p className="font-semibold text-green-700">
                                         アドバイス:
                                     </p>
                                     <p className="whitespace-pre-line text-gray-700">

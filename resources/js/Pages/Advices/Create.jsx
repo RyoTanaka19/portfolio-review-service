@@ -5,10 +5,10 @@ import FlashMessage from "@/Components/FlashMessage";
 
 export default function Create() {
     const [form, setForm] = useState({
-        service_name: "", // 'name' を 'service_name' に変更
+        service_name: "",
         description: "",
         target_users: "",
-        service_issues: "", // 'issues' を 'service_issues' に変更
+        service_issues: "",
     });
     const [advice, setAdvice] = useState("");
     const [loading, setLoading] = useState(false);
@@ -77,6 +77,11 @@ export default function Create() {
         <AppLayout>
             <div className="flex-1 flex justify-center bg-gray-50 p-4">
                 <div className="w-full max-w-2xl mt-10 bg-white p-8 rounded-lg shadow-md">
+                    {/* AI相談タイトル */}
+                    <h1 className="text-3xl font-bold text-center text-green-500 mb-6">
+                        AI相談
+                    </h1>
+
                     {/* フラッシュメッセージ */}
                     <FlashMessage
                         message={flashMessage}
@@ -93,14 +98,13 @@ export default function Create() {
                             </label>
                             <input
                                 type="text"
-                                name="service_name" // 'name' を 'service_name' に変更
-                                value={form.service_name} // 'name' を 'service_name' に変更
+                                name="service_name"
+                                value={form.service_name}
                                 onChange={handleChange}
                                 className="w-full border border-gray-300 p-3 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                                 placeholder="例: アドバイスをしてもらいたいサービス名"
                             />
-                            {renderError("service_name")}{" "}
-                            {/* 'name' を 'service_name' に変更 */}
+                            {renderError("service_name")}
                         </div>
 
                         {/* サービス概要 */}
@@ -144,20 +148,19 @@ export default function Create() {
                                 <span className="text-red-500">*</span>
                             </label>
                             <textarea
-                                name="service_issues" // 'issues' を 'service_issues' に変更
-                                value={form.service_issues} // 'issues' を 'service_issues' に変更
+                                name="service_issues"
+                                value={form.service_issues}
                                 onChange={handleChange}
                                 className="w-full border border-gray-300 p-3 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                                 rows={4}
                                 placeholder="例: サービス改善のアイデアが欲しい"
                             />
-                            {renderError("service_issues")}{" "}
-                            {/* 'issues' を 'service_issues' に変更 */}
+                            {renderError("service_issues")}
                         </div>
 
                         <button
                             type="submit"
-                            className="w-full py-3 bg-blue-500 text-white font-semibold rounded hover:bg-blue-600 transition-colors duration-200 flex items-center justify-center"
+                            className="w-full py-3 bg-green-500 text-white font-semibold rounded hover:bg-green-600 transition-colors duration-200 flex items-center justify-center"
                             disabled={loading}
                         >
                             {loading && (
@@ -189,7 +192,7 @@ export default function Create() {
                     {/* AIからのアドバイス */}
                     {advice && (
                         <div className="mt-8 p-6 bg-gray-100 border-l-4 border-blue-500 rounded shadow-sm whitespace-pre-line">
-                            <h2 className="text-xl font-bold mb-2 text-gray-800">
+                            <h2 className="text-xl font-bold mb-2 text-green-600">
                                 AIからのアドバイス
                             </h2>
                             <p className="text-gray-700">{advice}</p>
@@ -199,7 +202,7 @@ export default function Create() {
                     <div className="mt-6 text-center">
                         <InertiaLink
                             href="/advices"
-                            className="text-blue-500 hover:underline font-semibold"
+                            className="text-green-500 hover:underline font-semibold"
                         >
                             過去のアドバイス一覧を見る
                         </InertiaLink>
