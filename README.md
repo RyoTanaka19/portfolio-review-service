@@ -54,7 +54,8 @@
 ![portfolio-review-notificationexplanation](https://github.com/user-attachments/assets/d4d383c9-2b5d-4866-a5a3-41be9f5880be)</br>
 
 - 投稿されているポートフォリオの詳細画面でレビューできます。
-- コメントすると、コメント送信とレビューの確認チェックを入れると相手に通知が届きます。(説明や通知確認のため、現在自分にも通知が届くようになっております。
+- コメントすると、コメント送信とレビューの確認チェックを入れると相手に通知が届きます。
+- (説明や通知確認のため、現在自分にも通知が届くようになっております。)
 
 ## 4. AI相談
 <img width="1909" height="928" alt="ai-advise-explanation" src="https://github.com/user-attachments/assets/dacc0b3c-56de-4783-8293-968f1d1e21fd" /></br>
@@ -75,13 +76,13 @@
 ![bookmark-explanation](https://github.com/user-attachments/assets/f7dc7091-bdac-4c81-a9ae-8977df6ebd5d)</br>
 ブックマークすることができます。
 
-## 6.アクセス数
+## 7.アクセス数
 <img width="1921" height="931" alt="portfolio-access-explanation" src="https://github.com/user-attachments/assets/50717e85-5f97-4959-bc27-77ee1dd52563" /></br>
 - このサービスから投稿されているサービスのURLに遷移
 - ポートフォリオの詳細画面にクリック
 - ユーザーのアクセス数とユーザーのタグ別 アクセス数をグラフで確認
 
-## 7 Twitterでシェア
+## 8.Twitterでシェア
 ![twiiter-share-explanation](https://github.com/user-attachments/assets/b1ee5ffa-c276-42bb-8531-c2537b6d1b8c)</br>
 このサービスから直接ユーザーのポートフォリオをシェアすることができます。
 
