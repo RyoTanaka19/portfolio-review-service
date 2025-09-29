@@ -13,16 +13,18 @@ export default function TagsInput({ value = [], onChange }) {
     const [open, setOpen] = useState(false);
     const rootRef = useRef(null);
 
+    // ポートフォリオ用タグ専用のAPIを使用
     const tagsIndexUrl =
-        typeof route === "function" ? route("tags.index") : "/tags";
+        typeof route === "function"
+            ? route("tags.portfolioTags")
+            : "/tags/portfolio";
 
     const fetchTags = async () => {
         try {
             const response = await axios.get(tagsIndexUrl);
             const data = response.data;
 
-            if (Array.isArray(data)) setAllTags(data);
-            else if (Array.isArray(data.tags)) setAllTags(data.tags);
+            if (Array.isArray(data.tags)) setAllTags(data.tags);
             else console.error("タグ配列が取得できませんでした");
         } catch (error) {
             console.error("タグ取得エラー:", error);
@@ -53,7 +55,7 @@ export default function TagsInput({ value = [], onChange }) {
 
     // ドロップダウンに表示するタグをフィルタ
     const filtered = allTags
-        .filter((t) => !selected.some((s) => s.id === t.id)) // 選択済みは除外
+        .filter((t) => !selected.some((s) => s.id === t.id))
         .filter((t) =>
             query ? t.name.toLowerCase().includes(query.toLowerCase()) : true
         );
