@@ -12,7 +12,6 @@ class TagSeeder extends Seeder
         // 既存のタグを全削除
         Tag::truncate();
 
-        // 新しく登録したいタグ一覧
         $tags = [
             // 言語
             'Ruby', 'Python', 'Java', 'PHP', 'JavaScript', 'TypeScript',
@@ -30,9 +29,11 @@ class TagSeeder extends Seeder
             'Git',
         ];
 
-        // 新しいタグを作成
         foreach ($tags as $name) {
-            Tag::create(['name' => $name]);
+            Tag::create([
+                'name' => $name,
+                'type' => 'portfolio', // ポートフォリオ用タグ
+            ]);
         }
     }
 }

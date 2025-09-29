@@ -124,6 +124,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // タグ関連
     Route::get('/tags/user', [TagController::class, 'userTags']);
     Route::get('/tags', [TagController::class, 'index'])->name('tags.index');
+    Route::get('/tags/portfolio', [TagController::class, 'portfolioTags'])->name('tags.portfolioTags');
 
     // レビュー関連
     Route::post('/portfolio/{portfolio}/reviews', [ReviewController::class, 'store'])

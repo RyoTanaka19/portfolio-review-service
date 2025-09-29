@@ -13,7 +13,7 @@ class TagController extends Controller
     public function index()
     {
         try {
-            $tags = Tag::orderBy('name')->get(['id', 'name']); // id と name を昇順で取得
+            $tags = Tag::orderBy('name')->get(['id', 'name']); // 全タグ取得
 
             return response()->json([
                 'success' => true,
@@ -36,7 +36,7 @@ class TagController extends Controller
         try {
             $tags = Tag::where('type', 'user')
                        ->orderBy('name')
-                       ->get(['id', 'name']); // ユーザータグのみ取得
+                       ->get(['id', 'name']);
 
             return response()->json([
                 'success' => true,
@@ -46,6 +46,29 @@ class TagController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'ユーザータグの取得に失敗しました',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * type = 'portfolio' のタグのみ返す（JSON形式）
+     */
+    public function portfolioTags()
+    {
+        try {
+            $tags = Tag::where('type', 'portfolio')
+                       ->orderBy('name')
+                       ->get(['id', 'name']);
+
+            return response()->json([
+                'success' => true,
+                'tags' => $tags,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'ポートフォリオタグの取得に失敗しました',
                 'error' => $e->getMessage(),
             ], 500);
         }
