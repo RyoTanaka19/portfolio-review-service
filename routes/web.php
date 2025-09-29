@@ -47,7 +47,7 @@ Route::get('/terms', [StaticPagesController::class, 'terms'])->name('terms');
 Route::get('/privacy', [StaticPagesController::class, 'privacy'])->name('privacy');
 Route::get('/contact', [StaticPagesController::class, 'form'])->name('contact');
 Route::post('/contact', [StaticPagesController::class, 'submitContact'])->name('contact.send');
-Route::get('/how-to', [StaticPagesController::class, 'howTo'])->name('how_to');
+Route::get('/how-to-use', [StaticPagesController::class, 'usage'])->name('usage');
 
 /*
 |--------------------------------------------------------------------------
