@@ -98,7 +98,7 @@
 |認証|Breez|
 |外部認証|GoogleLogin|
 |Web API|Open API|
-|ライブラリー|Chart.js|
+|ライブラリー|Chart.js・Aos.js|
 |アプリケーションサーバ|Laravel Cloud(S3互換使用)・Docker|
 
 
