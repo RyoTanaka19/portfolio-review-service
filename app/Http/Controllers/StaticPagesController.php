@@ -21,11 +21,11 @@ class StaticPagesController extends Controller
         ]);
     }
 
-    // お問い合わせフォーム画面（GET）
-    public function form()
+
+    public function usage()
     {
-        return Inertia::render('Staticpages/ContactForm', [
-            'title' => 'お問い合わせ',
+        return Inertia::render('Staticpages/Usage', [
+            'title' => '使い方',
         ]);
     }
 }
