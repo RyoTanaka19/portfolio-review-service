@@ -18,6 +18,16 @@ export default function Footer({ className = "" }) {
 
                     {/* 右側: リンク */}
                     <div className="flex items-center space-x-4 text-sm">
+                        {/* 追加: 使い方リンク */}
+                        <a
+                            href="https://github.com/RyoTanaka19/portfolio-review-service#readme"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:underline"
+                        >
+                            使い方
+                        </a>
+
                         <Link href="/terms" className="hover:underline">
                             利用規約
                         </Link>

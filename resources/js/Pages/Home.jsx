@@ -28,8 +28,8 @@ const Home = () => {
             title: "ポートフォリオ",
             body: "あなたの熱意を込めて作成したポートフォリオを公開しましょう。",
             images: [
-                "/image/program-routine-mate.png",
-                "/image/portfolio-review-service.png",
+                "/images/program-routine-mate.png",
+                "/images/portfolio-review-service.png",
             ],
         },
         {
