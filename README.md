@@ -99,6 +99,6 @@
 |外部認証|GoogleLogin|
 |Web API|Open API|
 |ライブラリー|Chart.js|
-|アプリケーションサーバ|Laravel Cloud(S3互換)|
+|アプリケーションサーバ|Laravel Cloud(S3互換使用) Docker|
 
 
