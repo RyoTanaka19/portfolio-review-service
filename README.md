@@ -96,10 +96,11 @@
 |フロントエンド|React(JavaScript)・Inertia.js|
 |CSSフレームワーク|Tailwind CSS|
 |データベースサーバー|PostgresSQL|
-|認証|Breez|
-|外部認証|GoogleLogin|
+|認証|Breez GoogleLogin||
 |Web API|Open API|
 |ライブラリー|Chart.js・Aos.js|
-|アプリケーションサーバ|Laravel Cloud(S3互換使用)・Docker|
+|開発環境||Docker|
+|VCS||Git|
+|アプリケーションサーバ|Laravel Cloud(S3互換使用)|
 
 
