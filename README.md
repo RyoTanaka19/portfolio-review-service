@@ -80,7 +80,7 @@
 <img width="1921" height="931" alt="portfolio-access-explanation" src="https://github.com/user-attachments/assets/50717e85-5f97-4959-bc27-77ee1dd52563" /></br>
 - このサービスから投稿されているサービスのURLに遷移
 - ポートフォリオの詳細画面にクリック
-- ユーザーのアクセス数とユーザーのタグ別 アクセス数をグラフで確認
+- ユーザーのアクセス数とユーザーのタグ別アクセス数をグラフで確認
 
 ## 8.Twitterでシェア
 ![twiiter-share-explanation](https://github.com/user-attachments/assets/b1ee5ffa-c276-42bb-8531-c2537b6d1b8c)</br>
