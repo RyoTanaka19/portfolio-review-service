@@ -25,7 +25,7 @@ export default function Footer({ className = "" }) {
                             rel="noopener noreferrer"
                             className="hover:underline"
                         >
-                            使い方
+                            README(概要)・使い方
                         </a>
 
                         <Link href="/terms" className="hover:underline">
