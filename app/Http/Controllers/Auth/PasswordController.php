@@ -18,7 +18,11 @@ class PasswordController extends Controller
             // 入力値のバリデーション（日本語メッセージ指定）
             $validated = $request->validate([
                 'current_password' => ['required', 'current_password'], // 現在のパスワード確認
-                'password' => ['required', Password::defaults(), 'confirmed'], // 新しいパスワード確認
+                'password' => [
+                    'required',
+                    Password::min(6), // ←6文字以上に設定
+                    'confirmed'
+                ],
             ], [
                 'current_password.current_password' => '現在のパスワードが正しくありません。',
                 'current_password.required' => '現在のパスワードを入力してください。',

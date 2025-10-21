@@ -22,7 +22,7 @@ export default function Edit({ portfolio }) {
                     {/* 一覧に戻る */}
                     <div className="text-center mt-8">
                         <InertiaLink
-                            href="/portfolios"
+                            href={route("portfolios.index")}
                             className="inline-block px-6 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
                         >
                             一覧に戻る

@@ -16,13 +16,15 @@ class AutocompleteController extends Controller
                 return response()->json([]);
             }
 
+            // 同じ名前のユーザーは1件だけ取得
             $users = User::where('name', 'like', "%{$query}%")
-                ->limit(10) // 最大10件だけ返す
-                ->get(['id', 'name']);
+                ->select('id', 'name')
+                ->distinct('name') // name の重複を除外
+                ->limit(10)
+                ->get();
 
             return response()->json($users);
         } catch (\Exception $e) {
-            // エラー発生時は空配列を返す
             return response()->json([], 500);
         }
     }

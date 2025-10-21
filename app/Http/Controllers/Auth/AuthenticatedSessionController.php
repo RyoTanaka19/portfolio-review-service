@@ -27,29 +27,30 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-public function store(LoginRequest $request): RedirectResponse
-{
-    $request->authenticate();
+    public function store(LoginRequest $request): RedirectResponse
+    {
+        $request->authenticate();
 
-    $request->session()->regenerate();
+        $request->session()->regenerate();
 
-    // ログイン成功時にフラッシュメッセージを設定
- return redirect()
-    ->route('portfolios.index')
-    ->with('flash', ['success' => 'ログインしました']); 
-}
+        // ログイン成功時にフラッシュメッセージを設定
+        return redirect()
+            ->route('portfolios.index')
+            ->with('flash', ['success' => 'ログインしました']);
+    }
 
     /**
      * Destroy an authenticated session.
      */
-public function destroy(Request $request): RedirectResponse
-{
-    Auth::guard('web')->logout();
+    public function destroy(Request $request): RedirectResponse
+    {
+        Auth::guard('web')->logout();
 
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
-    // フラッシュメッセージを設定して Home にリダイレクト
-    return redirect('/')->with('flash', 'ログアウトしました');
-}
+        // フラッシュメッセージを設定して Home にリダイレクト
+        return redirect('/')
+            ->with('flash', 'ログアウトしました');
+    }
 }

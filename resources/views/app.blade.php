@@ -9,8 +9,8 @@
 
         <!-- OGP Tags -->
         <meta property="og:type" content="website">
-        <meta property="og:title" content="{{ $page['title'] ?? 'ポートフォリオ' }}">
-        <meta property="og:description" content="{{ $page['description'] ?? 'ポートフォリオ見てみよう!' }}">
+        <meta property="og:title" content="{{ $page['title'] ?? 'ポートフォリオレビューサービス' }}">
+        <meta property="og:description" content="{{ $page['description'] ?? 'ポートフォリオをレビューして、改善・向上させるサービスです!' }}">
         <meta property="og:url" content="{{ url()->current() }}">
         <meta property="og:image" content="{{ asset('images/ogp.png') }}"> <!-- デフォルトOGP画像 -->
 

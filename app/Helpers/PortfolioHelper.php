@@ -10,7 +10,9 @@ class PortfolioHelper
         try {
             // URLからHTMLを取得
             $response = Http::get($url);
-            if (!$response->ok()) return null;
+            if (!$response->ok()) {
+                return null;
+            }
 
             $html = $response->body();
 
@@ -25,20 +27,22 @@ class PortfolioHelper
         }
     }
 
-public static function mapPortfolio($portfolio, $authUserId = null)
-{
-    return [
-        'id' => $portfolio->id,
-        'title' => $portfolio->title,
-        'description' => $portfolio->description,
-        'service_url' => $portfolio->service_url,
-        'repository_url' => $portfolio->repository_url,
-        'image_url' => $portfolio->service_url ? self::getOgImage($portfolio->service_url) : null,
-        'tags' => $portfolio->tags->pluck('name')->toArray(),
-        'reviews' => $portfolio->reviews,
-        'user_id' => $portfolio->user ? $portfolio->user->id : null, // ← 追加
-        'user_name' => $portfolio->user ? $portfolio->user->name : null, // ← 追加
-        'is_bookmarked' => $portfolio->bookmarks->contains('user_id', $authUserId),
-    ];
-}
+    public static function mapPortfolio($portfolio, $authUserId = null)
+    {
+        return [
+            'id' => $portfolio->id,
+            'title' => $portfolio->title,
+            'description' => $portfolio->description,
+            'service_url' => $portfolio->service_url,
+            'repository_url' => $portfolio->repository_url,
+            'image_url' => $portfolio->service_url
+                ? self::getOgImage($portfolio->service_url)
+                : null,
+            'tags' => $portfolio->tags->pluck('name')->toArray(),
+            'reviews' => $portfolio->reviews,
+            'user_id' => $portfolio->user ? $portfolio->user->id : null,
+            'user_name' => $portfolio->user ? $portfolio->user->name : null,
+            'is_bookmarked' => $portfolio->bookmarks->contains('user_id', $authUserId),
+        ];
+    }
 }

@@ -7,18 +7,18 @@ export default function Footer({ className = "" }) {
 
     return (
         <div className={`border-t bg-white ${className}`}>
-            <div className="mx-auto max-w-6xl px-4 py-4">
+            <div className="mx-auto max-w-6xl px-4 py-6">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     {/* 左側: コピーライト */}
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-gray-500 text-center md:text-left">
                         {footer.company ??
                             "@PortfolioReview. All rights reserved."}{" "}
                         © {year}
                     </div>
 
                     {/* 右側: リンク */}
-                    <div className="flex items-center space-x-4 text-sm">
-                        {/* 追加: 使い方リンク */}
+                    <div className="flex flex-col sm:flex-row sm:flex-wrap items-center justify-center sm:justify-end gap-2 sm:gap-4 text-sm">
+                        {/* 使い方リンク */}
                         <a
                             href="https://github.com/RyoTanaka19/portfolio-review-service#readme"
                             target="_blank"
