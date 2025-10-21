@@ -46,8 +46,6 @@ Route::get('/autocomplete/users', [AutocompleteController::class, 'user']);
 Route::get('/terms', [StaticPagesController::class, 'terms'])->name('terms');
 Route::get('/privacy', [StaticPagesController::class, 'privacy'])->name('privacy');
 Route::get('/contact', [StaticPagesController::class, 'form'])->name('contact');
-Route::post('/contact', [StaticPagesController::class, 'submitContact'])->name('contact.send');
-
 
 /*
 |--------------------------------------------------------------------------

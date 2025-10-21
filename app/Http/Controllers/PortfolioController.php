@@ -33,19 +33,24 @@ class PortfolioController extends Controller
         ]);
     }
 
-    // 投稿検索
     public function search(Request $request)
     {
         $userId = auth()->id();
 
         $query = Portfolio::with(['tags', 'reviews.user', 'user', 'bookmarks']);
 
+        // ユーザー名で絞り込み（部分一致のまま）
         if ($request->filled('user_name')) {
-            $query->whereHas('user', fn($q) => $q->where('name', 'like', "%{$request->user_name}%"));
+            $query->whereHas('user', fn($q) =>
+                $q->where('name', 'like', "%{$request->user_name}%")
+            );
         }
 
+        // タグで絞り込み（完全一致）
         if ($request->filled('tag')) {
-            $query->whereHas('tags', fn($q) => $q->where('name', 'like', "%{$request->tag}%"));
+            $query->whereHas('tags', fn($q) =>
+                $q->where('name', $request->tag)
+            );
         }
 
         $portfolios = $query->paginate(10)
@@ -68,33 +73,33 @@ class PortfolioController extends Controller
     }
 
     // 投稿保存
- public function store(PortfolioRequest $request)
-{
-    $validated = $request->validated();
+    public function store(PortfolioRequest $request)
+    {
+        $validated = $request->validated();
 
-    $portfolio = Portfolio::create([
-        'user_id' => auth()->id(),
-        'title' => $validated['title'],
-        'description' => $validated['description'],
-        'service_url' => $validated['service_url'],
-        'repository_url' => $validated['repository_url'] ?? null,
-    ]);
+        $portfolio = Portfolio::create([
+            'user_id' => auth()->id(),
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'service_url' => $validated['service_url'],
+            'repository_url' => $validated['repository_url'] ?? null,
+        ]);
 
-    if (!empty($validated['tags'])) {
-        $tagIds = [];
-        foreach ($validated['tags'] as $tagName) {
-            $tag = Tag::firstOrCreate([
-                'name' => trim($tagName),
-                'type' => 'portfolio',
-            ]);
-            $tagIds[] = $tag->id;
+        if (!empty($validated['tags'])) {
+            $tagIds = [];
+            foreach ($validated['tags'] as $tagName) {
+                $tag = Tag::firstOrCreate([
+                    'name' => trim($tagName),
+                    'type' => 'portfolio',
+                ]);
+                $tagIds[] = $tag->id;
+            }
+            $portfolio->tags()->sync($tagIds);
         }
-        $portfolio->tags()->sync($tagIds);
-    }
 
-    return redirect()->route('portfolios.index')
-        ->with('flash', ['success' => 'ポートフォリオを作成しました']);
-}
+        return redirect()->route('portfolios.index')
+            ->with('flash', ['success' => 'ポートフォリオを作成しました']);
+    }
 
     // 投稿詳細の表示
     public function show(Portfolio $portfolio)
@@ -129,36 +134,36 @@ class PortfolioController extends Controller
     }
 
     // 投稿更新
-public function update(PortfolioRequest $request, Portfolio $portfolio)
-{
-    if ($portfolio->user_id !== auth()->id()) {
-        abort(403, 'Unauthorized action.');
-    }
-
-    $validated = $request->validated();
-
-    $portfolio->update([
-        'title' => $validated['title'],
-        'description' => $validated['description'],
-        'service_url' => $validated['service_url'],
-        'repository_url' => $validated['repository_url'] ?? null,
-    ]);
-
-    $tagIds = [];
-    if (!empty($validated['tags'])) {
-        foreach ($validated['tags'] as $tagName) {
-            $tag = Tag::firstOrCreate([
-                'name' => trim($tagName),
-                'type' => 'portfolio',
-            ]);
-            $tagIds[] = $tag->id;
+    public function update(PortfolioRequest $request, Portfolio $portfolio)
+    {
+        if ($portfolio->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
         }
-    }
-    $portfolio->tags()->sync($tagIds);
 
-    return redirect()->route('portfolios.index')
-        ->with('flash', ['success' => 'ポートフォリオを更新しました']);
-}
+        $validated = $request->validated();
+
+        $portfolio->update([
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'service_url' => $validated['service_url'],
+            'repository_url' => $validated['repository_url'] ?? null,
+        ]);
+
+        $tagIds = [];
+        if (!empty($validated['tags'])) {
+            foreach ($validated['tags'] as $tagName) {
+                $tag = Tag::firstOrCreate([
+                    'name' => trim($tagName),
+                    'type' => 'portfolio',
+                ]);
+                $tagIds[] = $tag->id;
+            }
+        }
+        $portfolio->tags()->sync($tagIds);
+
+        return redirect()->route('portfolios.index')
+            ->with('flash', ['success' => 'ポートフォリオを更新しました']);
+    }
 
     // 投稿削除
     public function destroy(Portfolio $portfolio)
@@ -166,7 +171,7 @@ public function update(PortfolioRequest $request, Portfolio $portfolio)
         if ($portfolio->user_id !== auth()->id()) {
             return response()->json([
                 'success' => false,
-                'error' => '権限がありません'
+                'error' => '権限がありません',
             ], 403);
         }
 

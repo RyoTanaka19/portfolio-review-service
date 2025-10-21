@@ -1,17 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import { Head, usePage, Link } from "@inertiajs/react";
 import AppLayout from "@/Layouts/AppLayout";
-import BookmarkButton from "@/Components/Bookmark/BookmarkButton";
-import FlashMessage from "@/Components/FlashMessage/FlashMessage";
 
 export default function Show() {
     const { props } = usePage();
     const { user, authUserId, portfolios = [], profileImageUrl } = props;
-
-    const [flashMessage, setFlashMessage] = useState({
-        message: null,
-        type: null,
-    });
 
     const isOwnProfile = authUserId === user.id;
 
@@ -19,15 +12,9 @@ export default function Show() {
         <AppLayout auth={{ user: { id: authUserId } }}>
             <Head title={`${user.name} のプロフィール`} />
 
-            <FlashMessage
-                message={flashMessage.message}
-                type={flashMessage.type}
-                onClose={() => setFlashMessage({ message: null, type: null })}
-            />
-
             {/* 全体の背景グレー */}
             <div className="bg-gray-100 min-h-screen py-10 flex flex-col items-center">
-                {/* プロフィールカードの周りにグレーの枠 */}
+                {/* プロフィールカード */}
                 <div className="w-full max-w-4xl p-6 bg-gray-100 rounded-2xl">
                     <div className="bg-white rounded-2xl shadow-md p-6 flex flex-col items-center gap-6">
                         {/* プロフィール画像 */}
@@ -45,6 +32,7 @@ export default function Show() {
                             )}
                         </div>
 
+                        {/* ユーザー情報 */}
                         <div className="flex flex-col items-center text-center">
                             <h1 className="text-3xl font-bold mb-2">
                                 {user.name}
@@ -73,6 +61,7 @@ export default function Show() {
                                 </span>
                             </p>
 
+                            {/* ユーザータグ */}
                             {user.tags?.length > 0 && (
                                 <div className="mt-3 flex flex-wrap justify-center gap-2">
                                     {user.tags.map((tag, idx) => (
@@ -100,6 +89,7 @@ export default function Show() {
                             ? "あなたの投稿したポートフォリオ"
                             : `${user.name} さんの投稿したポートフォリオ`}
                     </h2>
+
                     {portfolios.length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                             {portfolios.map((p) => (
@@ -146,23 +136,6 @@ export default function Show() {
                                                         {tag.name}
                                                     </span>
                                                 ))}
-                                            </div>
-                                        )}
-
-                                        {isOwnProfile && (
-                                            <div className="mt-3">
-                                                <BookmarkButton
-                                                    portfolioId={p.id}
-                                                    initialBookmarked={
-                                                        p.is_bookmarked || false
-                                                    }
-                                                    onToggle={(_, msg) =>
-                                                        setFlashMessage({
-                                                            message: msg,
-                                                            type: "success",
-                                                        })
-                                                    }
-                                                />
                                             </div>
                                         )}
                                     </div>
