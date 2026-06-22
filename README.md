@@ -1,5 +1,4 @@
 # ポートフォリオレビューサービス
-## 🔗[ポートフォリオレビューサービス](https://portfolio-review-service-main-u0o6i0.laravel.cloud/)
 ## 
 ![ogp](https://github.com/user-attachments/assets/ccbf9d39-73c8-4a54-8ad7-e3a5053b1469)
 
